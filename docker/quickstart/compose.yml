@@ -1,0 +1,40 @@
+services:
+  copyparty:
+    image: ${COPYPARTY_IMAGE:-copyparty/ac:latest}
+    container_name: copyparty
+    restart: unless-stopped
+    ports:
+      - "${COPYPARTY_PORT:-3923}:3923"
+    environment:
+      # override in an .env file or directly in the shell:
+      #   PRTY_ADMIN_PASSWORD=supersecret docker compose ...
+      PRTY_ADMIN_PASSWORD: ${PRTY_ADMIN_PASSWORD:-changeme}
+    volumes:
+      - ./data:/w
+      - ./cfg:/cfg
+      # mount only the themed CSS to avoid JS/version mismatches
+      - type: bind
+        source: ../../copyparty/web/ui.css
+        target: /usr/lib/python3.12/site-packages/copyparty/web/ui.css
+        read_only: true
+      - type: bind
+        source: ../../copyparty/web/browser.css
+        target: /usr/lib/python3.12/site-packages/copyparty/web/browser.css
+        read_only: true
+      - type: bind
+        source: ../../copyparty/web/browser.html
+        target: /usr/lib/python3.12/site-packages/copyparty/web/browser.html
+        read_only: true
+    command:
+      - "-v"
+      - "/w::rw,admin"
+      - "-a"
+      - "admin:${PRTY_ADMIN_PASSWORD:-changeme}"
+      - "--hist"
+      - "/cfg/hists"
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider -q 127.0.0.1:3923/?reset=/._"]
+      interval: 1m
+      timeout: 2s
+      retries: 5
+      start_period: 15s

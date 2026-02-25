@@ -172,6 +172,7 @@ just run **[copyparty-sfx.py](https://github.com/9001/copyparty/releases/latest/
   * ...maybe [prisonparty](./bin/prisonparty.sh) to create a tiny [chroot](https://wiki.archlinux.org/title/Chroot) (very portable),
   * ...or [bubbleparty](./bin/bubbleparty.sh) to wrap it in [bubblewrap](https://github.com/containers/bubblewrap) (much better)
 * or if you prefer to [use docker](./scripts/docker/) 🐋 you can do that too
+  * fastest start: `docker compose -f docker/quickstart/compose.yml up -d` (data lives in `./docker/quickstart/data/`; default login `admin/changeme`, override with `PRTY_ADMIN_PASSWORD=...`)
   * docker has all deps built-in, so skip this step:
 
 enable thumbnails (images/audio/video), media indexing, and audio transcoding by installing some recommended deps:
@@ -3233,4 +3234,3 @@ for build instructions etc, see [./docs/devnotes.md](./docs/devnotes.md)
 specifically you may want to [build the sfx](https://github.com/9001/copyparty/blob/hovudstraum/docs/devnotes.md#just-the-sfx) or [build from scratch](https://github.com/9001/copyparty/blob/hovudstraum/docs/devnotes.md#build-from-scratch)
 
 see [./docs/TODO.md](./docs/TODO.md) for planned features / fixes / changes
-

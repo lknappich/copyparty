@@ -40,6 +40,9 @@ up.*.txt
 scripts/docker/*.out
 scripts/docker/*.err
 /perf.*
+docker/quickstart/data/**
+!docker/quickstart/data/.gitkeep
+docker/quickstart/cfg/hists/**
 
 # nix build output link
 result
