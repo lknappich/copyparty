@@ -1,4 +1,296 @@
 ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀  
+# 2026-0424-2222  `v1.20.14`  autolocalization
+
+## 🧪 new features
+
+* #1410 #376 #1224 new option `--glang` to autoselect UI-translation based on webbrowser's language (thx @stackxp!) ec3e0e7e
+* #1407 #1384 option to automatically switch between list-view and grid-view depending on folder contents (thx @icxes!) 822fa718 660ed7a9 961a2737
+* #1447 audioplayer can now play bcstm / bfstm / brstm files (nintendo 3ds/wii bgm) 3a9ff67a 
+* #1389 add 1000-based filesize-units in addition to 1024-based 43773f2c
+* #1395 [reloc-by-wark](https://github.com/9001/copyparty/tree/hovudstraum/bin/hooks#more-upload-stuff), a pair of hooks to rename incoming uploads to a hash of the file contents 1e7de5d1
+* option [--rlo](https://copyparty.eu/cli/#rlo-help-page) to change the logrotate-counter for [-lo](https://copyparty.eu/cli/#g-lo) 8b986888
+* add `--certkey` to specify certificate and key as separate files 8c7cdf85
+  * but the built-in HTTPS server should [still not be trusted](https://github.com/9001/copyparty/#https)
+* config-files can now use OS environment-variables anywhere in the `[global]` config section cbd82b65 e52bbed8
+  * by default, only the syntax `${VAR}` is supported, not `$VAR` or `%VAR%`
+  * previously, a small handful of global-options already supported this (`c lo hist dbpath ssl_log`), but they also supported the `$VAR` syntax, which is no longer the case
+  * if the old `$VAR` syntax is detected, copyparty will crash on startup, suggesting the following remedies (choose one!) in the log:
+    1. update the config-value to the new `${VAR}` syntax (recommended)
+    2. allow the old syntax with global-option `--env-expand 1` (risky)
+    3. ignore the old syntax and only expand the new syntax with global-option `--env-expand 2`
+    4. disable all environment-variable expansions with `PRTY_NO_ENVEXPAND=1`
+
+## 🩹 bugfixes
+
+* #1437 webdav clients can now PROPFIND a file with `depth: infinite` which at least [webdav4](https://github.com/skshetry/webdav4) does e00f2b46
+* #1392 navigating into a subfolder using a `dks` [dirkey](https://github.com/9001/copyparty/#dirkeys) (default-disabled) could fail 228c3dfa
+* #1446 #1330 #1362 fix some small edgecases with the rightclick-menu (thx @icxes!) 874e0e7a
+* #1403 #1396 audioplayer: fix ui-crash when folder contains an m3u-file and sort-order is changed during playback (thx @icxes!) 198f631a
+* #1428 #1427 when `--magic` was enabled, nameless uploads of textfiles would get the file-extension `.ssa` instead of `.txt` (thx @Scotsguy!) ed516ddc
+* #1449 on some filesystems, the tail/follow function would spam the log with `reopened at byte XXX` 81730189
+* #1401 on windows, a spec-violating basic-upload could delay that upload by a few seconds 6fb1287e
+* on macOS, u2c would clear the terminal on exit, even with `-ns` 238887c7
+* audio-files in a videofile trenchcoat did not thumbnail correctly 1066dc39
+
+## 🔧 other changes
+
+* #1387 added gentoo packaging (thx @mid-kid!) fb5384f4
+* #1425 improved FreeBSD / OpenBSD support (thx @chilledfrogs!) f5613187 745d82fa
+* #1352 new handler: [fail2ban](https://github.com/9001/copyparty/blob/hovudstraum/bin/handlers/404-to-fail2ban.py) (thx @Lomaiin!) 26e663d1
+* improve errormessage when the server's OS-HDD blips out of existence d1517d0c
+* #1439 improve IPv6 autoban IP-range (thx @SnowSquire!) f6dc1e29
+* ensure opus transcodes will at most have 2 audio channels (stereo) b31f2902
+* #1417 smb-server: probably add IPv6 support a5d859d2
+* `--list-nics` and `--list-ips` to show autodetected network-adapters and IPs 8d4363d1
+* docs:
+  * nixos module-override example (thx @Scotsguy!) 0b16e875
+  * make it even more obvious that `--allow-csrf` is a bad idea 9a724b01
+  * mention `--urlform get` to disable message-to-serverlog ac05b4f1
+  * readme: improve [shadowing](https://github.com/9001/copyparty#shadowing) phrasing 003c68d0
+  * [devnotes](https://github.com/9001/copyparty/blob/hovudstraum/docs/devnotes.md#dependencies): explain the vendored dependencies 971f8ef9
+
+## 🌠 fun facts
+
+* this release includes [code](https://github.com/9001/copyparty/commit/cbd82b65) written at [abs(unit)](https://a.ocv.me/pub/g/nerd-stuff/abs-unit.jpg)
+  * btw that pdp had an IPv6 lease and browsed the internet :^)
+    * hasn't connected to copyparty though (yet...)
+* this release was powered by [一体いつから (TaKo Hardcore bootleg)](https://soundcloud.com/takomusiccc/tako-hardcore-bootleg) followed by [Fighting My Way (YUPPUN Hardcore Remix)](https://soundcloud.com/yuppun/fightingmyway) (shd is a good dj)
+
+
+
+▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀  
+# 2026-0323-0328  `v1.20.13`  dothidden
+
+## 🧪 new features
+
+* #1351 add [.hidden](https://github.com/9001/copyparty/#dothidden) support (thx @NecRaul!) beb634dc 134e378e
+  * cosmetic filter to exclude specific files from directory listings by adding their filenames to a textfile named `.hidden` similar to many linux desktop file managers
+  * the files are still easily available from various APIs; this is **not** a security feature, just a way to keep things neat and tidy
+* #1381 thumbnail pregeneration 7d6b037d
+  * usually/generally not a good idea; [readme explains it](https://github.com/9001/copyparty/#thumbnail-pregen)
+* shares: now possible to grant the `.` permission to see dotfiles 66f9c950
+
+## 🩹 bugfixes
+
+* #1372 #1333 no thumbnails if the server OS was too old to have JXL support and the webbrowser was asking for JXL 1afe48b8
+* #1363 new-version alert would only appear if the visitor had the Admin permission in the webroot specifically; now `A` in any volume is sufficient 6eb4f0ad
+* 66f1ef63 should have blocked mkdir too and now it does (thx @restriction!) ac60a1da
+* setting the `nohtml` or `noscript` volflags on the webroot would break the web-UI eb028c92
+* shares: the [-ed](https://copyparty.eu/cli/#g-ed) global-option did not make dotfiles visible in shares 66f9c950
+  * the `dots` volflag still doesn't, but that one is intentional
+
+## 🔧 other changes
+
+* tried to stop libvips from gobbling up ram while creating jxl thumbnails; didn't really work abdbd69a
+  * jxl support in libvips is now default-disabled unless the libc is musl and the allocator is mallocng, which means alpine linux
+    * in other words, libvips is still fully enabled in the `iv` and `dj` docker images if you do not enable mimalloc
+  * all other deployments will now have slightly slower jxl thumbnail generation by using ffmpeg instead (it's fine really)
+    * new global-option [--th-vips-jxl](https://copyparty.eu/cli/#g-th-vips-jxl) lets you force-enable it if you dare
+* volflags `nohtml` and `noscript` now available as global-options `--no-html` and `--no-script` 5f3b76c8
+  * and the `-ss` paranoia option now also enables `--no-html --no-readme --no-logues`
+* [--flo 2](https://copyparty.eu/cli/#g-flo) now removes colors from logfiles even if [-q](https://copyparty.eu/cli/#g-q) is not set 8c6d8a3c
+* update dompurify to 3.3.3 6a9e6da8
+* docs:
+  * #1360 versus.md: more readable headers (thx @eugenesvk!) e71e1900
+  * #1367 mention [--shr-who](https://copyparty.eu/cli/#g-shr-who) in the readme (thx @TWhiteShadow!) 4688410f
+
+## 🌠 fun facts
+
+* it is easter soon edc20175
+
+
+
+▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀  
+# 2026-0311-0042  `v1.20.12`  fix shares in ftp/sftp
+
+## ⚠️ ATTN: this release fixes an ftp/sftp issue with shares
+
+* [GHSA-67rw-2x62-mqqm](https://github.com/9001/copyparty/security/advisories/GHSA-67rw-2x62-mqqm): when a share is created for just one or more files inside a folder, it was possible to use FTP or SFTP to access the other files inside that folder by guessing the filenames
+  * so ignore this issue if you did not enable [ftp](https://copyparty.eu/cli/#g-ftp) or [sftp](https://copyparty.eu/cli/#g-sftp) in the server config
+* it was not possible to descend into subdirectories in this manner; only the sibling files were accessible
+* NOTE: this does NOT affect filekeys; this is specifically regarding the [shr](https://copyparty.eu/cli/#g-shr) global-option
+* password-protected shares were not affected through SFTP, only FTP
+
+this release also fixes [GHSA-rcp6-88mm-9vgf](https://github.com/9001/copyparty/security/advisories/GHSA-rcp6-88mm-9vgf) but that one is nothing to worry about
+
+## 🧪 new features
+
+* features? in this econonmy?? ain't nobody got time for that
+
+## 🩹 bugfixes
+
+* 66f1ef63547a8c5f45dc2472801d2a973ff997cc [GHSA-67rw-2x62-mqqm](https://github.com/9001/copyparty/security/advisories/GHSA-67rw-2x62-mqqm) (shares)
+* 9f9d30f42c89d1d5fc79ae745f136a9d5f857192 [GHSA-rcp6-88mm-9vgf](https://github.com/9001/copyparty/security/advisories/GHSA-rcp6-88mm-9vgf) (the other thing)
+
+## 🌠 fun facts
+
+* the [first cve](https://github.com/9001/copyparty/security/advisories/GHSA-pxfv-7rr3-2qjg) is still by far the worst, none of the others even close... so at least that's nice
+  * if you saw the cve notification and got all worked up, here's some [comfy music to relax and upgrade copyparty to](https://www.youtube.com/watch?v=A4zlH2mzMHw&list=PLRKwPvvniAjauumQljdrWAImRQGF3mCRU&index=1)
+
+
+
+▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀  
+# 2026-0308-2106  `v1.20.11`  what? nohtml is evolving!
+
+## ⚠️ ATTN: this release fixes a vulnerability
+
+[GHSA-m6hv-x64c-27mm](https://github.com/9001/copyparty/security/advisories/GHSA-m6hv-x64c-27mm) the `nohtml` volflag did not prevent javascript inside SVG images from executing -- a malicious user with write-access could upload an SVG file which would execute as javascript when someone opens it 1c9f894e
+
+## 🧪 new features
+
+* version-checker (thx @icxes!) c6965f06
+  * default-disabled; you must [choose a URL](https://github.com/9001/copyparty/#version-checker) to grab security advisories from to enable it
+  * periodically checks the security advisories and shows a warning in the controlpanel if you're running a vulnerable version
+  * can optionally panic and shutdown the server if you prefer that
+  * man, the timing on this though... absolute cinema
+
+## 🩹 bugfixes
+
+* fix `nohtml` not being aware that SVG images can execute javascript 1c9f894e
+  * a new volflag [noscript](https://github.com/9001/copyparty/#security) was also added; `nohtml` will automatically enable `noscript`, but `noscript` can also be useful on its own; see readme
+* various [upload rules](https://github.com/9001/copyparty/#upload-rules) fixes:
+  * #1335 `rotf` couldn't handle trailing slash (thx @NecRaul!) 8e20506d
+  * #1337 `rotn` didn't always count correctly (thx @NecRaul!) 23d4a62e
+  * `rotn` didn't apply to dupes 00e821db
+* combining [rp-loc](https://copyparty.eu/cli/#g-rp-loc) and [site](https://copyparty.eu/cli/#g-site) was a bit jank (thx @new-sashok724!) 31b23843
+* global-option [idp-store: 2](https://copyparty.eu/cli/#g-idp-store) would result in excessive config reloading 1272de9d
+* fix fd-leak when indexing certain compressed files, including epub books 8b5ac23e
+* [forget-ip](https://copyparty.eu/cli/#g-forget-ip): fix sqlite cursor-locking 37123e33
+
+## 🔧 other changes
+
+* #1316 Chinese translation got a huge makeover (thx @satgo1546 and @lxdlam!) b0152741
+* #1324 better rclone advice on the connect-page 8941701a
+* static website resources, previously served from `/.cpr/` have moved to `/.cpr/w/` for easier configuration of allowlists in reverseproxies and authentication middlewares 753ff548 
+
+## 🌠 fun facts
+
+* according to [the SVG spec](https://www.w3.org/TR/SVG11/script.html), images being able to execute javascript is a feature and intentional behavior... what a concept!
+
+
+
+▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀  
+# 2026-0225-1533  `v1.20.10`  fix login (ﾉ ﾟヮﾟ)ﾉ ~┻━┻
+
+## recent important news
+
+* [v1.20.9 (2025-02-25)](https://github.com/9001/copyparty/releases/tag/v1.20.9) fixed [CVE-2026-27948](https://github.com/9001/copyparty/security/advisories/GHSA-62cr-6wp5-q43h) (XSS)
+
+## 🩹 bugfixes
+
+* #1311 fix login (broke in v1.20.9) ecdfd2d1
+
+## 🔧 other changes
+
+* warn that config-reload doesn't do global-options a29037a0
+
+## 🌠 fun facts
+
+* rushing out a cve-fix in the wee hours of the morning before the 9-5 is a great idea that never goes wrong
+  * 10/10 will probably do again
+
+
+
+▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀  
+# 2026-0225-0834  `v1.20.9`  SECURITY: XSS fix
+
+## ⚠️ ATTN: this release fixes an XSS vulnerability
+
+[GHSA-62cr-6wp5-q43h](https://github.com/9001/copyparty/security/advisories/GHSA-62cr-6wp5-q43h) could let an attacker execute arbitrary JS by tricking you into clicking a malicious link 31b2801f
+
+## 🔧 other changes
+
+* webdav: [dav-port](https://copyparty.eu/cli/#g-dav-port) can be used as an alternative to [daw](https://copyparty.eu/cli/#g-daw) d21242fc
+
+
+
+▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀  
+# 2026-0222-1507  `v1.20.8`  no265
+
+## 🧪 new features
+
+* #1298 add Hungarian translation (thx @sonacl!) eefb181b f37c3b96
+* #1299 chown now accepts 4-digit values (thx @new-sashok724!) 5a7504fd
+
+## 🩹 bugfixes
+
+* audioplayer skip-silence:
+  * #1303 clamp ffwd to safe values (thx @icxes!) f5e70c7f
+  * fix crash on folderchange f1a433a6
+
+## 🔧 other changes
+
+* due to [legal reasons](https://github.com/9001/copyparty/blob/hovudstraum/docs/bad-codecs.md), the [docker-images](https://github.com/9001/copyparty/blob/hovudstraum/scripts/docker) and [bootable flashdrive](https://a.ocv.me/pub/stuff/edcd001/enterprise-edition/) are now unable to create thumbnails of HEVC/h265 videos and heif/heic images 1bec91d1
+  * this primarily means photos/videos taken with iphones (and maybe some samsung phones)
+  * on the bright side, this has made the docker-images much smaller; `ac` is now half the size it used to be, and `iv` / `dj` are each 97 MiB smaller
+
+## 🌠 fun facts
+
+* if you wanna see your car doing its best impression of a frictionless spherical cow, I can warmly (heh) recommend the icy snowcoated countryroads of viken this weekend
+  * goes oddly well with [sakuraburst - deconstructing nature](https://www.youtube.com/watch?v=MJjO-pwYpJg)
+
+
+
+▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀  
+# 2026-0214-2315  `v1.20.7`  fika
+
+## 🧪 new features
+
+* now possible to upload/delete files while the filesystem-indexer is still busy d44ea245 0ca4c1bd
+  * global-option [fika](https://copyparty.eu/cli/#g-fika) decides which actions to allow while still indexing; default is upload+copy+delete
+  * full deduplication is only guaranteed if this option is set blank, as dupes are allowed while indexing
+* #1266 browsers can request thumbnails as jxl images, and view jxl files in the gallery (thx @intelfx!) b2711e05 720c83b2 93ffc65c a65a30b1 a7a25deb 59de5e2c 16403d8c 48c10178 0e8913c2
+  * only works in browsers which support jxl, which is FINALLY happening ([sure took a while](https://issues.chromium.org/issues/40168998))
+  * some notes on memory/RAM usage though -- it is fine on Alpine Linux, so docker is also fine, just don't enable mimalloc
+    * jxl can be disabled with global-option [th-no-jxl](https://copyparty.eu/cli/#g-th-no-jxl) if necessary on baremetal deployments until libvips fixes this
+* #1265 audioplayer can "skip silence" now (thx @icxes!) 66949989
+* #1287 opensearch support for opds (thx @philips!) 84e687a0
+* #1276 option [rw-edit](https://copyparty.eu/cli/#g-rw-edit) is the list of file-extensions that can be edited as textfiles with only permissions read+write (default is `md` like before); all other files still require read+write+delete 312f48e1 d6928380
+* #1288 option to customize the links copied when selecting files and pressing ctrl-c (thx @icxes!) e5d0a057
+* docker: add env-var [DI_PREPARTY](https://github.com/9001/copyparty/blob/hovudstraum/scripts/docker/devnotes.md#modding-on-the-fly) to run an arbitrary script during startup, for customizations and such bf01ca48
+
+## 🩹 bugfixes
+
+* #1279 the textfile-viewer would refuse to load huge documents when hotlinked f02e9cf6
+* #1280 the custom rightclick-menu was enabled in the textfile viewer fc8a4b8e
+* #1262 logtail now works on windows; would previously take an exclusive-lock on the monitored file, as windows does by default a368fc66
+
+## 🔧 other changes
+
+* volumes are hidden from the treeview if the name starts with a dot 76041fdb
+* #1277 `descript.ion` files no longer require the `e2d` and `e2t` options to be enabled 4cb4e820
+* chunked PUT-uploads are now terminated if they exceed a configured size limit dfadb5a7
+* #1282 improved compatibility with GraalPy (thx @vgskye!) e8609b87
+* #1292 #1296 updated Esperanto translation (thx @slashdevslashurandom!) 418bf2f9 914f84ce
+* thumbnails: use libvips as fallback for rawpy 27ae2e1e
+  * libvips doesn't support .arw files (sony) yet, so still need rawpy
+* make server config slightly easier:
+  * improve xff warnings 96aeb898
+  * warn if config-values are quoted 598df44e
+  * lowercase headernames in configs fd096385
+
+## 🌠 fun facts
+
+* the `fika` option sends the filesystem-indexer on [a coffee break](https://en.wikipedia.org/wiki/Coffee_in_Sweden#Fika)
+* exci wants me to mention aoi yuuki here for some reason :^) so here's [gekisou gungnir](https://www.youtube.com/watch?v=feeFscLH6QE)
+
+
+
+▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀  
+# 2026-0131-2001  `v1.20.6`  one safeguard too many
+
+## 🧪 new features
+
+* #1264 now possible to grant the `get` permission when creating a share 95b827f1
+  * the button was already there, but until now it did nothing
+
+## 🩹 bugfixes
+
+* a safeguard (24141b49) added in [v1.20.5](https://github.com/9001/copyparty/releases/tag/v1.20.5) was too strict and would block requests from certain reverseproxies, specifically anything that adds `X-Forwarded-HTTP-Version` 72224d29
+
+
+
+▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀  
 # 2026-0130-2145  `v1.20.5`  fast again
 
 <img src="https://github.com/9001/copyparty/raw/hovudstraum/docs/logo.svg" width="250" align="right"/>

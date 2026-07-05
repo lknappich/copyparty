@@ -28,7 +28,7 @@ window.baguetteBox = (function () {
             onChange: null,
             readDirRtl: false,
         },
-        overlay, slider, btnPrev, btnNext, btnHelp, btnAnim, btnRotL, btnRotR, btnSel, btnFull, btnZoom, btnVmode, btnReadDir, btnClose,
+        overlay, slider, btnPrev, btnNext, btnHelp, btnAnim, btnRotL, btnRotR, btnSel, btnFull, btnZoom, btnVmode, btnReadDir, btnGoPage, btnClose,
         currentGallery = [],
         currentIndex = 0,
         isOverlayVisible = false,
@@ -36,15 +36,17 @@ window.baguetteBox = (function () {
         touchFlag = false,  // busy
         scrollCSS = ['', ''],
         scrollTimer = 0,
-        re_i = /^[^?]+\.(a?png|avif|bmp|gif|heif|jfif|jpe?g|jxl|svg|tiff?|webp)(\?|$)/i,
+        re_i = APPLE ?
+            /^[^?]+\.(a?png|avif|bmp|gif|hei[cf]s?|jfif|jpe?g|jxl|svg|tiff?|webp)(\?|$)/i :
+            /^[^?]+\.(a?png|avif|bmp|gif|jfif|jpe?g|jxl|svg|tiff?|webp)(\?|$)/i,
         re_v = /^[^?]+\.(webm|mkv|mp4|m4v|mov)(\?|$)/i,
         re_cbz = /^[^?]+\.(cbz)(\?|$)/i,
-        cbz_pics = ["png", "jpg", "jpeg", "gif", "bmp", "tga", "tif", "tiff", "webp", "avif"],
         anims = ['slideIn', 'fadeIn', 'none'],
         data = {},  // all galleries
         imagesElements = [],
         documentLastFocus = null,
         isFullscreen = false,
+        isCbz = false,
         vmute = false,
         vloop = sread('vmode') == 'L',
         vnext = sread('vmode') == 'C',
@@ -136,6 +138,9 @@ window.baguetteBox = (function () {
     };
 
     var trapFocusInsideOverlay = function (e) {
+        if (modal.busy)
+            return;
+
         if (overlay.style.display === 'block' && (overlay.contains && !overlay.contains(e.target))) {
             e.stopPropagation();
             btnClose.focus();
@@ -195,6 +200,16 @@ window.baguetteBox = (function () {
         return [selectorData.galleries, options];
     }
 
+    function getCbzPage() {
+        try {
+            var ret = parseInt(/,p([0-9]+)(,|$)/.exec(location.hash)[1]);
+            if (isNum(ret))
+                return Math.max(Math.min(ret, currentGallery.length), 1) - 1;
+        }
+        catch (ex) { }
+        return 0;
+    }
+
     function bindCbzClickListeners(tagsNodeList, userOptions) {
         var cbzNodes = [].filter.call(tagsNodeList, function (element) {
             return re_cbz.test(element.href);
@@ -211,10 +226,9 @@ window.baguetteBox = (function () {
 
                 e.preventDefault ? e.preventDefault() : e.returnValue = false;
                 fillCbzGallery(gallery, cbzElement, eventHandler).then(function () {
-                        prepareOverlay(gallery, userOptions);
-                        showOverlay(0);
-                    }
-                ).catch(function (reason) {
+                    prepareOverlay(gallery, userOptions, true);
+                    showOverlay(getCbzPage());
+                }).catch(function (reason) {
                     console.error("cbz-ded", reason);
                     var t;
                     try {
@@ -251,8 +265,7 @@ window.baguetteBox = (function () {
                 var imagesList = fileList.map(function (file) {
                     return file["fn"];
                 }).filter(function (file) {
-                    return file.indexOf(".") !== -1
-                        && cbz_pics.indexOf(file.split(".").pop()) !== -1;
+                    return re_i.test(file);
                 }).sort();
 
                 if (imagesList.length === 0) {
@@ -269,6 +282,7 @@ window.baguetteBox = (function () {
                         href: imageHref,
                         imageElement: cbzElement,
                         eventHandler: eventHandler,
+                        page: index + 1,
                     };
                     gallery.push(galleryItem);
                 });
@@ -317,6 +331,7 @@ window.baguetteBox = (function () {
                 '<button id="bbox-full" type="button" tt="full-screen">⛶</button>' +
                 '<button id="bbzoom" type="button" tt="zoom/stretch">z</button>' +
                 '<button id="bbox-vmode" type="button" tt="a"></button>' +
+                '<button id="bbox-gopage" type="button" tt="go to page">pg</button>' +
                 '<button id="bbox-close" type="button" aria-label="Close">X</button>' +
                 '</div></div>'
             );
@@ -336,6 +351,7 @@ window.baguetteBox = (function () {
         btnFull = ebi('bbox-full');
         btnZoom = ebi('bbzoom');
         btnVmode = ebi('bbox-vmode');
+        btnGoPage = ebi('bbox-gopage');
         btnClose = ebi('bbox-close');
 
         bcfg_bind(options, 'bbzoom', 'bbzoom', false, setzoom);
@@ -357,6 +373,7 @@ window.baguetteBox = (function () {
             ['F', 'toggle fullscreen'],
             ['Z', 'toggle zoom/stretch'],
             ['S', 'toggle file selection'],
+            ['G', 'cbz: go to page'],
             ['space, P, K', 'video: play / pause'],
             ['U', 'video: seek 10sec back'],
             ['O', 'video: seek 10sec ahead'],
@@ -420,7 +437,7 @@ window.baguetteBox = (function () {
             playpause();
         else if (kl == "u" || kl == "o")
             relseek(kl == "u" ? -10 : 10);
-        else if (v && /^[0-9]$/.test(k))
+        else if (v && /^[0-9]$/.test(k) && isNum(v.duration))
             v.currentTime = v.duration * parseInt(k) * 0.1;
         else if (kl == "m" && v) {
             v.muted = vmute = !vmute;
@@ -442,6 +459,8 @@ window.baguetteBox = (function () {
             btnZoom.click();
         else if (kl == "s")
             tglsel();
+        else if (kl == "g" && isCbz)
+            gotoCbzPage(e);
         else if (kl == "r")
             rotn(e.shiftKey ? -1 : 1);
         else if (kl == "y")
@@ -505,6 +524,24 @@ window.baguetteBox = (function () {
         v.loop = vloop
         if (vloop && v.paused)
             v.play();
+    }
+
+    function gotoCbzPage(e) {
+        ev(e);
+
+        var cur = currentIndex + 1,
+            max = currentGallery.length;
+
+        modal.prompt('Go to page (1-' + max + ')', '' + cur, function (v) {
+            if (!v)
+                return;
+
+            v = parseInt(v);
+            if (!isNum(v))
+                return toast.warn(4, 'invalid input');
+
+            show(Math.max(Math.min(v, max), 1) - 1);
+        });
     }
 
     function tglVmode() {
@@ -636,6 +673,7 @@ window.baguetteBox = (function () {
         bind(btnRotR, 'click', rotr);
         bind(btnSel, 'click', tglsel);
         bind(btnFull, 'click', tglfull);
+        bind(btnGoPage, 'click', gotoCbzPage);
         bind(slider, 'contextmenu', contextmenuHandler);
         bind(overlay, 'touchstart', touchstartHandler, nonPassiveEvent);
         bind(overlay, 'touchmove', touchmoveHandler, passiveEvent);
@@ -660,6 +698,7 @@ window.baguetteBox = (function () {
         unbind(btnRotR, 'click', rotr);
         unbind(btnSel, 'click', tglsel);
         unbind(btnFull, 'click', tglfull);
+        unbind(btnGoPage, 'click', gotoCbzPage);
         unbind(slider, 'contextmenu', contextmenuHandler);
         unbind(overlay, 'touchstart', touchstartHandler, nonPassiveEvent);
         unbind(overlay, 'touchmove', touchmoveHandler, passiveEvent);
@@ -668,9 +707,12 @@ window.baguetteBox = (function () {
         timer.rm(rotn);
     }
 
-    function prepareOverlay(gallery, userOptions) {
+    function prepareOverlay(gallery, userOptions, cbz) {
         if (currentGallery === gallery)
             return;
+
+        isCbz = cbz;
+        btnGoPage.style.display = isCbz ? '' : 'none';
 
         currentGallery = gallery;
         setOptions(userOptions);
@@ -1176,8 +1218,11 @@ window.baguetteBox = (function () {
     }
 
     function relseek(sec) {
-        if (vid())
-            vid().currentTime += sec;
+        var v = vid(),
+            t = v && v.currentTime;
+
+        if (isNum(t))
+            v.currentTime = t + sec;
     }
 
     function vidEnd() {

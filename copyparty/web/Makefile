@@ -6,6 +6,11 @@ pk: $(addsuffix .gz, $(wildcard tl/*.js *.js *.css) \
 	a/webdav-cfg.txt )
 un: $(addsuffix .un, $(wildcard tl/*.gz *.gz a/*.gz))
 
+tl/%.js.gz: tl/%.js
+	./Makefile.s1 <$< | pigz -c11 -J 34 -I 573 >$@
+	touch -r $< $@
+	rm $<
+
 %.gz: %
 	pigz -c11 -J 34 -I 573 <$< >$@
 	touch -r $< $@

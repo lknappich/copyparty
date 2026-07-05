@@ -117,7 +117,7 @@ Ls.pol = {
 	"login": "Zaloguj się", //m
 	"access": " dostęp",
 	"ot_close": "zamknij pod-menu",
-	"ot_search": "szukaj plików po atrybutach, ścieżce / nazwie, tagach muzyki, bądź dowolnej ich kombinacji$N$N&lt;code&gt;foo bar&lt;/code&gt; = musi zawierać «foo» oraz «bar»,$N&lt;code&gt;foo -bar&lt;/code&gt; = musi zawierać «foo», lecz nie «bar»,$N&lt;code&gt;^yana .opus$&lt;/code&gt; = musi zaczynać się od «yana» i być plikiem «opus»$N&lt;code&gt;&quot;try unite&quot;&lt;/code&gt; = zawierać dokładnie «try unite»$N$Nformatem daty jest iso-8601, czyli$N&lt;code&gt;2009-12-31&lt;/code&gt; lub &lt;code&gt;2020-09-12 23:30:00&lt;/code&gt;",
+	"ot_search": "`szukaj plików po atrybutach, ścieżce / nazwie, tagach muzyki, bądź dowolnej ich kombinacji$N$N`foo bar` = musi zawierać «foo» oraz «bar»,$N`foo -bar` = musi zawierać «foo», lecz nie «bar»,$N`^yana .opus$` = musi zaczynać się od «yana» i być plikiem «opus»$N`&quot;try unite&quot;` = zawierać dokładnie «try unite»$N$Nformatem daty jest iso-8601, czyli$N`2009-12-31` lub `2020-09-12 23:30:00`",
 	"ot_unpost": "unpost: usuń ostatnio przesłane pliki lub przerwij przesyłanie",
 	"ot_bup": "bup: podstawowe przesyłanie danych, wspiera nawet netscape 4.0",
 	"ot_mkdir": "mkdir: tworzy nowy folder",
@@ -224,6 +224,7 @@ Ls.pol = {
 	"cl_hpick": "kliknij nagłówki kolumn, aby ukryć je w tabeli niżej",
 	"cl_hcancel": "ukrywanie kolumn przerwane",
 	"cl_rcm": "menu kontekstowe", //m
+	"cl_gauto": "auto田", //m
 
 	"ct_grid": '田 siatka',
 	"ct_ttips": '◔ ◡ ◔">ℹ️ podpowiedzi',
@@ -266,9 +267,9 @@ Ls.pol = {
 
 	"cdt_lim": "maksymalna liczba plików do pokazania na raz w folderze",
 	"cdt_ask": "przy przewijaniu w dół,$Nzapytaj co robić,$Nzamiast wczytywać kolejne pliki",
-	"cdt_hsort": "ile zasad sortowania (&lt;code&gt;,sorthref&lt;/code&gt;) zawierać w generowanych linkach multimediów. Wartość 0 sprawi, że zasady sortowania zawarte w linkach multimediów przy otwarciu również będą ignorowane",
-	"cdt_ren": "włącz niestandardowe menu kontekstowe, standardowe menu jest dostępne po wciśnięciu shift i kliknięciu prawym przyciskiem", //m
-	"cdt_rdb": "pokaż standardowe menu prawego przycisku, gdy niestandardowe jest już otwarte i nastąpi ponowne kliknięcie", //m
+	"cdt_hsort": "`ile zasad sortowania (`,sorthref`) zawierać w generowanych linkach multimediów. Wartość 0 sprawi, że zasady sortowania zawarte w linkach multimediów przy otwarciu również będą ignorowane",
+	"cdt_ren": "włącz niestandardowe menu kontekstowe, standardowe menu jest dostępne po wciśnięciu shift i kliknięciu prawym przyciskiem\">włącz", //m
+	"cdt_rdb": "pokaż standardowe menu prawego przycisku, gdy niestandardowe jest już otwarte i nastąpi ponowne kliknięcie\">x2", //m
 
 	"tt_entree": "pokaż panel nawigacyjny (panel boczny z drzewem folderów)$NSkrót: B",
 	"tt_detree": "pokaż ślad nawigacyjny$NSkrót: B",
@@ -278,6 +279,8 @@ Ls.pol = {
 	"tt_dynt": "rozszerzaj panel wraz z drzewem",
 	"tt_wrap": "zawijaj tekst",
 	"tt_hover": "pokazuj za długie linie po najechaniu kursorem$N( psuje przewijanie gdy $N&nbsp; kursor nie jest w lewym marginesie )",
+	"tt_gauto": "wyświetl jako siatkę lub listę w zależności od zawartości folderu", //m
+	"tt_gathr": "użyj siatki, jeśli ten procent plików to obrazy/wideo", //m
 
 	"ml_pmode": "na końcu folderu...",
 	"ml_btns": "komendy",
@@ -286,6 +289,7 @@ Ls.pol = {
 	"ml_tint": "odcień",
 	"ml_eq": "korektor dźwięku (equalizer)",
 	"ml_drc": "kompresor zasięgu dynamiki",
+	"ml_ss": "pomijaj ciszę", //m
 
 	"mt_loop": "pętla/powtarzaj jeden utwór\">🔁",
 	"mt_one": "zatrzymaj po jednym utworze\">1️⃣",
@@ -321,8 +325,13 @@ Ls.pol = {
 	"mt_c2ng": "wygląda na to, że to urządzenie nie wspiera tego formatu, lecz spróbujmy i tak",
 	"mt_xowa": "iOS zawiera błędy uniemożliwiające odtwarzanie w tle używając tego formatu; wybierz caf lub mp3",
 	"mt_tint": "jasność tła (0-100) paska,$Naby zmniejszyć widoczność buforowania",
-	"mt_eq": "włącza korektor dźwięku (equalizer) i kontrolę wzmocnienia dźwięku;$N$Nboost &lt;code&gt;0&lt;/code&gt; = standardowa głośność 100% (niezmodyfikowana)$N$Nwidth &lt;code&gt;1 &nbsp;&lt;/code&gt; = standardowe stereo (niezmodyfikowane)$Nwidth &lt;code&gt;0.5&lt;/code&gt; = 50% crossfeed lewo-prawo$Nwidth &lt;code&gt;0 &nbsp;&lt;/code&gt; = mono$N$Nboost &lt;code&gt;-0.8&lt;/code&gt; &amp; width &lt;code&gt;10&lt;/code&gt; = usuwanie wokalu :^)$N$Nwłączenie korektora sprawia, że albumy bezprzerwowe są w pełni bez przerw, więc jeśli jest to dla ciebie ważne, zostaw wszystko na 0 (poza width = 1)",
+	"mt_eq": "`włącza korektor dźwięku (equalizer) i kontrolę wzmocnienia dźwięku;$N$Nboost `0` = standardowa głośność 100% (niezmodyfikowana)$N$Nwidth `1 &nbsp;` = standardowe stereo (niezmodyfikowane)$Nwidth `0.5` = 50% crossfeed lewo-prawo$Nwidth `0 &nbsp;` = mono$N$Nboost `-0.8` &amp; width `10` = usuwanie wokalu :^)$N$Nwłączenie korektora sprawia, że albumy bezprzerwowe są w pełni bez przerw, więc jeśli jest to dla ciebie ważne, zostaw wszystko na 0 (poza width = 1)",
 	"mt_drc": "włącza kompresor zakresu dynamiki (normalizacja głośności); włącza również korektor w celu zbalansowania tego spaghetti, więc ustaw wszystkie opcje korektora, oprócz 'width',na 0, jeśli go nie chcesz$N$Nobniża głośność audio nad THRESHOLD (próg) dB; dla każdego RATIO (współczynnika) dB, będącego ponad THRESHOLDem jest 1 dB wyjścia, więc domyślne wartości progu -24 i współczynnika 12 znaczą, że nigdy nie powinno być głośniej niż -22 dB i bezpieczne jest zwiększenie wzmocnienia korektora do 0.8, lub nawet 1.8 z ATK 0 i ogromnym RLS, jak 90 (działa tylko na firefoxie, inne przeglądarki mają limit RLS 1)$N$N(na wikipedii tłumaczą to dużo lepiej)",
+	"mt_ss": "`włącza pomijanie ciszy; mnoży prędkość odtwarzania przez `szyb` blisko początku/końca, gdy głośność jest poniżej `gł` i pozycja w pierwszych `pocz`% lub ostatnich `kon`%", //m
+	"mt_ssvt": "próg głośności (0-255)\">gł", //m
+	"mt_ssts": "aktywny próg (% utworu, początek)\">pocz", //m
+	"mt_sste": "aktywny próg (% utworu, koniec)\">kon", //m
+	"mt_sssm": "mnożnik prędkości odtwarzania\">szyb", //m
 
 	"mb_play": "odtwórz",
 	"mm_hashplay": "odtworzyć ten plik audio?",
@@ -401,8 +410,8 @@ Ls.pol = {
 	"fr_case": "rozróżnianie wielkości liter w regex\">wlit",
 	"fr_win": "nazwy bezpieczne dla systemu Windows; zamienia symbole <code>&lt;&gt;:&quot;\\|?*</code> na japońskie odpowiedniki\">win",
 	"fr_slash": "zamienia <code>/</code> symbolem, który nie tworzy nowych folderów\">brak /",
-	"fr_re": "wzorzec wyszukiwania regex stosowany do oryginalnych nazw plików; do grup przechwytywania można się odwołać w polu formatu poniżej, np.  &lt;code&gt;(1)&lt;/code&gt; i &lt;code&gt;(2)&lt;/code&gt; itd.",
-	"fr_fmt": "inspirowane programem foobar2000:$N&lt;code&gt;(title)&lt;/code&gt; zostaje zamienione na tytuł utworu,$N&lt;code&gt;[(artist) - ](title)&lt;/code&gt; pomija [tą] część jeśli pole artysty jest puste$N&lt;code&gt;$lpad((tn),2,0)&lt;/code&gt; wyrównuje numer utworu do 2 cyfr (np. 01, 06, 09, 16)",
+	"fr_re": "`wzorzec wyszukiwania regex stosowany do oryginalnych nazw plików; do grup przechwytywania można się odwołać w polu formatu poniżej, np.  `(1)` i `(2)` itd.",
+	"fr_fmt": "`inspirowane programem foobar2000:$N`(title)` zostaje zamienione na tytuł utworu,$N`[(artist) - ](title)` pomija [tą] część jeśli pole artysty jest puste$N`$lpad((tn),2,0)` wyrównuje numer utworu do 2 cyfr (np. 01, 06, 09, 16)",
 	"fr_pdel": "usuń",
 	"fr_pnew": "zapisz jako",
 	"fr_pname": "podaj nazwę nowego szablonu",
@@ -566,7 +575,7 @@ Ls.pol = {
 	"u_https1": "powinieneś przejść",
 	"u_https2": "na HTTPS w celu",
 	"u_https3": "uzyskania lepszej wydajności",
-	"u_ancient": 'twoja przeglądarka jest niezwykle zabytkowa -- powinieneś zamiast tego <a href="#" onclick="goto(\'bup\')">użyć bup</a>',
+	"u_ancient": 'twoja przeglądarka jest niezwykle zabytkowa -- powinieneś zamiast tego <a href="#" id="u2nah">użyć bup</a>',
 	"u_nowork": "wymaga Firefox 53+, Chrome 57+ lub iOS 11+",
 	"tail_2old": "wymaga Firefox 105+, Chrome 71+ lub iOS 14.5+",
 	"u_nodrop": 'ta przeglądarka jest za stara, nie wspiera przesyłania "przeciągnij i upuść"',

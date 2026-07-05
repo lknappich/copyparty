@@ -62,6 +62,9 @@ function langmod() {{
 //{note2}
 // you do not need to translate the TLNotes, those are just for you :-)
 //
+// note: if a line starts with ` then that is to enable
+// turning `foo` into <code>foo</code> (only possible for tooltips)
+//
 // when you are happy with this translation and want to submit it,
 // copy the text below into a new file in the translations folder;
 // https://github.com/9001/copyparty/tree/hovudstraum/copyparty/web/tl

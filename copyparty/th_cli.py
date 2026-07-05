@@ -8,7 +8,7 @@ import stat
 from .__init__ import TYPE_CHECKING
 from .authsrv import VFS
 from .bos import bos
-from .th_srv import EXTS_AC, HAVE_WEBP, HAVE_JXL, thumb_path
+from .th_srv import EXTS_AC, H_PIL_JXL, H_PIL_WEBP, thumb_path
 from .util import Cooldown, Pebkac
 
 if True:  # pylint: disable=using-constant-test
@@ -24,7 +24,7 @@ IMG_EXTS = set(["webp", "jpg", "png", "jxl"])
 
 
 class ThumbCli(object):
-    def __init__(self, hsrv: "HttpSrv") -> None:
+    def __init__(self, hsrv: "HttpSrv", c: dict[str, set[str]]) -> None:
         self.broker = hsrv.broker
         self.log_func = hsrv.log
         self.args = hsrv.args
@@ -32,16 +32,6 @@ class ThumbCli(object):
 
         # cache on both sides for less broker spam
         self.cooldown = Cooldown(self.args.th_poke)
-
-        try:
-            c = hsrv.th_cfg
-            if not c:
-                raise Exception()
-        except:
-            c = {
-                k: set()
-                for k in ["thumbable", "pil", "vips", "raw", "ffi", "ffv", "ffa"]
-            }
 
         self.thumbable = c["thumbable"]
         self.fmt_pil = c["pil"]
@@ -52,9 +42,9 @@ class ThumbCli(object):
         self.fmt_ffa = c["ffa"]
 
         # defer args.th_ff_jpg, can change at runtime
-        d = next((x for x in self.args.th_dec if x in ("vips", "pil")), None)
-        self.can_webp = HAVE_WEBP or d == "vips"
-        self.can_jxl = HAVE_JXL or d == "vips"
+        nonpil = next((x for x in self.args.th_dec if x in ("vips", "ff")), None)
+        self.can_webp = (H_PIL_WEBP or nonpil) and not self.args.th_no_webp
+        self.can_jxl = (H_PIL_JXL or nonpil) and not self.args.th_no_jxl
 
     def log(self, msg: str, c: Union[int, str] = 0) -> None:
         self.log_func("thumbcli", msg, c)
@@ -95,27 +85,20 @@ class ThumbCli(object):
         if rem.startswith(".hist/th/") and rem.split(".")[-1] in IMG_EXTS:
             return os.path.join(ptop, rem)
 
-        if fmt[:1] in "jwx" and fmt != "wav":
-            sfmt = fmt[:1]
+        sfmt = fmt[:1]
+        if sfmt in "jwx" and fmt != "wav":
 
             if sfmt == "j" and self.args.th_no_jpg:
                 sfmt = "w"
 
             if sfmt == "w":
-                if (
-                    self.args.th_no_webp
-                    or (is_img and not self.can_webp)
-                    or (self.args.th_ff_jpg and (not is_img or preferred == "ff"))
+                if not self.can_webp or (
+                    self.args.th_ff_jpg and (not is_img or preferred == "ff")
                 ):
                     sfmt = "j"
 
-            if sfmt == "x":
-                if (
-                    self.args.th_no_jxl
-                    or (is_img and not self.can_jxl)
-                    or (self.args.th_ff_jpg and (not is_img or preferred == "ff"))
-                ):
-                    sfmt = "j"
+            if sfmt == "x" and not self.can_jxl:
+                sfmt = "w"
 
             vf_crop = dbv.flags["crop"]
             vf_th3x = dbv.flags["th3x"]
@@ -132,7 +115,7 @@ class ThumbCli(object):
 
             fmt = sfmt
 
-        elif fmt[:1] == "p" and not is_au and not is_vid:
+        elif sfmt == "p" and not is_au and not is_vid:
             t = "cannot thumbnail %r: png only allowed for waveforms"
             self.log(t % (rem,), 6)
             return None
@@ -144,9 +127,12 @@ class ThumbCli(object):
 
         tpath = thumb_path(histpath, rem, mtime, fmt, self.fmt_ffa)
         tpaths = [tpath]
-        if fmt[:1] == "w" and fmt != "wav":
+        fmtc = fmt[:1]
+        if fmtc == "w" and fmt != "wav":
             # also check for jpg (maybe webp is unavailable)
             tpaths.append(tpath.rsplit(".", 1)[0] + ".jpg")
+        elif fmtc == "x":
+            tpaths.append(tpath.rsplit(".", 1)[0] + ".webp")
 
         ret = None
         abort = False

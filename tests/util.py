@@ -38,7 +38,7 @@ from copyparty.broker_thr import BrokerThr
 from copyparty.ico import Ico
 from copyparty.u2idx import U2idx
 from copyparty.up2k import Up2k
-from copyparty.util import FHC, CachedDict, Garda, Unrecv
+from copyparty.util import FHC, CachedDict, Garda, Unrecv, expand_osenv_c
 
 init_E(E)
 
@@ -78,8 +78,10 @@ def get_ramdisk():
         return ret
 
     for vol in ["/dev/shm", "/Volumes/cptd"]:  # nosec (singleton test)
-        if os.path.exists(vol):
+        try:
             return subdir(vol)
+        except:
+            pass
 
     if os.path.exists("/Volumes"):
         sck = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -143,13 +145,13 @@ class Cfg(Namespace):
     def __init__(self, a=None, v=None, c=None, **ka0):
         ka = {}
 
-        ex = "allow_flac allow_wav chpw cookie_lax daw dav_auth dav_mac dav_rt dlni e2d e2ds e2dsa e2t e2ts e2tsr e2v e2vu e2vp early_ban ed emp exp force_js getmod grid gsel hardlink hardlink_only http_no_tcp ih ihead localtime log_badxml magic md_no_br nid nih no_acode no_athumb no_bauth no_clone no_cp no_dav no_db_ip no_del no_dirsz no_dupe no_dupe_m no_fnugg no_lifetime no_logues no_mv no_pipe no_poll no_readme no_robots no_sb_md no_sb_lg no_scandir no_tail no_tarcmp no_thumb no_vthumb no_u2abrt no_zip no_zls nrand nsort nw og og_no_head og_s_title ohead opds q rand re_dirsz reflink rm_partial rmagic rss smb srch_dbg srch_excl srch_icase stats ui_noacci ui_nocpla ui_noctxb ui_nolbar ui_nombar ui_nonav ui_notree ui_norepl ui_nosrvi uqe usernames vague_403 vc ver vol_nospawn vol_or_crash wo_up_readme write_uplog xdev xlink xvol zipmaxu zs"
+        ex = "allow_flac allow_wav chpw cookie_lax daw dav_auth dav_mac dav_rt dlni dothidden e2d e2ds e2dsa e2t e2ts e2tsr e2v e2vu e2vp early_ban ed emp exp force_js getmod grid gsel hardlink hardlink_only http_no_tcp ih ihead localtime log_badxml magic md_no_br nid nih no_acode no_athumb no_bauth no_clone no_cp no_dav no_db_ip no_del no_dirsz no_dupe no_dupe_m no_fnugg no_html no_lifetime no_logues no_mv no_pipe no_poll no_readme no_robots no_sb_md no_sb_lg no_scandir no_script no_tail no_tarcmp no_thumb no_vthumb no_u2abrt no_zip no_zls nrand nsort nw og og_no_head og_s_title ohead opds q rand re_dirsz reflink rm_partial rmagic rss show_hist smb srch_dbg srch_excl srch_icase stats ui_noacci ui_nocpla ui_noctxb ui_nolbar ui_nombar ui_nonav ui_notree ui_norepl ui_nosrvi uqe usernames vague_403 vc ver vol_nospawn vol_or_crash wo_up_readme write_uplog xdev xlink xvol zipmaxu zs"
         ka.update(**{k: False for k in ex.split()})
 
         ex = "dav_inf dedup dotpart dotsrch hook_v no_dhash no_fastboot no_fpool no_htp no_rescan no_sendfile no_ses no_snap no_up_list no_voldump wram re_dhash see_dots plain_ip"
         ka.update(**{k: True for k in ex.split()})
 
-        ex = "ah_cli ah_gen css_browser dbpath hist ipu js_browser js_other mime mimes no_forget no_hash no_idx nonsus_urls og_tpl og_ua ua_nodoc ua_nozip"
+        ex = "ah_cli ah_gen css_browser dbpath hist ipu js_browser js_other lf_url mime mimes no_forget no_hash no_idx nonsus_urls og_tpl og_ua ua_nodoc ua_nozip"
         ka.update(**{k: None for k in ex.split()})
 
         ex = "gid uid"
@@ -158,13 +160,13 @@ class Cfg(Namespace):
         ex = "hash_mt hsortn qdel safe_dedup scan_pr_r scan_pr_s scan_st_r srch_time tail_fd tail_rate th_spec_p u2abort u2j u2sz unp_who"
         ka.update(**{k: 1 for k in ex.split()})
 
-        ex = "ac_convt au_vol dl_list du_iwho mtab_age reg_cap s_thead s_tbody tail_tmax tail_who th_convt th_qv ups_who ver_iwho zip_who"
+        ex = "ac_convt au_vol dl_list du_iwho mcr mtab_age reg_cap s_thead s_tbody tail_tmax tail_who th_convt th_qv th_qvx ups_who ver_iwho zip_who"
         ka.update(**{k: 9 for k in ex.split()})
 
-        ex = "ctl_re db_act forget_ip idp_cookie idp_store k304 loris no304 nosubtle qr_pin qr_wait re_maxage rproxy rsp_jtr rsp_slp s_wr_slp snap_wri theme themes turbo u2ow zipmaxn zipmaxs"
+        ex = "ctl_re db_act forget_ip gauto idp_cookie idp_store k304 loris md_nhist no304 nosubtle qr_pin qr_wait re_maxage rproxy rsp_jtr rsp_slp s_wr_slp snap_wri theme themes turbo u2ow zipmaxn zipmaxs"
         ka.update(**{k: 0 for k in ex.split()})
 
-        ex = "ah_alg bname chdir chmod_f chpw_db db_xattr doctitle df epilogues exit favico ipa ipar html_head html_head_d html_head_s idp_login idp_logout lg_sba lg_sbf log_date log_fk md_sba md_sbf name og_desc og_site og_th og_title og_title_a og_title_v og_title_i opds_exts preadmes prologues readmes shr shr1 shr_site site smsg tcolor textfiles txt_eol ufavico ufavico_h unlist up_site vname xff_src zipmaxt R RS SR"
+        ex = "ah_alg bname chdir chmod_f chpw_db csp_dl csp_ui db_xattr doctitle df epilogues exit favico fika ipa ipar html_head html_head_d html_head_s idp_login idp_logout lg_sba lg_sbf log_date log_fk md_sba md_sbf name og_desc og_site og_th og_title og_title_a og_title_v og_title_i opds_exts preadmes prologues readmes shr shr1 shr_site site smsg tcolor textfiles th_pregen txt_eol ufavico ufavico_h unlist up_site vc_url vname xff_src zipmaxt R RS SR"
         ka.update(**{k: "" for k in ex.split()})
 
         ex = "apnd_who ban_403 ban_404 ban_422 ban_pw ban_pwc ban_url dont_ban cachectl http_vary rcm rss_fmt_d rss_fmt_t spinner"
@@ -193,6 +195,7 @@ class Cfg(Namespace):
             du_who="all",
             dk_salt="b" * 16,
             fk_salt="a" * 16,
+            env_expand=2,
             fsnt="lin",
             grp_all="acct",
             idp_gsep=re.compile("[|:;+,]"),
@@ -215,6 +218,7 @@ class Cfg(Namespace):
             rw_edit="md",
             s_rd_sz=256 * 1024,
             s_wr_sz=256 * 1024,
+            shenvexp=expand_osenv_c,
             shr_who="auth",
             sort="href",
             srch_hits=99999,
@@ -299,6 +303,7 @@ class VHttpSrv(object):
         self.hub = None
 
         self.broker = NullBroker(args, asrv)
+        self.bad_ver = False
         self.prism = None
         self.ipr = None
         self.bans = {}
@@ -315,6 +320,8 @@ class VHttpSrv(object):
         self.g403 = Garda("")
         self.gurl = Garda("")
 
+        self.ico = Ico(args)
+        self.thumbcli = None
         self.u2idx = None
 
     def cachebuster(self):
@@ -355,7 +362,6 @@ class VHttpConn(object):
 
         Ctor = VHttpSrvUp2k if use_up2k else VHttpSrv
         self.hsrv = Ctor(args, asrv, log)
-        self.ico = Ico(args)
         self.ipr = None
         self.ipa_nm = None
         self.ipar_nm = None

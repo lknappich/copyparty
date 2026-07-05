@@ -114,7 +114,7 @@ Ls.tur = {
 	"login": "Giriş",
 	"access": " erişim",
 	"ot_close": "alt menüyü kapat",
-	"ot_search": "dosyaları özniteliklere, yol / ad, müzik etiketlerine veya bunların herhangi bir kombinasyonuna göre arayın$N$N&lt;code&gt;foo bar&lt;/code&gt; = hem «foo» hem de «bar» içermelidir,$N&lt;code&gt;foo -bar&lt;/code&gt; = «foo» içermeli ancak «bar» içermemelidir,$N&lt;code&gt;^yana .opus$&lt;/code&gt; = «yana» ile başlamalı ve bir «opus» dosyası olmalıdır$N&lt;code&gt;&quot;try unite&quot;&lt;/code&gt; = tam olarak «try unite» içermelidir$N$N tarih formatı iso-8601'dir, gibi$N&lt;code&gt;2009-12-31&lt;/code&gt; veya &lt;code&gt;2020-09-12 23:30:00&lt;/code&gt;",
+	"ot_search": "`dosyaları özniteliklere, yol / ad, müzik etiketlerine veya bunların herhangi bir kombinasyonuna göre arayın$N$N`foo bar` = hem «foo» hem de «bar» içermelidir,$N`foo -bar` = «foo» içermeli ancak «bar» içermemelidir,$N`^yana .opus$` = «yana» ile başlamalı ve bir «opus» dosyası olmalıdır$N`&quot;try unite&quot;` = tam olarak «try unite» içermelidir$N$N tarih formatı iso-8601'dir, gibi$N`2009-12-31` veya `2020-09-12 23:30:00`",
 	"ot_unpost": "unpost: son yüklemelerinizi silin veya tamamlanmamış olanları iptal edin",
 	"ot_bup": "bup: temel yükleyici, hatta netscape 4.0'ı destekler",
 	"ot_mkdir": "mkdir: yeni bir dizin oluştur",
@@ -221,6 +221,7 @@ Ls.tur = {
 	"cl_hpick": "aşağıdaki tabloda gizlemek için sütun başlıklarına dokunun",
 	"cl_hcancel": "sütun gizleme iptal edildi",
 	"cl_rcm": "sağ tık menüsü", //m
+	"cl_gauto": "otomatik田", //m
 
 	"ct_grid": '田 ızgara',
 	"ct_ttips": '◔ ◡ ◔">ℹ️ ipuçları',
@@ -263,9 +264,9 @@ Ls.tur = {
 
 	"cdt_lim": "bir klasörde gösterilecek maksimum dosya sayısı",
 	"cdt_ask": "aşağı kaydırırken,$Ndaha fazla dosya yüklemek yerine,$Nne yapılacağını sor",
-	"cdt_hsort": "medya-URL'lerinde dahil edilecek sıralama kurallarının sayısı (&lt;code&gt;,sorthref&lt;/code&gt;). Bunu 0 olarak ayarlamak, tıklanırken medya bağlantılarına dahil edilen sıralama kurallarını da yok sayacaktır",
-	"cdt_ren": "özel sağ tık menüsünü etkinleştir, normal menü shift + sağ tık ile erişilebilir", //m
-	"cdt_rdb": "özel menü zaten açıkken tekrar sağ tıklanınca normal sağ tık menüsünü göster", //m
+	"cdt_hsort": "`medya-URL'lerinde dahil edilecek sıralama kurallarının sayısı (`,sorthref`). Bunu 0 olarak ayarlamak, tıklanırken medya bağlantılarına dahil edilen sıralama kurallarını da yok sayacaktır",
+	"cdt_ren": "özel sağ tık menüsünü etkinleştir, normal menü shift + sağ tık ile erişilebilir\">etkinleştir", //m
+	"cdt_rdb": "özel menü zaten açıkken tekrar sağ tıklanınca normal sağ tık menüsünü göster\">x2", //m
 
 	"tt_entree": "navigasyon panosunu göster (yan dizin panosu)$NHotkey: B",
 	"tt_detree": "içerik haritasını göster$Kısayol: B",
@@ -275,6 +276,8 @@ Ls.tur = {
 	"tt_dynt": "ağaç genişledikçe otomatik büyüt",
 	"tt_wrap": "kelime sarma",
 	"tt_hover": "fare ile üzerine gelindiğinde taşan satırları göster$N( fare imleci sol kenarda değilse kaydırmayı bozar )",
+	"tt_gauto": "klasör içeriğine bağlı olarak ızgara veya liste olarak göster", //m
+	"tt_gathr": "dosyaların bu yüzdesi resim/video ise ızgara kullan", //m
 
 	"ml_pmode": "klasör sonunda...",
 	"ml_btns": "komutlar",
@@ -283,6 +286,7 @@ Ls.tur = {
 	"ml_tint": "tonlama",
 	"ml_eq": "ses eşitleyici",
 	"ml_drc": "dinamik aralık sıkıştırıcı",
+	"ml_ss": "sessizliği atla", //m
 
 	"mt_loop": "bir şarkıyı döngüye al / tekrar et\">🔁",
 	"mt_one": "bir şarkıdan sonra dur\">1️⃣",
@@ -318,8 +322,13 @@ Ls.tur = {
 	"mt_c2ng": "cihazınız bu çıkış formatını desteklemiyor gibi görünüyor, ama yine de deneyelim",
 	"mt_xowa": "iOS'ta bu formatta arka plan oynatımını engelleyen hatalar var; lütfen bunun yerine caf veya mp3 kullanın",
 	"mt_tint": "seekbar'da arka plan seviyesi (0-100)$ön belleğin daha az dikkat dağıtıcı olmasını sağlar",
-	"mt_eq": "ekolayzer ve kazanç kontrolünü aktifleştirir;$N$Nboost &lt;code&gt;0&lt;/code&gt; = standart %100 ses (varsayılan)$N$Ngenişlik &lt;code&gt;1 &nbsp;&lt;/code&gt; = standart çift kanal (varsayılan)$Ngenişlik &lt;code&gt;0.5&lt;/code&gt; = %50 sol-sağ crossfeed$Ngenişlik &lt;code&gt;0 &nbsp;&lt;/code&gt; = mono$N$Nartış &lt;code&gt;-0.8&lt;/code&gt; &amp; artış &lt;code&gt;10&lt;/code&gt; = vokal kaldırma :^)$N$Nekolayzeri aktifleştirmek, aralıksız albümleri gerçekten aralıksız yapar, bu yüzden tüm değerleri 0'da bırakın (width = 1 hariç) tabii bunu umursuyorsnaız",
+	"mt_eq": "`ekolayzer ve kazanç kontrolünü aktifleştirir;$N$Nboost `0` = standart %100 ses (varsayılan)$N$Ngenişlik `1 &nbsp;` = standart çift kanal (varsayılan)$Ngenişlik `0.5` = %50 sol-sağ crossfeed$Ngenişlik `0 &nbsp;` = mono$N$Nartış `-0.8` &amp; artış `10` = vokal kaldırma :^)$N$Nekolayzeri aktifleştirmek, aralıksız albümleri gerçekten aralıksız yapar, bu yüzden tüm değerleri 0'da bırakın (width = 1 hariç) tabii bunu umursuyorsnaız",
 	"mt_drc": "dinamik aralık sıkıştırıcıyı (ses düzleştiriciyi) aktifleştirir; spagettiyi dengelemek için aynı zamanda EQ'yu da açar, bunun olmasını istemiyorsanız EQ'daki 'genişlik' hariç tüm alanları 0 yapın$N$Nsınır dB'inin üstündeki tüm sesleri kısar; sınırı geçen her 1 dB için ancak 1 dB ses verilir, yani varsayılan eşik -24 ve oran 12 değerleri sesin -22 dB'den yükseğe çıkmayacağını ve EQ artışının 0,8'e, hatta ATK 0 ve hayvan gibi RLS (örneğin 90, bu sadece Firefox'ta çalışır; diğer tarayıcılarda RLS en fazla 1'dir) gibi değerlerle 1.,8'e kadar güvenle çıkabileceğini gösteriyor$N$N(git vikipediye bak, orada daha iyi açıklanıyor)",
+	"mt_ss": "`sessizlik atlamayı etkinleştirir; ses `ses` altındayken ve konum ilk `bas`% veya son `son`% içindeyken başlangıç/bitiş yakınında oynatma hızını `ileri` ile çarpar", //m
+	"mt_ssvt": "ses eşiği (0-255)\">ses", //m
+	"mt_ssts": "etkin eşik (% parça, başlangıç)\">bas", //m
+	"mt_sste": "etkin eşik (% parça, bitiş)\">son", //m
+	"mt_sssm": "oynatma hızı çarpanı\">ileri", //m
 
 	"mb_play": "oynat",
 	"mm_hashplay": "bu ses dosyası oynatılsın mı?",
@@ -398,8 +407,8 @@ Ls.tur = {
 	"fr_case": "büyük/küçük harf duyarlı regex\">büyük/küçük harf",
 	"fr_win": "windows'a uygun adlar; <code>&lt;&gt;:&quot;\\|?*</code> karakterlerini Japonca tam genişlik karakterleriyle değiştir\">win",
 	"fr_slash": "<code>/</code> karakterini yeni klasörlerin oluşturulmasına neden olmayan bir karakterle değiştir\">/ yok",
-	"fr_re": "orijinal dosya adlarına uygulanacak regex arama deseni; yakalama grupları aşağıdaki format alanında &lt;code&gt;(1)&lt;/code&gt; ve &lt;code&gt;(2)&lt;/code&gt; gibi belirtilebilir",
-	"fr_fmt": "foobar2000'den esinlenilmiştir:$N&lt;code&gt;(title)&lt;/code&gt; şarkı başlığıyla değiştirilir,$N&lt;code&gt;[(artist) - ](title)&lt;/code&gt; sanatçı boşsa [bu] kısmı atlar$N&lt;code&gt;$lpad((tn),2,0)&lt;/code&gt; parça numarasını 2 basamağa doldurur",
+	"fr_re": "`orijinal dosya adlarına uygulanacak regex arama deseni; yakalama grupları aşağıdaki format alanında `(1)` ve `(2)` gibi belirtilebilir",
+	"fr_fmt": "`foobar2000'den esinlenilmiştir:$N`(title)` şarkı başlığıyla değiştirilir,$N`[(artist) - ](title)` sanatçı boşsa [bu] kısmı atlar$N`$lpad((tn),2,0)` parça numarasını 2 basamağa doldurur",
 	"fr_pdel": "sil",
 	"fr_pnew": "farklı kaydet",
 	"fr_pname": "yeni ayarınızı adlandırın",
@@ -563,7 +572,7 @@ Ls.tur = {
 	"u_https1": "daha iyi performans",
 	"u_https2": "için https'i",
 	"u_https3": "kullanın",
-	"u_ancient": 'tarayıcınız resmen fosilleşmiş -- belki de <a href="#" onclick="goto(\'bup\')">bup kullanmalısınız</a>',
+	"u_ancient": 'tarayıcınız resmen fosilleşmiş -- belki de <a href="#" id="u2nah">bup kullanmalısınız</a>',
 	"u_nowork": "firefox 53+ veya chrome 57+ veya iOS 11+ gerekiyor",
 	"tail_2old": "firefox 105+ veya chrome 71+ veya iOS 14.5+ gerekiyor",
 	"u_nodrop": 'tarayıcınız sürükleyip bırakmak için çok eski',

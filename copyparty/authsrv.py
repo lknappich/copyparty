@@ -56,7 +56,7 @@ if HAVE_SQLITE3:
 if True:  # pylint: disable=using-constant-test
     from collections.abc import Iterable
 
-    from typing import Any, Generator, Optional, Sequence, Union
+    from typing import Any, Callable, Generator, Optional, Sequence, Union
 
     from .util import NamedLogger, RootLogger
 
@@ -147,8 +147,11 @@ class AXS(object):
 
 
 class Lim(object):
-    def __init__(self, log_func: Optional["RootLogger"]) -> None:
+    def __init__(
+        self, args: argparse.Namespace, log_func: Optional["RootLogger"]
+    ) -> None:
         self.log_func = log_func
+        self.use_scandir = not args.no_scandir
 
         self.reg: Optional[dict[str, dict[str, Any]]] = None  # up2k registry
 
@@ -190,12 +193,12 @@ class Lim(object):
             self.log_func("up-lim", msg, c)
 
     def set_rotf(self, fmt: str, tz: str) -> None:
-        self.rotf = fmt
+        self.rotf = fmt.rstrip("/\\")
         if tz != "UTC":
             from zoneinfo import ZoneInfo
 
             self.rotf_tz = ZoneInfo(tz)
-        r = re.escape(fmt).replace("%Y", "[0-9]{4}").replace("%j", "[0-9]{3}")
+        r = re.escape(self.rotf).replace("%Y", "[0-9]{4}").replace("%j", "[0-9]{3}")
         r = re.sub("%[mdHMSWU]", "[0-9]{2}", r)
         self.rot_re = re.compile("(^|/)" + r + "$")
 
@@ -312,12 +315,17 @@ class Lim(object):
         return ret, d
 
     def dive(self, path: str, lvs: int) -> Optional[str]:
-        items = bos.listdir(path)
-
         if not lvs:
             # at leaf level
+            items = statdir(self.log_func, self.use_scandir, False, path, True)
+            items = [
+                x
+                for x in items
+                if not stat.S_ISDIR(x[1].st_mode) and not x[0].endswith(".PARTIAL")
+            ]
             return None if len(items) >= self.rotn else ""
 
+        items = bos.listdir(path)
         dirs = [int(x) for x in items if x and all(y in "1234567890" for y in x)]
         dirs.sort()
 
@@ -435,6 +443,7 @@ class VFS(object):
         self.adot: dict[str, list[str]] = {}
         self.js_ls = {}
         self.js_htm = ""
+        self.md_htm = ""
         self.all_vols: dict[str, VFS] = {}  # flattened recursive
         self.all_nodes: dict[str, VFS] = {}  # also jumpvols/shares
         self.all_fvols: dict[str, VFS] = {}  # volumes which are files
@@ -533,13 +542,11 @@ class VFS(object):
 
         hist = flags.get("hist")
         if hist and hist != "-":
-            zs = "{}/{}".format(hist.rstrip("/"), name)
-            flags["hist"] = os.path.expandvars(os.path.expanduser(zs))
+            flags["hist"] = "%s/%s" % (hist.rstrip("/"), name)
 
         dbp = flags.get("dbpath")
         if dbp and dbp != "-":
-            zs = "{}/{}".format(dbp.rstrip("/"), name)
-            flags["dbpath"] = os.path.expandvars(os.path.expanduser(zs))
+            flags["dbpath"] = "%s/%s" % (dbp.rstrip("/"), name)
 
         return flags
 
@@ -621,6 +628,9 @@ class VFS(object):
                     t = "%s has no %s in %r => %r => %r"
                     self.log("vfs", t % (uname, msg, vpath, cvpath, ap), 6)
 
+                if not err:
+                    return None
+
                 t = "you don't have %s-access in %r or below %r"
                 raise Pebkac(err, t % (msg, "/" + cvpath, "/" + vn.vpath))
 
@@ -697,18 +707,22 @@ class VFS(object):
         if rem:
             ap += "/" + rem
 
-        rap = absreal(ap)
+        rap = ""
         if self.shr_files:
             assert self.shr_src  # !rm
-            vn, rem = self.shr_src
-            chk = absreal(os.path.join(vn.realpath, rem))
-            if chk != rap:
-                # not the dir itself; assert file allowed
-                ad, fn = os.path.split(rap)
-                if chk != ad or fn not in self.shr_files:
-                    return "\n\n"
+            if rem and rem not in self.shr_files:
+                return "\n\n\0\n\n"
+            if resolve:
+                rap = absreal(ap)
+                vn, rem = self.shr_src
+                chk = absreal(os.path.join(vn.realpath, rem))
+                if chk != rap:
+                    # not the dir itself; assert file allowed
+                    ad, fn = os.path.split(rap)
+                    if chk != ad or fn not in self.shr_files:
+                        return "\n\n\0\n\n"
 
-        return rap if resolve else ap
+        return (rap or absreal(ap)) if resolve else ap
 
     def _dcanonical_shr(self, rem: str) -> str:
         """resolves until the final component (filename)"""
@@ -725,7 +739,7 @@ class VFS(object):
             if chk != absreal(ap):
                 # not the dir itself; assert file allowed
                 if ad != chk or fn not in self.shr_files:
-                    return "\n\n"
+                    return "\n\n\0\n\n"
 
         return os.path.join(ad, fn)
 
@@ -848,7 +862,7 @@ class VFS(object):
             for le in vfs_ls:
                 ap = absreal(os.path.join(fsroot, le[0]))
                 vn2 = self.chk_ap(ap)
-                if not vn2 or not vn2.get("", uname, True, False):
+                if not vn2 or not vn2.get("", uname, True, False, err=0):
                     rm1.append(le)
             _ = [vfs_ls.remove(x) for x in rm1]  # type: ignore
 
@@ -868,9 +882,6 @@ class VFS(object):
         yield dbv, vrem, rel, fsroot, rfiles, rdirs, vfs_virt
 
         for rdir, _ in rdirs:
-            if not dots_ok and rdir.startswith("."):
-                continue
-
             wrel = (rel + "/" + rdir).lstrip("/")
             wrem = (rem + "/" + rdir).lstrip("/")
             for x in self.walk(
@@ -893,20 +904,14 @@ class VFS(object):
 
     def zipgen(
         self,
-        vpath: str,
+        folder: str,
         vrem: str,
         flt: set[str],
         uname: str,
         dirs: bool,
         dots: int,
         scandir: bool,
-        wrap: bool = True,
     ) -> Generator[dict[str, Any], None, None]:
-
-        # if multiselect: add all items to archive root
-        # if single folder: the folder itself is the top-level item
-        folder = "" if flt or not wrap else (vpath.split("/")[-1].lstrip(".") or "top")
-
         g = self.walk(folder, vrem, [], uname, [[True, False]], dots, scandir, False)
         for _, _, vpath, apath, files, rd, vd in g:
             if flt:
@@ -1066,7 +1071,12 @@ class AuthSrv(object):
         self.indent = ""
         self.is_lxc = args.c == ["/z/initcfg"]
 
+        oh = "X-Content-Type-Options: nosniff\r\n"
+        if self.args.http_vary:
+            oh += "Vary: %s\r\n" % (self.args.http_vary,)
         self._vf0b = {
+            "oh_g": oh + "\r\n",
+            "oh_f": oh + "\r\n",
             "cachectl": self.args.cachectl,
             "tcolor": self.args.tcolor,
             "du_iwho": self.args.du_iwho,
@@ -1265,7 +1275,7 @@ class AuthSrv(object):
         daxs: dict[str, AXS],
         mflags: dict[str, dict[str, Any]],
     ) -> tuple[str, str]:
-        src = os.path.expandvars(os.path.expanduser(src))
+        src = os.path.expanduser(self.args.shenvexp(src))
         src = absreal(src)
         dst = dst.strip("/")
 
@@ -1358,7 +1368,7 @@ class AuthSrv(object):
     ) -> None:
         self.line_ctr = 0
 
-        expand_config_file(self.log, cfg_lines, fp, "")
+        expand_config_file(self.log, self.args.shenvexp, cfg_lines, fp, "")
         if self.args.vc:
             lns = ["{:4}: {}".format(n, s) for n, s in enumerate(cfg_lines, 1)]
             self.log("expanded config file (unprocessed):\n" + "\n".join(lns))
@@ -1651,7 +1661,8 @@ class AuthSrv(object):
             for alias, mapping in [
                 ("h", "gh"),
                 ("G", "gG"),
-                ("A", "rwmda.A"),
+                ("r", "g"),
+                ("A", "rgwmda.A"),
             ]:
                 expanded = ""
                 for ch in mapping:
@@ -1922,7 +1933,7 @@ class AuthSrv(object):
             vol.all_vps.sort(key=lambda x: len(x[0]), reverse=True)
             vol.root = vfs
 
-        zs = "du_iwho emb_all ls_q_m neversymlink"
+        zs = "du_iwho emb_all ls_q_m neversymlink oh_f oh_g"
         k_ign = set(zs.split())
         for vol in vfs.all_vols.values():
             unknown_flags = set()
@@ -1971,6 +1982,10 @@ class AuthSrv(object):
                     [sun] if "m" in s_pr else [],
                     [sun] if "d" in s_pr else [],
                     [sun] if "g" in s_pr else [],
+                    [],  # G
+                    [],  # h
+                    [],  # a
+                    [sun] if "." in s_pr or self.args.ed else [],
                 )
 
                 # don't know the abspath yet + wanna ensure the user
@@ -2156,7 +2171,7 @@ class AuthSrv(object):
             if vflag == "-":
                 pass
             elif vflag:
-                vflag = os.path.expandvars(os.path.expanduser(vflag))
+                vflag = os.path.expanduser(self.args.shenvexp(vflag))
                 vol.histpath = vol.dbpath = uncyg(vflag) if WINDOWS else vflag
             elif self.args.hist:
                 for nch in range(len(hid)):
@@ -2191,7 +2206,7 @@ class AuthSrv(object):
             if vflag == "-":
                 pass
             elif vflag:
-                vflag = os.path.expandvars(os.path.expanduser(vflag))
+                vflag = os.path.expanduser(self.args.shenvexp(vflag))
                 vol.dbpath = uncyg(vflag) if WINDOWS else vflag
             elif self.args.dbpath:
                 for nch in range(len(hid)):
@@ -2284,7 +2299,7 @@ class AuthSrv(object):
                 vol.flags["zipmax"] = True
 
         for vol in vfs.all_vols.values():
-            lim = Lim(self.log_func)
+            lim = Lim(self.args, self.log_func)
             use = False
 
             if vol.flags.get("nosub"):
@@ -2314,7 +2329,7 @@ class AuthSrv(object):
             zs = vol.flags.get("rotf")
             if zs:
                 use = True
-                lim.set_rotf(zs, vol.flags.get("rotf_tz") or "UTC")
+                lim.set_rotf(zs, vol.flags.get("rotf_tz", self.args.rotf_tz) or "UTC")
 
             zs = vol.flags.get("maxn")
             if zs:
@@ -2449,7 +2464,7 @@ class AuthSrv(object):
                 if vf not in vol.flags:
                     vol.flags[vf] = getattr(self.args, ga)
 
-            zs = "forget_ip gid nrand tail_who th_qv th_spec_p u2abort u2ow uid unp_who ups_who zip_who"
+            zs = "forget_ip gid md_nhist nrand tail_who th_qv th_qvx th_spec_p u2abort u2ow uid unp_who ups_who zip_who"
             for k in zs.split():
                 if k in vol.flags:
                     vol.flags[k] = int(vol.flags[k])
@@ -2476,8 +2491,8 @@ class AuthSrv(object):
                 if not zs:
                     vol.flags.pop(k, None)
                     continue
-                if not re.match("^[0-7]{3}$", zs):
-                    t = "config-option '%s' must be a three-digit octal value such as [755] or [644] but the value was [%s]"
+                if not re.match("^[0-7]{3,4}$", zs):
+                    t = "config-option '%s' must be a three- or four-digit octal value such as [0755] or [644] but the value was [%s]"
                     t = t % (k, zs)
                     self.log(t, 1)
                     raise Exception(t)
@@ -2626,8 +2641,22 @@ class AuthSrv(object):
             if head_s and not head_s.endswith("\n"):
                 head_s += "\n"
 
+            zs = vol.flags.get("csp_ui", "")
+            csp_ui = "Content-Security-Policy: %s\r\n" % (zs,) if zs else ""
+            zs = vol.flags.get("csp_dl", "")
+            csp_dl = "Content-Security-Policy: %s\r\n" % (zs,) if zs else ""
+
+            zs = "X-Content-Type-Options: nosniff\r\n"
             if "norobots" in vol.flags:
                 head_s += META_NOBOTS
+                zs += "X-Robots-Tag: noindex, nofollow\r\n"
+            if self.args.http_vary:
+                zs += "Vary: %s\r\n" % (self.args.http_vary,)
+            vol.flags["oh_g"] = zs + csp_ui + "\r\n"
+
+            if "noscript" in vol.flags:
+                csp_dl = "Content-Security-Policy: script-src 'none';\r\n"
+            vol.flags["oh_f"] = zs + csp_dl + "\r\n"
 
             ico_url = vol.flags.get("ufavico")
             if ico_url:
@@ -2773,6 +2802,13 @@ class AuthSrv(object):
             zs = "select %s from up where rd=? and fn=?" % (", ".join(up_q),)
             vol.flags["ls_q_m"] = (zs if up_m else "", up_m)
 
+        for tab in (rhisttab, rdbpaths):
+            for ap, vn in tab.items():
+                if "show_hist" not in vn.flags and (
+                    ap == os.path.join(vn.realpath, ".hist")
+                ):
+                    vn.add("", ".hist", ".hist")
+
         vfs.all_fvols = {
             zs: vol for zs, vol in vfs.all_vols.items() if "is_file" in vol.flags
         }
@@ -2893,6 +2929,7 @@ class AuthSrv(object):
         have_e2d = False
         have_e2t = False
         have_dedup = False
+        have_symdup = False
         unsafe_dedup = []
         t = "volumes and permissions:\n"
         for zv in vfs.all_vols.values():
@@ -2932,14 +2969,17 @@ class AuthSrv(object):
 
             if "dedup" in zv.flags:
                 have_dedup = True
-                if (
-                    "e2d" not in zv.flags
-                    and "hardlink" not in zv.flags
-                    and "reflink" not in zv.flags
-                ):
-                    unsafe_dedup.append("/" + zv.vpath)
+                if "hardlink" not in zv.flags and "reflink" not in zv.flags:
+                    have_symdup = True
+                    if "e2d" not in zv.flags:
+                        unsafe_dedup.append("/" + zv.vpath)
 
             t += "\n"
+
+        if have_symdup and self.args.fika:
+            t = "WARNING: disabling fika due to symlink-based dedup in at least one volume; uploads/deletes will be blocked during filesystem-indexing. Consider --reflink or --hardlink"
+            # self.args.fika = self.args.fika.replace("m", "").replace("d", "")  # probably not enough
+            self.args.fika = ""
 
         if self.warn_anonwrite and verbosity > 4:
             if not self.args.no_voldump:
@@ -3052,10 +3092,10 @@ class AuthSrv(object):
             pwds.extend([x.split(":", 1)[1] for x in pwds if ":" in x])
         if pwds:
             if self.ah.on:
-                zs = r"(\[H\] %s:.*|[?&]%s=)([^&]+)"
+                zs = r"(\[[HO]\] %s:.*|[?&]%s=)([^&]+)"
                 zs = zs % (self.args.pw_hdr, self.args.pw_urlp)
             else:
-                zs = r"(\[H\] %s:.*|=)(" % (self.args.pw_hdr,)
+                zs = r"(\[[HO]\] %s:.*|=)(" % (self.args.pw_hdr,)
                 zs += "|".join(pwds) + r")([]&; ]|$)"
 
             self.re_pwd = re.compile(zs)
@@ -3084,7 +3124,13 @@ class AuthSrv(object):
 
                 try:
                     s_vfs, s_rem = vfs.get(
-                        s_vp, s_un, "r" in s_pr, "w" in s_pr, "m" in s_pr, "d" in s_pr
+                        s_vp,
+                        s_un,
+                        "r" in s_pr,
+                        "w" in s_pr,
+                        "m" in s_pr,
+                        "d" in s_pr,
+                        "g" in s_pr,
                     )
                 except Exception as ex:
                     t = "removing share [%s] by [%s] to [%s] due to %r"
@@ -3160,7 +3206,7 @@ class AuthSrv(object):
             db.close()
 
         self.js_ls = {}
-        self.js_htm = {}
+        self.js_htm = ""
         for vp, vn in self.vfs.all_nodes.items():
             if enshare and vp.startswith(shrs):
                 continue  # propagates later in this func
@@ -3227,6 +3273,7 @@ class AuthSrv(object):
                 "idxh": int(self.args.ih),
                 "dutc": not self.args.localtime,
                 "dfszf": self.args.ui_filesz.strip("-"),
+                "dgauto": self.args.gauto,
                 "themes": self.args.themes,
                 "turbolvl": self.args.turbo,
                 "nosubtle": self.args.nosubtle,
@@ -3242,7 +3289,7 @@ class AuthSrv(object):
             for zs in zs.split():
                 if vf.get(zs):
                     js_htm[zs] = 1
-            zs = "notooltips"
+            zs = "glang notooltips"
             for zs in zs.split():
                 if getattr(self.args, zs, False):
                     js_htm[zs] = 1
@@ -3251,7 +3298,13 @@ class AuthSrv(object):
                 zs2 = getattr(self.args, zs, "")
                 if zs2:
                     js_htm[zs] = zs2
+
+            zs = "have_emp md_no_br"
+            md_htm = {x: js_htm[x] for x in zs.split(" ")}
+            md_htm["modpoll_freq"] = self.args.mcr
+
             vn.js_htm = json_hesc(json.dumps(js_htm))
+            vn.md_htm = json_hesc(json.dumps(md_htm))
 
         vols = list(vfs.all_nodes.values())
         if enshare:
@@ -3300,20 +3353,22 @@ class AuthSrv(object):
         cur.close()
         db.close()
 
+        old_accs = self.idp_accs.copy()
         self.idp_accs.clear()
         self.idp_usr_gh.clear()
 
         gsep = self.args.idp_gsep
+        groupless = (None, [""])
         n = []
         for uname, gname in from_cache:
             if level < 3:
                 if uname in self.idp_accs:
                     continue
-                gname = ""
+                if old_accs.get(uname) in groupless:
+                    gname = ""
             gnames = [x.strip() for x in gsep.split(gname)]
             gnames.sort()
 
-            # self.idp_usr_gh[uname] = gname
             self.idp_accs[uname] = gnames
             n.append(uname)
 
@@ -3930,10 +3985,14 @@ def split_cfg_ln(ln: str) -> dict[str, Any]:
 
 
 def expand_config_file(
-    log: Optional["NamedLogger"], ret: list[str], fp: str, ipath: str
+    log: Optional["NamedLogger"],
+    shenvexp: "Callable[[str], str]",
+    ret: list[str],
+    fp: str,
+    ipath: str,
 ) -> None:
     """expand all % file includes"""
-    fp = absreal(fp)
+    fp = absreal(os.path.expanduser(shenvexp(fp)))
     if len(ipath.split(" -> ")) > 64:
         raise Exception("hit max depth of 64 includes")
 
@@ -3964,7 +4023,7 @@ def expand_config_file(
             if fp2 in ipath:
                 continue
 
-            expand_config_file(log, ret, fp2, ipath)
+            expand_config_file(log, shenvexp, ret, fp2, ipath)
 
         return
 
@@ -3989,7 +4048,7 @@ def expand_config_file(
                 fp2 = ln[1:].strip()
                 fp2 = os.path.join(os.path.dirname(fp), fp2)
                 ofs = len(ret)
-                expand_config_file(log, ret, fp2, ipath)
+                expand_config_file(log, shenvexp, ret, fp2, ipath)
                 for n in range(ofs, len(ret)):
                     ret[n] = pad + ret[n]
                 continue

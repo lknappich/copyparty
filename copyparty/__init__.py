@@ -44,6 +44,14 @@ ANYWIN = WINDOWS or sys.platform in ["msys", "cygwin"]
 
 MACOS = platform.system() == "Darwin"
 
+FREEBSD = platform.system() == "FreeBSD"
+
+OPENBSD = platform.system() == "OpenBSD"
+
+ANYBSD = FREEBSD or OPENBSD
+
+UNIX = MACOS or ANYBSD
+
 GRAAL = platform.python_implementation() == "GraalVM"
 
 EXE = bool(getattr(sys, "frozen", False))
@@ -69,9 +77,10 @@ web/deps/busy.mp3
 web/deps/easymde.css
 web/deps/easymde.js
 web/deps/marked.js
-web/deps/fuse.py
+web/deps/mfusepy.py
 web/deps/mini-fa.css
 web/deps/mini-fa.woff
+web/deps/orbitron.woff2
 web/deps/prism.css
 web/deps/prism.js
 web/deps/prismd.css
@@ -108,6 +117,7 @@ web/tl/epo.js
 web/tl/fin.js
 web/tl/fra.js
 web/tl/grc.js
+web/tl/hun.js
 web/tl/ita.js
 web/tl/jpn.js
 web/tl/kor.js
@@ -125,7 +135,6 @@ web/tl/vie.js
 web/ui.css
 web/up2k.js
 web/util.js
-web/w.hash.js
 """
 RES = set(zs.strip().split("\n"))
 RESM = {

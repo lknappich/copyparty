@@ -64,6 +64,8 @@ built in Norway 🇳🇴 with contributions from [not-norway](https://github.com
     * [other tricks](#other-tricks)
     * [searching](#searching) - search by size, date, path/name, mp3-tags, ...
 * [server config](#server-config) - using arguments or config files, or a mix of both
+    * [version-checker](#version-checker) - sleep better at night
+    * [logging](#logging) - serverlog is sent to stdout by default
     * [zeroconf](#zeroconf) - announce enabled services on the LAN ([pic](https://user-images.githubusercontent.com/241032/215344737-0eae8d98-9496-4256-9aa8-cd2f6971810d.png))
         * [mdns](#mdns) - LAN domain-name and feature announcer
         * [ssdp](#ssdp) - windows-explorer announcer
@@ -85,6 +87,9 @@ built in Norway 🇳🇴 with contributions from [not-norway](https://github.com
     * [compress uploads](#compress-uploads) - files can be autocompressed on upload
     * [chmod and chown](#chmod-and-chown) - per-volume filesystem-permissions and ownership
     * [other flags](#other-flags)
+    * [descript.ion](#description) - add a description to each file in a folder
+    * [dothidden](#dothidden) - cosmetically hide specific files in a folder
+    * [thumbnail pregen](#thumbnail-pregen) - if you want to pre-generate everything on startup
     * [database location](#database-location) - in-volume (`.hist/up2k.db`, default) or somewhere else
     * [metadata from audio files](#metadata-from-audio-files) - set `-e2t` to index tags on upload
         * [metadata from xattrs](#metadata-from-xattrs) - unix extended file attributes
@@ -116,6 +121,7 @@ built in Norway 🇳🇴 with contributions from [not-norway](https://github.com
 * [packages](#packages) - the party might be closer than you think
     * [arch package](#arch-package) - `pacman -S copyparty` (in [arch linux extra](https://archlinux.org/packages/extra/any/copyparty/))
     * [fedora package](#fedora-package) - does not exist yet
+    * [gentoo ::guru package](#gentoo-guru-package) - `emerge www-servers/copyparty::guru` (in [::guru](https://wiki.gentoo.org/wiki/Project:GURU))
     * [homebrew formulae](#homebrew-formulae) - `brew install copyparty ffmpeg`
     * [nix package](#nix-package) - `nix profile install github:9001/copyparty`
     * [nixos module](#nixos-module)
@@ -180,7 +186,7 @@ enable thumbnails (images/audio/video), media indexing, and audio transcoding by
 * **Alpine:** `apk add py3-pillow ffmpeg`
 * **Debian:** `apt install --no-install-recommends python3-pil ffmpeg`
 * **Fedora:** rpmfusion + `dnf install python3-pillow ffmpeg --allowerasing`
-* **FreeBSD:** `pkg install py39-sqlite3 py39-pillow ffmpeg`
+* **FreeBSD:** `pkg install py311-sqlite3 py311-pillow ffmpeg`
 * **MacOS:** `port install py-Pillow ffmpeg`
 * **MacOS** (alternative): `brew install pillow ffmpeg`
 * **Windows:** `python -m pip install --user -U Pillow`
@@ -237,6 +243,11 @@ you may also want these, especially on servers:
 * [nixos module](#nixos-module) to run copyparty on NixOS hosts
 * [contrib/nginx/copyparty.conf](contrib/nginx/copyparty.conf) to [reverse-proxy](#reverse-proxy) behind nginx (for better https)
 
+because the following environment variables are commonly used in service-scripts, they are understood by copyparty:
+
+* `NOTIFY_SOCKET` as provided by systemd with service type=notify (see systemd/copyparty.service above)
+* `S6_NOTIFY_FD` for dinit [`ready-notification = pipevar:S6_NOTIFY_FD`](https://davmac.org/projects/dinit/man-pages-html/dinit-service.5.html#ready) and [s6 supervision suite notification](https://skarnet.org/software/s6/notifywhenup.html) support
+
 and remember to open the ports you want; here's a complete example including every feature copyparty has to offer:
 ```
 firewall-cmd --permanent --add-port={80,443,3921,3922,3923,3945,3990}/tcp  # --zone=libvirt
@@ -292,7 +303,7 @@ also see [comparison to similar software](./docs/versus.md)
     * ☑ realtime streaming of growing files (logfiles and such)
   * ☑ [thumbnails](#thumbnails)
     * ☑ ...of images using Pillow, pyvips, or FFmpeg
-    * ☑ ...of RAW images using rawpy
+    * ☑ ...of RAW images using libraw-dcraw_emu or rawpy
     * ☑ ...of videos using FFmpeg
     * ☑ ...of audio (spectrograms) using FFmpeg
     * ☑ cache eviction (max-age; maybe max-size eventually)
@@ -493,6 +504,9 @@ upgrade notes
 * thumbnails are broken (you get a colorful square which says the filetype instead)
   * you need to install `FFmpeg` or `Pillow`; see [thumbnails](#thumbnails)
 
+* thumbnails are broken, specifically for photos and videos taken by iphones
+  * the [docker image](https://github.com/9001/copyparty/blob/hovudstraum/scripts/docker) and [bootable flashdrive](https://a.ocv.me/pub/stuff/edcd001/enterprise-edition/) are not able to read heif/heic images and h265/HEVC video due to [legal reasons](docs/bad-codecs.md)
+
 * thumbnails are broken (some images appear, but other files just get a blank box, and/or the broken-image placeholder)
   * probably due to a reverse-proxy messing with the request URLs and stripping the query parameters (`?th=w`), so check your URL rewrite rules
   * could also be due to incorrect caching settings in reverse-proxies and/or CDNs, so make sure that nothing is set to ignore the query string
@@ -601,9 +615,11 @@ and if you want to use config files instead of commandline args (good!) then her
 
 hiding specific subfolders  by mounting another volume on top of them
 
-for example `-v /mnt::r -v /var/empty:web/certs:r` mounts the server folder `/mnt` as the webroot, but another volume is mounted at `/web/certs` -- so visitors can only see the contents of `/mnt` and `/mnt/web` (at URLs `/` and `/web`), but not `/mnt/web/certs` because URL `/web/certs` is mapped to `/var/empty`
+for example `-v /mnt::r -v /var/empty:web/certs:` (note: no permissions) mounts the server folder `/mnt` as the webroot, but another volume is mounted at `/web/certs` -- so visitors can only see the contents of `/mnt` and `/mnt/web` (at URLs `/` and `/web`), but not `/mnt/web/certs` because URL `/web/certs` is mapped to `/var/empty`
 
 the example config file right above this section may explain this better; the first volume `/` is mapped to `/srv` which means http://127.0.0.1:3923/music would try to read `/srv/music` on the server filesystem, but since there's another volume at `/music` mapped to `/mnt/music` then it'll go to `/mnt/music` instead
+
+so, to shadow a file/folder, define a volume but leave out the `accs:` section
 
 > ℹ️ this also works for single files, because files can also be volumes
 
@@ -615,6 +631,8 @@ unix-style hidden files/folders  by starting the name with a dot
 anyone can access these if they know the name, but they normally don't appear in directory listings
 
 a client can request to see dotfiles in directory listings if global option `-ed` is specified, or the volume has volflag `dots`, or the user has permission `.`
+
+> for [shares](#shares), the `dots` volflag is ignored
 
 dotfiles do not appear in search results unless one of the above is true, **and** the global option / volflag `dotsrch` is set
 
@@ -762,8 +780,8 @@ to show `/icons/exe.png` and `/icons/elf.gif` as the thumbnail for all `.exe` an
   * be careful with svg; chrome will crash if you have too many unique svg files showing on the same page (the limit is 250 or so) -- showing the same handful of svg files thousands of times is ok however
 
 note:
-* heif/heifs/heic/heics images usually require the `libvips` [optional dependency](#optional-dependencies) (available in the `iv` docker image, `withFastThumbnails` in nixos)
-  * technical trivia: FFmpeg has basic support for tiled heic as of v7.0; need `-show_stream_groups` for correct resolution
+* heif/heifs/heic/heics images usually require the `libvips` [optional dependency](#optional-dependencies) but this is not possible with the docker-images due to [legal reasons](docs/bad-codecs.md)
+* if you do not want thumbnails to be generated on-the-fly, and instead wish to generate all of them on server startup, then see [thumbnail pregen](#thumbnail-pregen)
 
 config file example:
 
@@ -819,9 +837,11 @@ you can also zip a selection of files or folders by clicking them in the browser
 
 cool trick: download a folder by appending url-params `?tar&opus` or `?tar&mp3` to transcode all audio files (except aac|m4a|mp3|ogg|opus|wma) to opus/mp3 before they're added to the archive
 * super useful if you're 5 minutes away from takeoff and realize you don't have any music on your phone but your server only has flac files and downloading those will burn through all your data + there wouldn't be enough time anyways
+* and url-param `&name=foo` changes the name of the toplevel folder in the archive to `foo`, and just `&name` removes the folder entirely
 * and url-param `&nodot` skips dotfiles/dotfolders; they are included by default if your account has permission to see them
 * and url-params `&j` / `&w` produce jpeg/webm thumbnails/spectrograms instead of the original audio/video/images (`&p` for audio waveforms)
   * can also be used to pregenerate thumbnails; combine with `--th-maxage=9999999` or `--th-clean=0`
+    * but now there is also a real [thumbnail pregen](#thumbnail-pregen) so just use that
 
 
 ## uploading
@@ -1003,6 +1023,8 @@ specify `--shr /foobar` to enable this feature; a toplevel virtual folder named 
 
 users can delete their own shares in the controlpanel, and a list of privileged users (`--shr-adm`) are allowed to see and/or delet any share on the server
 
+the volflag `--shr-who` lets you control who can create a share from that volume, either `no` (nobody), `a` (people with admin permission), or `auth` (people who are logged in) 
+
 after a share has expired, it remains visible in the controlpanel for `--shr-rt` minutes (default is 1 day), and the owner can revive it by extending the expiration time there
 
 **security note:** using this feature does not mean that you can skip the [accounts and volumes](#accounts-and-volumes) section -- you still need to restrict access to volumes that you do not intend to share with unauthenticated users! it is not sufficient to use rules in the reverseproxy to restrict access to just the `/share` folder.
@@ -1166,7 +1188,7 @@ open the `[🎺]` media-player-settings tab to configure it,
   * `[flac]` converts `flac` and `wav` files into opus (if supported by browser) or mp3
   * `[aac]` converts `aac` and `m4a` files into opus (if supported by browser) or mp3
   * `[oth]` converts all other known formats into opus (if supported by browser) or mp3
-    * `aac|ac3|aif|aiff|alac|alaw|amr|ape|au|dfpwm|dts|flac|gsm|it|m4a|mo3|mod|mp2|mp3|mpc|mptm|mt2|mulaw|ogg|okt|opus|ra|s3m|tak|tta|ulaw|wav|wma|wv|xm|xpk`
+    * `aac|ac3|aif|aiff|alac|alaw|amr|ape|au|dfpwm|dts|flac|gsm|it|m4a|m4b|m4r|mka|mo3|mod|mp2|mp3|mpc|mptm|mt2|mulaw|ogg|okt|opus|ra|s3m|tak|tta|ulaw|wav|wma|wv|xm|xpk`
 * "transcode to":
   * `[opus]` produces an `opus` whenever transcoding is necessary (the best choice on Android and PCs)
   * `[awo]` is `opus` in a `weba` file, good for iPhones (iOS 17.5 and newer) but Apple is still fixing some state-confusion bugs as of iOS 18.2.1
@@ -1312,6 +1334,66 @@ using arguments or config files, or a mix of both:
 * or if you prefer plaintext, https://copyparty.eu/helptext.txt
 
 
+## version-checker
+
+sleep better at night  by telling copyparty to periodically check whether your version has a [known vulnerability](https://github.com/9001/copyparty/security/advisories)
+
+this feature can be enabled by setting the global-option `--vc-url` to one of the following URLs; choose what severity level you want to be notified for:
+* `https://api.copyparty.eu/advisories-panic` -- only really bad stuff, the "UPGRADE NOW" kind
+* `https://api.copyparty.eu/advisories` -- everything important / noteworthy, "upgrade when you can"
+* `https://api.copyparty.eu/advisories-all` -- *everything*, including stuff that's unlikely to affect anyone
+* `https://api.github.com/repos/9001/copyparty/security-advisories?per_page=9` -- same as `advisories-all`
+
+note that `https://api.copyparty.eu/advisories` may (for example) skip some advisories rated `High` but include some `Low`; that's because an easily-reachable `Low` in a default-enabled feature is more severe than a `High` which is a theoretical bug in a contrived use of a fringe feature, but the CVE calculator would still classify that as `High`
+
+if you want to use the github advisory feed but only care about advisories rated `medium`/`moderate` or higher, then global-option `--vc-sev medium` does that, but see previous paragraph
+
+> to see what happens when a bad version is detected, try `--vc-url https://api.copyparty.eu/advisories-test`
+
+also consider the following options:
+* global-option `--vc-age` is how often (in hours) to check that URL; default is 3
+* global-option `--vc-exit` can be enabled to panic and immediately exit if a vulnerability is indicated
+  * if `--vc-exit` is not enabled, it just shows a warning on the controlpanel for all users with permission `a` or `A`
+
+config file example:
+
+```yaml
+[global]
+  vc-url: https://api.copyparty.eu/advisories
+  vc-age: 3  # how many hours to wait between each check
+  vc-exit    # emergency-exit if current version is vulnerable
+  vc-sev: medium  # only care about severity 'Medium'/'Moderate' or higher (github-only; don't use this with api.copyparty.eu)
+```
+
+
+## logging
+
+serverlog is sent to stdout by default  (but logging to a file is also possible)
+
+"stdout" usually means either the terminal, or journalctl, or whatever is collecting logs from your docker containers, so that depends on your setup
+
+* [-q](https://copyparty.eu/cli/#g-q) disables logging to stdout, and may improve performance a little bit
+  * combine it with `-lo logfolder/cpp-%Y-%m-%d.txt` to log to a file instead
+  * the `%Y-%m-%d` makes it create a new logfile every day, with the date as filename
+  * global-option [--rlo](https://copyparty.eu/cli/#rlo-help-page) decides what happens if the filename is taken
+* `-lo whatever.txt` can be used without `-q` to log to both at the same time
+  * by default, the logfile will have colors if the terminal does (usually the case)
+  * use the [textfile-viewer](https://github.com/user-attachments/assets/8a828947-2fae-4df9-bd2a-3de46f42d478) or `less -R` in a terminal to see colors correctly
+* if you want [no colors](https://youtu.be/biW5UVGkPMA?t=148):
+  * `--flo 2` disables colors for just the logfile
+  * `--no-ansi` disables colors for both the terminal and logfile
+
+config file example:
+
+```yaml
+[global]
+  log-date: %Y-%m-%d  # show dates on stdout too
+  lo: /var/log/cpp/%Y-%m-%d.txt  # logfile path
+  flo: 2  # just text (no colors) in logfile
+  q       # disable stdout; use logfile only
+```
+
+
 ## zeroconf
 
 announce enabled services on the LAN ([pic](https://user-images.githubusercontent.com/241032/215344737-0eae8d98-9496-4256-9aa8-cd2f6971810d.png))  -- `-z` enables both [mdns](#mdns) and [ssdp](#ssdp)
@@ -1439,7 +1521,7 @@ general usage:
 on macos, connect from finder:
 * [Go] -> [Connect to Server...] -> http://192.168.123.1:3923/
 
-to upload or edit files with WebDAV clients, enable the `daw` volflag (because most WebDAV clients expect this) and give your account the delete-permission. This avoids getting several copies of the same file on the server. HOWEVER: This will also make all PUT-uploads overwrite existing files if the user has delete-access, so use with caution.
+to be able to edit existing files, the client must have the Delete-permission, and some webdav clients will also require the [daw](https://copyparty.eu/cli/#g-daw) volflag or global-option (not necessary if the client sends the `x-oc-mtime` header). Without `daw`, those clients will fail to modify existing files and instead create new copies with names like `notes.txt-1771978661.726032-3i9GPghL.txt`. **NOTE:** Enabling `daw` will also make all PUT-uploads overwrite existing files if the user has delete-access, so use with caution. Another alternative is the [dav-port](https://copyparty.eu/cli/#g-dav-port) option
 
 > note: if you have enabled [IdP authentication](#identity-providers) then that may cause issues for some/most webdav clients; see [the webdav section in the IdP docs](https://github.com/9001/copyparty/blob/hovudstraum/docs/idp.md#connecting-webdav-clients)
 
@@ -1689,7 +1771,7 @@ avoid traversing into other filesystems  using `--xdev` / volflag `:c,xdev`, ski
 
 and/or you can `--xvol` / `:c,xvol` to ignore all symlinks leaving the volume's top directory, but still allow bind-mounts pointing elsewhere
 
-* symlinks are permitted with `xvol` if they point into another volume where the user has the same level of access
+* symlinks are permitted with `xvol` if they point into another volume where the user also has some sort of access, keeping permissions from outer/initial volume
 
 these options will reduce performance; unlikely worst-case estimates are 14% reduction for directory listings, 35% for download-as-tar
 
@@ -1818,6 +1900,55 @@ notes:
   * on windows grab this instead `python3 -m pip install --user -U python-magic-bin`
 * `cachectl` changes how webbrowser will cache responses (the `Cache-Control` response-header); default is `no-cache` which will prevent repeated downloading of the same file unless necessary (browser will ask copyparty if the file has changed)
   * adding `?cache` to a link will override this with "fully cache this for 69 seconds"; `?cache=321` is 321 seconds, and `?cache=i` is 7 days
+
+
+## descript.ion
+
+add a description to each file in a folder  by adding them to a textfile named `descript.ion`
+
+see https://copyparty.eu/beta/ for an example -- here's a basic `descript.ion` file:
+
+```
+bookmark.mp3 Taishi feat. Rita - Bookmark Memories
+slowstep.mp3 Taishi feat. 向日葵 - Slow Step -F.L.C.A-
+prsnlzr.mp3 Taishi feat. みとせのりこ - Personalizer
+cosmos.mp3 Taishi feat. Rita - Into the cosmos
+```
+
+
+## dothidden
+
+cosmetically hide specific files in a folder  by adding them to a textfile named `.hidden`
+
+this option is default-disabled; enable the volflag and/or global-option `dothidden`
+
+this is **cosmetic only!** the files are still easily accessible in many ways, for example with download-as-zip/tar, so **do not** rely on this for security.
+
+> also see the [--unlist](https://copyparty.eu/cli/#g-unlist) option which is somewhat similar -- `unlist` applies to the whole volume instead of just one folder; however, while dothidden also affects sftp and ftp, the `unlist` option is http/https-only
+
+
+## thumbnail pregen
+
+if you want to pre-generate everything on startup  (usually a bad idea);
+
+by default, thumbnails are created on-the-fly when a client needs it, and then cached on the server for [--th-maxage](https://copyparty.eu/cli/#g-th-maxage) seconds (default is one week), so most thumbnails only need to be created once, and are then eventually deleted from the cache to preserver disk space
+
+but if you need every thumbnail instantly available when a folder is viewed, then first increase the thumbnail expiration time to something really big, and then set global-option `th-pregen` and volflag `th_pregen` to a comma-separated list of thumbnail formats to automatically generate on server startup;
+
+the full list of all possible formats is: `j,jf,jf3,j3,w,wf,wf3,w3,x,xf,xf3,x3,opus,mp3,flac,wav` and I'll explain what those mean soon
+
+* `j` = jpeg cropped, `jf` = jpeg uncropped, `jf3` = jpeg uncropped triplesize, `j3` jpeg cropped triplesize
+* `w` = webm cropped, `wf` = webm uncropped, ..., `x` = jxl cropped, `xf` = jxl uncropped, ...
+* and yes, audio-transcodes are technically thumbnails according to copyparty -- don't think too much about it ( ﾟ ヮﾟ)
+  * unlike thumbnails, the expiry time for audio-transcodes is configured with [--ac-maxage](https://copyparty.eu/cli/#g-ac-maxage)
+
+anyways, obviously you **do not** want to pregenerate flac/wav because they're HUGE, and everything else also gets pretty big because it all adds up;
+
+* each regular thumbnail ( j, jf, w, wf, x, xf ) takes about 16 KiB of disk space
+* each triplesize thumb ( j3, jf3, w3, wf3, x3, xf3 ) takes about 96 KiB
+* each opus / mp3 audiotranscode takes... idk, 6 MiB? depends on song length
+
+so a thousand pictures converted to every possible regular-size image format (`j,jf,w,wf,x,xf`) takes **96 MiB,** and every possible 3x-size (`jf3,j3,wf3,w3,xf3,x3`) takes **562 MiB,** alternatively **658 MiB** in total for all, so that's why the default is to *not* pregenerate on startup, but instead do on-demand with a cache
 
 
 ## database location
@@ -2204,9 +2335,7 @@ if you want to change the fonts, see [./docs/rice/](./docs/rice/)
 
 become a *real* webserver  which people can access by just going to your IP or domain without specifying a port
 
-**if you're on windows,** then you just need to add the commandline argument `-p 80,443` and you're done! nice
-
-**if you're on macos,** sorry, I don't know
+**if you're on windows or macos,** then you just need to add the commandline argument `-p 80,443` and you're done! nice
 
 **if you're on Linux,** you have the following 4 options:
 
@@ -2427,6 +2556,7 @@ buggy feature? rip it out  by setting any of the following environment variables
 | -------------------- | ------------ |
 | `PRTY_NO_CTYPES`     | do not use features from external libraries such as kernel32 |
 | `PRTY_NO_DB_LOCK`    | do not lock session/shares-databases for exclusive access |
+| `PRTY_NO_ENVEXPAND`  | do not expand environment-variables in configs and args |
 | `PRTY_NO_IFADDR`     | disable ip/nic discovery by poking into your OS with ctypes |
 | `PRTY_NO_IMPRESO`    | do not try to load js/css files using `importlib.resources` |
 | `PRTY_NO_IPV6`       | disable some ipv6 support (should not be necessary since windows 2000) |
@@ -2471,6 +2601,23 @@ after installing, start either the system service or the user service and naviga
 ## fedora package
 
 does not exist yet;  there are rumours that it is being packaged! keep an eye on this space...
+
+
+## gentoo ::guru package
+
+`emerge www-servers/copyparty::guru` (in [::guru](https://wiki.gentoo.org/wiki/Project:GURU))
+
+but first enable the `::guru` repo;
+
+```bash
+emerge -an app-eselect/eselect-repository
+eselect repository enable guru
+emerge --sync guru
+```
+
+to start the service as a user:
+* OpenRC: `rc-service -U copyparty start && rc-update -U add copyparty default`
+* systemd: [todo]
 
 
 ## homebrew formulae
@@ -2617,6 +2764,12 @@ services.copyparty = {
   };
   # you may increase the open file limit for the process
   openFilesLimit = 8192;
+  
+  # override the package used by the module to add dependencies, e.g. for hooks
+  package = pkgs.copyparty.override {
+    # provides exiftool for bin/hooks/image-noexif.py
+    extraPackages = [ pkgs.exiftool ];
+  };
 };
 ```
 
@@ -2880,7 +3033,9 @@ some notes on hardening
 * set `--rproxy 0` *if and only if* your copyparty is directly facing the internet (not through a reverse-proxy)
   * cors doesn't work right otherwise
 * if you allow anonymous uploads or otherwise don't trust the contents of a volume, you can prevent XSS with volflag `nohtml`
-  * this returns html documents as plaintext, and also disables markdown rendering
+  * this returns html documents and svg images as plaintext, and also disables markdown rendering
+  * the `nohtml` volflag also enables `noscript` which, on its own, prevents *most* javascript from running; enabling just `noscript` without `nohtml` makes it probably-safe (see below) to view html and svg files, but `nohtml` is necessary to block javascript in markdown documents
+    * "probably-safe" because it relies on `Content-Security-Policy` so it depends on the reverseproxy to forward it, and the browser to understand it, but `nohtml` (the nuclear option) always works
 * when running behind a reverse-proxy, listen on a unix-socket for tighter access control (and more performance); see [reverse-proxy](#reverse-proxy) or [`--help-bind`](https://copyparty.eu/cli/#bind-help-page)
 
 safety profiles:
@@ -2986,9 +3141,10 @@ when generating hashes using `--ah-cli` for docker or systemd services, make sur
 
 ## https
 
-both HTTP and HTTPS are accepted  by default, but letting a [reverse proxy](#reverse-proxy) handle the https/tls/ssl would be better (probably more secure by default)
+both HTTP and HTTPS are accepted  by default, but please ignore copyparty's built-in https/tls support and instead use a [reverse proxy](#reverse-proxy) to handle https/tls/ssl
 
-copyparty doesn't speak HTTP/2 or QUIC, so using a reverse proxy would solve that as well -- but note that HTTP/1 is usually faster than both HTTP/2 and HTTP/3
+* reverseproxies do a better job following [best practices](https://cipherlist.eu/) meaning they are more secure, and probably also have higher performance
+* also, copyparty doesn't speak HTTP/2 or QUIC, so using a reverse proxy would solve that as well -- but note that HTTP/1 is usually faster than both HTTP/2 and HTTP/3
 
 if [cfssl](https://github.com/cloudflare/cfssl/releases/latest) is installed, copyparty will automatically create a CA and server-cert on startup
 * the certs are written to `--crt-dir` for distribution, see `--help` for the other `--crt` options
@@ -2999,6 +3155,11 @@ to install cfssl on windows:
 * [download](https://github.com/cloudflare/cfssl/releases/latest) `cfssl_windows_amd64.exe`, `cfssljson_windows_amd64.exe`, `cfssl-certinfo_windows_amd64.exe`
 * rename them to `cfssl.exe`, `cfssljson.exe`, `cfssl-certinfo.exe`
 * put them in PATH, for example inside `c:\windows\system32`
+
+if you really wanna give copyparty an existing TLS certificate then do one of the following:
+* `--no-crt --cert server.pem` where `server.pem` is a concatenation of key + cert + chain (in that order), or...
+* `--no-crt --cert server.crt --certkey server.key` where `server.key` is the key, and `server.crt` is a concatenation of cert + chain (in that order)
+* file-extensions don't matter, but all files are expected to be [PEM-style](https://github.com/9001/copyparty/blob/hovudstraum/copyparty/res/insecure.pem)
 
 
 # recovering from crashes
@@ -3054,7 +3215,7 @@ enable [thumbnails](#thumbnails) of...
 * **HEIF pictures:** `pyvips` or `ffmpeg` or `pillow-heif`
 * **AVIF pictures:** `pyvips` or `ffmpeg` or `pillow-avif-plugin` or pillow v11.3+
 * **JPEG XL pictures:** `pyvips` or `ffmpeg`
-* **RAW images:** `rawpy`, plus one of `pyvips` or `Pillow` (for some formats)
+* **RAW photos:** either `libraw dcraw_emu` or `rawpy`, plus either `pyvips` or `Pillow`
 
 enable sending [zeromq messages](#zeromq) from event-hooks: `pyzmq`
 
@@ -3065,6 +3226,8 @@ enable [smb](#smb-server) support (**not** recommended): `impacket==0.13.0`
 * to install `pyvips` on windows: `pip install --user -U "pyvips[binary]"`
 
 to install FFmpeg on Windows, grab [a recent build](https://www.gyan.dev/ffmpeg/builds/ffmpeg-git-full.7z) -- you need `ffmpeg.exe` and `ffprobe.exe` from inside the `bin` folder; copy them into `C:\Windows\System32` or any other folder that's in your `%PATH%`
+
+if your ffmpeg/ffprobe binaries have nonstandard names -- such as `ffmpeg8` (macports) -- set environment variables `PRTY_FFMPEG_BIN` and `PRTY_FFPROBE_BIN` to the corret name (or full path)
 
 
 ### dependency chickenbits
@@ -3080,6 +3243,7 @@ set any of the following environment variables to disable its associated optiona
 | -------------------- | ------------ |
 | `PRTY_NO_ARGON2`     | disable argon2-cffi password hashing |
 | `PRTY_NO_CFSSL`      | never attempt to generate self-signed certificates using [cfssl](https://github.com/cloudflare/cfssl) |
+| `PRTY_NO_DCRAW`      | disable all [libraw](https://www.libraw.org/homepage)-based thumbnail support for RAW images |
 | `PRTY_NO_FFMPEG`     | **audio transcoding** goes byebye, **thumbnailing** must be handled by Pillow/libvips |
 | `PRTY_NO_FFPROBE`    | **audio transcoding** goes byebye, **thumbnailing** must be handled by Pillow/libvips, **metadata-scanning** must be handled by mutagen |
 | `PRTY_NO_MAGIC`      | do not use [magic](https://pypi.org/project/python-magic/) for filetype detection |
@@ -3094,7 +3258,8 @@ set any of the following environment variables to disable its associated optiona
 | `PRTY_NO_PIL_WEBP`   | disable use of native webp support in Pillow |
 | `PRTY_NO_PSUTIL`     | do not use [psutil](https://pypi.org/project/psutil/) for reaping stuck hooks and plugins on Windows |
 | `PRTY_NO_PYFTPD`     | disable ftp(s) server ([pyftpdlib](https://pypi.org/project/pyftpdlib/)-based) |
-| `PRTY_NO_RAW`        | disable all [rawpy](https://pypi.org/project/rawpy/)-based thumbnail support for RAW images |
+| `PRTY_NO_RAW`        | same as `PRTY_NO_DCRAW` plus `PRTY_NO_RAWPY` |
+| `PRTY_NO_RAWPY`      | disable all [rawpy](https://pypi.org/project/rawpy/)-based thumbnail support for RAW images |
 | `PRTY_NO_VIPS`       | disable all [libvips](https://pypi.org/project/pyvips/)-based thumbnail support; will fallback to Pillow or ffmpeg |
 
 example: `PRTY_NO_PIL=1 python3 copyparty-sfx.py`

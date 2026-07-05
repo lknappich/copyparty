@@ -53,12 +53,12 @@ class BrokerThr(BrokerCli):
         return NotExQueue(obj(*args))  # type: ignore
 
     def say(self, dest: str, *args: Any) -> None:
-        if dest == "httpsrv.listen":
-            self.httpsrv.listen(args[0], 1)
-            return
+        if dest.startswith("httpsrv."):
+            if dest == "httpsrv.listen":
+                self.httpsrv.listen(args[0], 1)
+                return
 
-        if dest == "httpsrv.set_netdevs":
-            self.httpsrv.set_netdevs(args[0])
+            getattr(self.httpsrv, dest[8:])(*args)
             return
 
         # new ipc invoking managed service in hub

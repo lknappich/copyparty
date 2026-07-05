@@ -54,11 +54,24 @@ with image size after installation and when gzipped
 
 [`ac` is recommended](https://hub.docker.com/r/copyparty/ac) since the additional features available in `iv` and `dj` are rarely useful
 
-most editions support `x86`, `x86_64`, `armhf`, `aarch64`, `ppc64le`, `s390x`
-* `dj` doesn't run on `ppc64le`, `s390x`, `armhf`
-* `iv` doesn't run on `ppc64le`, `s390x`
+| this architecture              | can run these editions        |
+| ------------------------------ | ----------------------------- |
+| `x86` aka `i386` aka `386`     | `min`, `im`, `ac`, `iv`, `dj` |
+| `x86_64` aka `x64` aka `amd64` | `min`, `im`, `ac`, `iv`, `dj` |
+| `AArch64` aka `arm64/v8`       | `min`, `im`, `ac`, `iv`, `dj` |
+| `arm32` aka `arm/v7`           | `min`, `im`, `ac`             |
+| `ppc64le` aka `PowerPC`        | `min`, `im`, `ac`             |
+| `s390x` aka `IBM mainframe`    | `min`, `im`, `ac`             |
 
 > NOTE: the following editions are unfinished experiments, and not published anywhere: djd djf djff dju
+
+
+### aftermarket editions
+
+some notable alternative copyparty distributions, made and maintained by other people, unaffiliated unless mentioned otherwise -- please use your own judgement whether to trust these
+
+* https://github.com/0x464e/patentparty has more multimedia codecs than the official images
+  * as of writing: a modification of the official images, automatically maintained by github actions; looks clean and legit
 
 
 ## detecting bpm and musical key
@@ -120,6 +133,7 @@ add the following three config entries into the `[global]` section of your `copy
 * `ftp: 3921` to enable the service, listening for connections on port 3921
 
 * `ftp-nat: 127.0.0.1` but replace `127.0.0.1` with the actual external IP of your server; the clients will only be able to connect to this IP, even if the server has multiple IPs
+  * do not add `ftp-nat` if you are running the container with host networking
 
 * `ftp-pr: 12000-12099` to restrict the [passive-mode](http://slacksite.com/other/ftp.html#passive) port selection range; this allows up to 100 simultaneous file transfers
 
@@ -129,3 +143,8 @@ then finally update your docker config so that the port-range you specified (120
 # build the images yourself
 
 basically `./make.sh hclean pull img push` but see [devnotes.md](./devnotes.md)
+
+
+## adding new packages to the image
+
+in case you wish to make a small modification to the official image, for example [add a python package you need](https://github.com/9001/copyparty/issues/479#issuecomment-3152026483), then you don't *really* need to build the whole image from scratch -- see [modifying an image](./devnotes.md#modifying-an-image) in devnotes

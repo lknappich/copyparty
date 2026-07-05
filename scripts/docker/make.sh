@@ -1,5 +1,7 @@
 #!/bin/bash
 set -e
+self=$(cd -- "$(dirname "$BASH_SOURCE")"; pwd -P)
+cd "$self"
 
 [ $(id -u) -eq 0 ] && {
     echo dont root
@@ -14,7 +16,7 @@ imgs="dj iv min im ac"
 dhub_order="iv dj min im ac"
 ghcr_order="ac im min dj iv"
 ngs=(
-    iv-{ppc64le,s390x}
+    iv-{ppc64le,s390x,arm}
     dj-{ppc64le,s390x,arm}
 )
 
@@ -24,6 +26,17 @@ for x in awk jq podman python3 tar wget ; do
     err=1; echo ERROR: missing dependency: $x
 done
 [ $err ] && exit 1
+
+getver() {
+    ver=$(
+        python3 ../../dist/copyparty-sfx.py --version 2>/dev/null |
+        awk '/^copyparty v/{sub(/-.*/,"");sub(/v/,"");print$2;exit}'
+    )
+    echo $ver | grep -E '[0-9]\.[0-9]' || {
+        echo no ver
+        exit 1
+    }
+}
 
 for v in "$@"; do
     [ "$v" = clean  ] && clean=1
@@ -78,6 +91,25 @@ filt=
 }
 
 [ $img ] && {
+    getver
+    t_ver="org.opencontainers.image.version=$ver"
+    t_cre="org.opencontainers.image.created=$( date -u +%Y-%m-%dT%H:%M:%SZ )"
+    vbt="LABEL $(echo "$t_ver $t_cre" | sed -r 's/=([^ ]+)/="\1"/g' )"
+
+    [ -e base/test-aac/lc.m4a ] || (
+        echo building aac smoketest
+        mkdir -p base/test-aac
+        cd base/test-aac
+        ffmpeg -nostdin -y -f lavfi -i sine -ac 2 -t 1 a.wav &&
+        fdkaac -m 3 -o lc.m4a a.wav &&
+        fdkaac -m 2 -p 5 -o he.m4a a.wav &&
+        fdkaac -m 1 -p 29 -o he2.m4a a.wav &&
+        fdkaac -m 3 -p 23 -o ld.m4a a.wav &&
+        fdkaac -m 3 -p 39 -o eld.m4a a.wav ||
+        echo "nevermind, failed to build test files, cannot verify aac decoding"
+        rm -f a.wav
+    )
+
     fp=../../dist/copyparty-sfx.py
     [ -e $fp ] || {
         echo downloading copyparty-sfx.py ...
@@ -96,10 +128,15 @@ filt=
     # grab deps
     rm -rf i err
     mkdir i
-    tar -cC../.. dist/copyparty-sfx.py bin/mtag | tar -xvCi
+    tar -cC "$self/base" whl test-aac \
+        -C "$self/base/b" packages \
+        -C "$self/../.."  bin/mtag \
+        -C dist copyparty-sfx.py \
+        | tar -xvCi
 
     for i in $imgs; do
         podman rm copyparty-$i || true  # old manifest
+        sed -r "s/^#vbt.*/$vbt/" <Dockerfile.$i >.Dockerfile.$i.w
         for a in $archs; do
             [[ " ${ngs[*]} " =~ " $i-$a " ]] && continue  # known incompat
 
@@ -116,7 +153,7 @@ filt=
 
             # not sure if this is necessary or if inherit-annotations=false was enough, but won't hurt
             readarray -t annot < <(awk <Dockerfile.$i '/org.opencontainers.image/{sub(/[^\.]+/,"");sub(/[" \\]+$/,"");sub(/"/,"");print"--annotation";print"org"$0}')
-            annot+=( --annotation "org.opencontainers.image.created=$( date -u +%Y-%m-%dT%H:%M:%SZ )" )
+            annot+=( --annotation "$t_ver" --annotation "$t_cre" )
 
             # --pull=never does nothing at all btw
             (set -x
@@ -127,7 +164,7 @@ filt=
                 --inherit-annotations=false \
                 "${annot[@]}" \
                 -t copyparty-$i-$a$suf \
-                -f Dockerfile.$i . ||
+                -f .Dockerfile.$i.w . ||
                     (echo $? $i-$a >> err; printf '%096d\n' $(seq 1 42))
             rm -f .blk
             ) 2> >(tee $a.err | sed "s/^/$aa:/" >&2) > >(tee $a.out | sed "s/^/$aa:/") &
@@ -143,6 +180,7 @@ filt=
         done
     done
     wait
+    rm -f .Dockerfile.*.w
     [ -e err ] && {
         echo somethign died,
         cat err
@@ -163,17 +201,11 @@ filt=
 }
 
 [ $push ] && {
-    ver=$(
-        python3 ../../dist/copyparty-sfx.py --version 2>/dev/null |
-        awk '/^copyparty v/{sub(/-.*/,"");sub(/v/,"");print$2;exit}'
-    )
-    echo $ver | grep -E '[0-9]\.[0-9]' || {
-        echo no ver
-        exit 1
-    }
+    getver
     for i in $dhub_order; do
         printf '\ndockerhub %s\n' $i
         podman manifest push --all copyparty-$i copyparty/$i:$ver
+        podman manifest push --all copyparty-$i copyparty/$i:beta
         podman manifest push --all copyparty-$i copyparty/$i:latest
     done &
     for i in $ghcr_order; do

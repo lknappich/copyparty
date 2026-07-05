@@ -124,6 +124,7 @@ pybin=$(command -v python3 || command -v python) || {
 	echo
 	exit 1
 }
+self="$(pwd)"
 
 langs=
 use_gz=
@@ -435,10 +436,15 @@ find -name py.typed -delete
 find -type f \( -name .DS_Store -or -name ._.DS_Store \) -delete
 find -type f -name ._\* | while IFS= read -r f; do cmp <(printf '\x00\x05\x16') <(head -c 3 -- "$f") && rm -fv -- "$f"; done
 
-rm -f copyparty/web/deps/*.full.* copyparty/web/deps/README.md copyparty/web/dbg-* copyparty/web/Makefile
+rm -f \
+	copyparty/web/deps/*.full.* \
+	copyparty/web/deps/README.md \
+	copyparty/web/dbg-* \
+	copyparty/web/Makefile*
 
 find copyparty | LC_ALL=C sort | sed -r 's/\.gz$//;s/$/,/' > have
-cat have | while IFS= read -r x; do
+grep <have -vE '^copyparty/web/w.hash.js,$' |
+while IFS= read -r x; do
 	grep -qF -- "$x" ../scripts/sfx.ls || {
 		echo "unexpected file: $x"
 		exit 1
@@ -507,6 +513,7 @@ unhelpg() {
 [ $no_hl ] &&
 	rm -rf copyparty/web/deps/prism*
 
+rm -f copyparty/web/deps/orbitron.woff2  # todo:uiv15
 [ $no_fnt ] && {
 	rm -f copyparty/web/deps/scp.woff2
 	f=copyparty/web/ui.css
@@ -565,6 +572,9 @@ while IFS= read -r f; do
 	ised 's/(^class [^(:]+):/\1(object):/' "$f"
 done
 
+[ -e copyparty/web/w.hash.js ] &&
+	ised 's` // .*``;s` //console.*``;s`^ +$``' copyparty/web/w.hash.js
+
 # up2k goes from 28k to 22k laff
 awk 'BEGIN{gensub(//,"",1)}' </dev/null 2>/dev/null &&
 echo entabbening &&
@@ -589,6 +599,19 @@ find | grep -E '\.(js|html)$' | while IFS= read -r f; do
 	tmv "$f"
 done
 
+# csp nonce blocks importScripts; make webworker bundle (single-member gz only)
+[ $repack ] || (
+	cd copyparty/web
+	[ -e w.hash.js.gz ] || [ -e w.hash.js ] && {
+		echo modding sha512.hw.js
+		[ -e deps/sha512.hw.js.gz ] && gzip -d deps/sha512.hw.js.gz
+		[ -e w.hash.js.gz ] && gzip -d w.hash.js
+		iawk '/copyparty/{exit}/./' deps/sha512.hw.js
+		printf '\n\n\n\n\n' >> deps/sha512.hw.js
+		cat w.hash.js >> deps/sha512.hw.js
+	}
+)
+
 gzres() {
 	local pk=
 	[ "$zopf" = no ] && return
@@ -598,6 +621,10 @@ gzres() {
 
 	np=$(nproc)
 	echo "$pk #$np"
+
+	find copyparty/web/tl | grep '\.js$' | while IFS= read -r f; do
+		/bin/sh ../copyparty/web/Makefile.s1 <"$f" >t; tmv "$f"
+	done
 
 	while IFS=' ' read -r _ f; do
 		while true; do
@@ -610,7 +637,7 @@ gzres() {
 	done < <(
 		find -printf '%s %p\n' |
 		grep -E '\.(js|css)$|/web/a/.*\.txt$' |
-		grep -vF /deps/ |
+		awk '/sha512.hw.js/||!/\/deps\//' |
 		sort -nr
 	)
 	wait
@@ -620,6 +647,9 @@ gzres
 
 [ $udep ] &&
     find -iname '*.gz' | while IFS= read -r x; do gzip -d "$x"; done
+
+[ $repack ] ||
+	cp -p copyparty/web/deps/sha512.hw.js* "$self/copyparty/web/deps/"
 
 echo gen tarlist
 for d in copyparty partftpy magic j2 py2 py37 ftp; do find $d -type f || true; done |  # strip_hints

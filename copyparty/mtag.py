@@ -15,8 +15,10 @@ from .authsrv import VFS
 from .bos import bos
 from .util import (
     FFMPEG_URL,
+    LOG,
     REKOBO_LKEY,
     VF_CAREFUL,
+    expand_osenv_c,
     fsenc,
     gzip,
     min_ex,
@@ -45,29 +47,41 @@ except:
     HAVE_MUTAGEN = False
 
 
-def have_ff(scmd: str) -> bool:
-    if ANYWIN:
+def have_ff(name: str) -> bytes:
+    uname = name.upper()
+    if os.environ.get("PRTY_NO_" + uname):
+        return b""
+
+    ebin = os.environ.get("PRTY_%s_BIN" % (uname,))
+    try:
+        scmd = (ebin or name).decode("utf-8")
+    except:
+        scmd: str = ebin or name
+
+    if ANYWIN and not ebin:
         scmd += ".exe"
 
     if PY2:
-        print("# checking {}".format(scmd))
-        acmd = (scmd + " -version").encode("ascii").split(b" ")
+        print("# checking %s" % (scmd,))
+        bcmd = scmd.encode("utf-8")
         try:
-            sp.Popen(acmd, stdout=sp.PIPE, stderr=sp.PIPE).communicate()
-            return True
+            sp.Popen([bcmd, b"-version"], stdout=sp.PIPE, stderr=sp.PIPE).communicate()
+            return bcmd
         except:
-            return False
+            return b""
     else:
-        return bool(shutil.which(scmd))
+        return (shutil.which(scmd) or "").encode("utf-8")
 
 
-HAVE_FFMPEG = not os.environ.get("PRTY_NO_FFMPEG") and have_ff("ffmpeg")
-HAVE_FFPROBE = not os.environ.get("PRTY_NO_FFPROBE") and have_ff("ffprobe")
+HAVE_FFMPEG = have_ff("ffmpeg")
+HAVE_FFPROBE = have_ff("ffprobe")
+TH_BWRAP = []
 
-CBZ_PICS = set("png jpg jpeg gif bmp tga tif tiff webp avif".split())
+CBZ_PICS = set("png jpg jpeg gif bmp tga tif tiff webp avif jxl".split())
 CBZ_01 = re.compile(r"(^|[^0-9v])0+[01]\b")
 
 FMT_AU = set("mp3 ogg flac wav".split())
+M4A = set("aac m4a m4b m4r".split())
 
 
 class MParser(object):
@@ -85,7 +99,7 @@ class MParser(object):
 
         while True:
             try:
-                bp = os.path.expanduser(args)
+                bp = os.path.expanduser(expand_osenv_c(args))
                 if WINDOWS:
                     bp = uncyg(bp)
 
@@ -132,6 +146,7 @@ class MParser(object):
 def au_unpk(
     log: "NamedLogger", fmt_map: dict[str, str], abspath: str, vn: Optional[VFS] = None
 ) -> str:
+    fd = 0
     ret = ""
     maxsz = 1024 * 1024 * 64
     try:
@@ -185,6 +200,7 @@ def au_unpk(
 
         fsz = 0
         with os.fdopen(fd, "wb") as fo:
+            fd = 0
             while True:
                 buf = fi.read(32768)
                 if not buf:
@@ -199,6 +215,8 @@ def au_unpk(
         return ret
 
     except Exception as ex:
+        if fd:
+            os.close(fd)
         if ret:
             t = "failed to decompress file %r: %r"
             log(t % (abspath, ex))
@@ -208,18 +226,37 @@ def au_unpk(
         return abspath
 
 
+def bwrap(prog: bytes, ap_in: bytes, ap_out: bytes) -> list[bytes]:
+    if not TH_BWRAP:
+        return [prog]
+    ret = TH_BWRAP + [b"--ro-bind", prog, prog, b"--ro-bind", ap_in, ap_in]
+    if ap_out:
+        zs = ap_out.rsplit(b"/", 1)[0]
+        ret += [b"--bind", zs, zs]
+    ret.append(prog)
+    return ret
+
+
+def bwrap_fail(serr: str) -> None:
+    if "bwrap:" in serr:
+        LOG[0]("root", "ffmpeg failed due to --th-bwrap;\n  " + serr, 3)
+
+
 def ffprobe(
     abspath: str, timeout: int = 60
 ) -> tuple[dict[str, tuple[int, Any]], dict[str, list[Any]], list[Any], dict[str, Any]]:
-    cmd = [
-        b"ffprobe",
+    # ffprobe -hide_banner -show_streams -show_format --
+    bap = fsenc(abspath)
+    cmd = bwrap(HAVE_FFPROBE, bap, b"") + [
         b"-hide_banner",
         b"-show_streams",
         b"-show_format",
         b"--",
-        fsenc(abspath),
+        bap,
     ]
     rc, so, se = runcmd(cmd, timeout=timeout, nice=True, oom=200)
+    if rc and TH_BWRAP:
+        bwrap_fail(se)
     retchk(rc, cmd, se)
     return parse_ffprobe(so)
 
@@ -259,7 +296,7 @@ def parse_ffprobe(
     md: dict[str, list[Any]] = {}  # raw tags
 
     is_audio = fmt.get("format_name") in FMT_AU
-    if fmt.get("filename", "").split(".")[-1].lower() in ["m4a", "aac"]:
+    if fmt.get("filename", "").split(".")[-1].lower() in M4A:
         is_audio = True
 
     # if audio file, ensure audio stream appears first
@@ -666,7 +703,7 @@ class MTag(object):
                     zb = os.getxattr(abspath, xattr)
                     ret[xattr] = zb.decode("utf-8", "replace")
             except:
-                self.log("failed to read xattrs from [%s]\n%s", abspath, min_ex(), 3)
+                self.log("failed to read xattrs from [%s]\n%s" % (abspath, min_ex()), 3)
         elif "db_xattr_yes" in vf:
             for xattr in vf["db_xattr_yes"]:
                 if "=" in xattr:

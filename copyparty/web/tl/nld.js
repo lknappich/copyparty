@@ -114,7 +114,7 @@ Ls.nld = {
 	"login": "Inloggen", //m
 	"access": " Toegang",
 	"ot_close": "Sluit onder-menu",
-	"ot_search": "Zoek voor bestanden bij attributes, pad / naam, muziek tags, of elk andere combinatie tussen$N$N&lt;code&gt;foo bar&lt;/code&gt; = moet beide «foo» en «bar» bevatten,$N&lt;code&gt;foo -bar&lt;/code&gt; = moet «foo» bevatten maar geen «bar»,$N&lt;code&gt;^yana .opus$&lt;/code&gt; = start met «yana» en moet een «opus» bestand zijn$N&lt;code&gt;&quot;try unite&quot;&lt;/code&gt; = moet precies «try unite» bevatten$N$Nde datum formaat is iso-8601, zoals$N&lt;code&gt;2009-12-31&lt;/code&gt; of &lt;code&gt;2020-09-12 23:30:00&lt;/code&gt;",
+	"ot_search": "`Zoek voor bestanden bij attributes, pad / naam, muziek tags, of elk andere combinatie tussen$N$N`foo bar` = moet beide «foo» en «bar» bevatten,$N`foo -bar` = moet «foo» bevatten maar geen «bar»,$N`^yana .opus$` = start met «yana» en moet een «opus» bestand zijn$N`&quot;try unite&quot;` = moet precies «try unite» bevatten$N$Nde datum formaat is iso-8601, zoals$N`2009-12-31` of `2020-09-12 23:30:00`",
 	"ot_unpost": "unpost: verwijder je recente uploads, of onvoltooide uploads afbreken",
 	"ot_bup": "bup: Basisuploader, supports zelfs netscape 4.0",
 	"ot_mkdir": "mkdir: Maak een nieuwe map",
@@ -221,6 +221,7 @@ Ls.nld = {
 	"cl_hpick": "Tik op de kolomkoppen om ze in de onderstaande tabel te verbergen",
 	"cl_hcancel": "Kolumn verbergen geannuleerd",
 	"cl_rcm": "Rechtermuisknopmenu", //m
+	"cl_gauto": "auto田", //m
 
 	"ct_grid": '田 grid',
 	"ct_ttips": '◔ ◡ ◔">ℹ️ tooltips',
@@ -263,9 +264,9 @@ Ls.nld = {
 
 	"cdt_lim": "Max aantal bestanden laten zien in een map",
 	"cdt_ask": "Als helemaal naar beneden gescrolld bent,$Nin plaats van meer inladen,$Nvraag wat het moet doen",
-	"cdt_hsort": "Hoeveel sorteerregels (&lt;code&gt;,sorthref&lt;/code&gt;) moeten er in media-URL's worden opgenomen? Als je dit op 0 instelt, worden de sorteerregels in medialinks ook genegeerd wanneer erop geklikt word.",
-	"cdt_ren": "Aangepast rechtermuisknopmenu inschakelen, het normale menu blijft beschikbaar met shift + rechtermuisknop", //m
-	"cdt_rdb": "toon het normale rechtermuisknopmenu wanneer het aangepaste al open is en opnieuw wordt geklikt", //m
+	"cdt_hsort": "`Hoeveel sorteerregels (`,sorthref`) moeten er in media-URL's worden opgenomen? Als je dit op 0 instelt, worden de sorteerregels in medialinks ook genegeerd wanneer erop geklikt word.",
+	"cdt_ren": "Aangepast rechtermuisknopmenu inschakelen, het normale menu blijft beschikbaar met shift + rechtermuisknop\">inschakelen", //m
+	"cdt_rdb": "toon het normale rechtermuisknopmenu wanneer het aangepaste al open is en opnieuw wordt geklikt\">x2", //m
 
 	"tt_entree": "Laat navpane zien (directoryboom zijbalk)$NHotkey: B",
 	"tt_detree": "Laat breadcrumbs zien$NHotkey: B",
@@ -275,6 +276,8 @@ Ls.nld = {
 	"tt_dynt": "Automatisch groeien naarmate de directoryboom zich uitbreidt",
 	"tt_wrap": "Automatische terugloop",
 	"tt_hover": "Laat overlopenden lijnen zien bij zweven$N(stopt het scrollen tenzij de muis in de linker gedeelte van het scherm is)",
+	"tt_gauto": "weergeven als grid of lijst afhankelijk van mapinhoud", //m
+	"tt_gathr": "gebruik grid als dit percentage bestanden afbeeldingen/video's zijn", //m
 
 	"ml_pmode": "Aan het einde van de map...",
 	"ml_btns": "Cmds",
@@ -283,6 +286,7 @@ Ls.nld = {
 	"ml_tint": "Tint",
 	"ml_eq": "Audio-equalizer",
 	"ml_drc": "Dynamisch bereikcompressor",
+	"ml_ss": "Stiltes overslaan", //m
 
 	"mt_loop": "Loop/herhaal een nummer\">🔁",
 	"mt_one": "Stop na een nummer\">1️⃣",
@@ -318,8 +322,13 @@ Ls.nld = {
 	"mt_c2ng": "Uw apparaat lijkt dit uitvoerformaat niet te ondersteunen, maar we gaan het toch proberen",
 	"mt_xowa": "iOS bevat bugs waardoor dit formaat niet op de achtergrond kan worden afgespeeld; gebruik in plaats daarvan caf of mp3.",
 	"mt_tint": "Achtergrond helderheid (0-100) op de zoekbalk om bufferen minder storend te maken",
-	"mt_eq": "Schakelt de equalizer en gain-control in;$N$Nboost &lt;code&gt;0&lt;/code&gt; = standaard 100% volume (ongeweijzigd)$N$Nwidth &lt;code&gt;1 &nbsp;&lt;/code&gt; = standaard stereo (ongeweijzigd)$Nwidth &lt;code&gt;0.5&lt;/code&gt; = 50% links-rechts crossfeed$Nwidth &lt;code&gt;0 &nbsp;&lt;/code&gt; = mono$N$Nboost &lt;code&gt;-0.8&lt;/code&gt; &amp; width &lt;code&gt;10&lt;/code&gt; = stemverwijdering :^)$N$NDoor de equalizer in te schakelen, worden gapless albums volledig gapless. Laat hem dus aanstaan met alle waarden op nul (behalve width = 1) als je dat belangrijk vindt.",
+	"mt_eq": "`Schakelt de equalizer en gain-control in;$N$Nboost `0` = standaard 100% volume (ongeweijzigd)$N$Nwidth `1 &nbsp;` = standaard stereo (ongeweijzigd)$Nwidth `0.5` = 50% links-rechts crossfeed$Nwidth `0 &nbsp;` = mono$N$Nboost `-0.8` &amp; width `10` = stemverwijdering :^)$N$NDoor de equalizer in te schakelen, worden gapless albums volledig gapless. Laat hem dus aanstaan met alle waarden op nul (behalve width = 1) als je dat belangrijk vindt.",
 	"mt_drc": "Schakelt de dynamic range compressor in (volume flattener / brickwaller); schakelt ook EQ in om de spaghetti te balanceren, dus zet alle EQ velden behalve ‘width’ op 0 als je dat niet wilt.$N$Nverlaagt het volume van audio boven THRESHOLD dB; voor elke RATIO dB voorbij THRESHOLD is er 1 dB output, dus standaardwaarden van tresh -24 en ratio 12 betekenen dat het nooit luider dan -22 dB zou moeten worden en het is veilig om de equalizer boost te verhogen tot 0.8, of zelfs 1.8 met ATK 0 en een enorme RLS zoals 90 (werkt alleen in firefox; RLS is max 1 in andere browsers)$N$N(zie wikipedia, die legt het veel beter uit)",
+	"mt_ss": "`Schakelt stilte-overslaan in; vermenigvuldigt afspeelsnelheid met `vrs` nabij begin/einde wanneer volume onder `vol` is en positie binnen de eerste `beg`% of laatste `eind`%", //m
+	"mt_ssvt": "Volumedrempel (0-255)\">vol", //m
+	"mt_ssts": "Actieve drempel (% track, begin)\">beg", //m
+	"mt_sste": "Actieve drempel (% track, einde)\">eind", //m
+	"mt_sssm": "Vermenigvuldiger afspeelsnelheid\">vrs", //m
 
 	"mb_play": "Afspelen",
 	"mm_hashplay": "Deze audio bestand afspelen?",
@@ -398,8 +407,8 @@ Ls.nld = {
 	"fr_case": "Hoofdlettergevoelige regex\">case",
 	"fr_win": "Windows-veilige namen; vervangen <code>&lt;&gt;:&quot;\\|?*</code> met japanse tekens over de volledige breedte\">win",
 	"fr_slash": "Vervang <code>/</code> met een teken waardoor er geen nieuwe mappen worden gemaakt\">geen /",
-	"fr_re": "Regex zoekpatroon om toe te passen op originele bestandsnamen; naar capturing groups kan worden verwezen in het onderstaande opmaakveld zoals &lt;code&gt;(1)&lt;/code&gt; en &lt;code&gt;(2)&lt;/code&gt; enzovoort",
-	"fr_fmt": "Geïnspireerd door foobar2000 :$N&lt;code&gt;(titel)&lt;/code&gt; wordt vervangen door de titel van het nummer,$N&lt;code&gt;[(artiest) - ](titel)&lt;/code&gt; sla [dit] gedeelte over als artiest leeg is$N&lt;code&gt;$lpad((tn),2,0)&lt;/code&gt; vult tracknummer op tot 2 cijfers (0X)",
+	"fr_re": "`Regex zoekpatroon om toe te passen op originele bestandsnamen; naar capturing groups kan worden verwezen in het onderstaande opmaakveld zoals `(1)` en `(2)` enzovoort",
+	"fr_fmt": "`Geïnspireerd door foobar2000 :$N`(titel)` wordt vervangen door de titel van het nummer,$N`[(artiest) - ](titel)` sla [dit] gedeelte over als artiest leeg is$N`$lpad((tn),2,0)` vult tracknummer op tot 2 cijfers (0X)",
 	"fr_pdel": "Verwijderen",
 	"fr_pnew": "Opslaan als",
 	"fr_pname": "Geef een naam op voor je nieuwe preset",
@@ -563,7 +572,7 @@ Ls.nld = {
 	"u_https1": "Je moet",
 	"u_https2": "overschakelen naar https",
 	"u_https3": "voor betere prestaties",
-	"u_ancient": 'Je browser is indrukwekkend oud -- misschien moet je <a href="#" onclick="goto(\'bup\')">in plaats daarvan bup gebruiken</a>',
+	"u_ancient": 'Je browser is indrukwekkend oud -- misschien moet je <a href="#" id="u2nah">in plaats daarvan bup gebruiken</a>',
 	"u_nowork": "Je moet firefox 53+ of chrome 57+ of iOS 11+ hebben",
 	"tail_2old": "Je moet firefox 105+ of chrome 71+ of iOS 14.5+ hebben",
 	"u_nodrop": 'Je browser is te oud voor uploaden via slepen en neerzetten',

@@ -114,7 +114,7 @@ Ls.deu = {
 	"login": "Anmelden",
 	"access": " Zugriff",
 	"ot_close": "Submenu schliessen",
-	"ot_search": "Dateien nach Attributen, Pfad/Name, Musiktags oder beliebiger Kombination suchen$N$N&lt;code&gt;foo bar&lt;/code&gt; = muss «foo» und «bar» enthalten,$N&lt;code&gt;foo -bar&lt;/code&gt; = muss «foo» aber nicht «bar» enthalten,$N&lt;code&gt;^yana .opus$&lt;/code&gt; = beginnt mit «yana» und ist «opus»-Datei$N&lt;code&gt;&quot;try unite&quot;&lt;/code&gt; = genau «try unite» enthalten$N$NDatumsformat ist iso-8601, z.B.$N&lt;code&gt;2009-12-31&lt;/code&gt; oder &lt;code&gt;2020-09-12 23:30:00&lt;/code&gt;",
+	"ot_search": "`Dateien nach Attributen, Pfad/Name, Musiktags oder beliebiger Kombination suchen$N$N`foo bar` = muss «foo» und «bar» enthalten,$N`foo -bar` = muss «foo» aber nicht «bar» enthalten,$N`^yana .opus$` = beginnt mit «yana» und ist «opus»-Datei$N`&quot;try unite&quot;` = genau «try unite» enthalten$N$NDatumsformat ist iso-8601, z.B.$N`2009-12-31` oder `2020-09-12 23:30:00`",
 	"ot_unpost": "unpost: lösche deine letzten Uploads oder breche unvollständige ab",
 	"ot_bup": "bup: Basic Uploader, unterstützt sogar Neuheiten wie Netscape 4.0",
 	"ot_mkdir": "mkdir: neuen Ordner erstellen",
@@ -221,6 +221,7 @@ Ls.deu = {
 	"cl_hpick": "zum Verstecken, tippe auf Spaltenüberschriften in der Tabelle unten",
 	"cl_hcancel": "Spaltenbearbeitung abgebrochen",
 	"cl_rcm": "Rechtsklick-Menü",
+	"cl_gauto": "auto-raster", //m
 
 	"ct_grid": '田 Das Raster&trade;',
 	"ct_ttips": '◔ ◡ ◔">ℹ️ Tooltips',
@@ -263,9 +264,9 @@ Ls.deu = {
 
 	"cdt_lim": "max. Anz. Dateien, die in einem Ordner gezeigt werden sollen",
 	"cdt_ask": "beim Runterscrollen nach $NAktion fragen statt mehr,$NDateien zu laden",
-	"cdt_hsort": "Menge an Sortierregeln (&lt;code&gt;,sorthref&lt;/code&gt;) in Media-URLs enthalten sein sollen. Ein Wert von 0 sorgt dafür, dass Sortierregeln in Media-URLs ignoriert werden",
-	"cdt_ren": "spezielles Rechtsklick-Menü aktivieren, das Browser-Menü ist weiterhin mit Shift + Rechtsklick erreichbar",
-	"cdt_rdb": "normales Rechtsklick-Menü anzeigen, wenn das benutzerdefinierte bereits offen ist und erneut rechts geklickt wird", //m
+	"cdt_hsort": "`Menge an Sortierregeln (`,sorthref`) in Media-URLs enthalten sein sollen. Ein Wert von 0 sorgt dafür, dass Sortierregeln in Media-URLs ignoriert werden",
+	"cdt_ren": "spezielles Rechtsklick-Menü aktivieren, das Browser-Menü ist weiterhin mit Shift + Rechtsklick erreichbar\">aktivieren",
+	"cdt_rdb": "normales Rechtsklick-Menü anzeigen, wenn das benutzerdefinierte bereits offen ist und erneut rechts geklickt wird\">x2", //m
 
 	"tt_entree": "Navpane anzeigen (Ordnerbaum Sidebar)$NHotkey: B",
 	"tt_detree": "Breadcrumbs anzeigen$NHotkey: B",
@@ -275,6 +276,8 @@ Ls.deu = {
 	"tt_dynt": "autom. wachsen wenn Baum wächst",
 	"tt_wrap": "Zeilenumbruch",
 	"tt_hover": "Beim Hovern überlange Zeilen anzeigen$N(Scrollen funktioniert nicht ausser $N&nbsp; Cursor ist im linken Gutter)",
+	"tt_gauto": "je nach ordnerinhalt als raster oder liste anzeigen", //m
+	"tt_gathr": "raster verwenden, wenn dieser prozentsatz der dateien bilder/videos sind", //m
 
 	"ml_pmode": "am Ende des Ordners...",
 	"ml_btns": "cmds",
@@ -283,6 +286,7 @@ Ls.deu = {
 	"ml_tint": "färben",
 	"ml_eq": "Audio Equalizer",
 	"ml_drc": "Dynamic Range Compressor",
+	"ml_ss": "Stille Überspringen", //m
 
 	"mt_loop": "Song wiederholen\">🔁",
 	"mt_one": "Wiedergabe nach diesem Song beenden\">1️⃣",
@@ -318,8 +322,13 @@ Ls.deu = {
 	"mt_c2ng": "Dein Gerät scheint dieses Ausgabeformat nicht zu unterstützen, aber lass trotzdem mal probieren",
 	"mt_xowa": "Es gibt Bugs in iOS, die die Hintergrund-Wiedergabe mit diesem Format verhindern; bitte nutze caf oder mp3 stattdessen",
 	"mt_tint": "Hintergrundlevel (0-100) auf der Seekbar$Num Buffern weniger ablenkend zu machen",
-	"mt_eq": "Aktiviert Equalizer und Lautstärkeregelung;$N$Nboost &lt;code&gt;0&lt;/code&gt; = Standard 100% Lautstärke (unverändert)$N$Nwidth &lt;code&gt;1 &nbsp;&lt;/code&gt; = Standard Stereo (unverändert)$Nwidth &lt;code&gt;0.5&lt;/code&gt; = 50% Links-Rechts-Crossfeed$Nwidth &lt;code&gt;0 &nbsp;&lt;/code&gt; = Mono$N$Nboost &lt;code&gt;-0.8&lt;/code&gt; &amp; width &lt;code&gt;10&lt;/code&gt; = Gesangsentfernung :^)$N$NDer Equalizer macht nahtlose Alben vollständig nahtlos, also lass' ihn mit allen Werten auf Null (außer width = 1) aktiviert, wenn dir das wichtig ist",
+	"mt_eq": "`Aktiviert Equalizer und Lautstärkeregelung;$N$Nboost `0` = Standard 100% Lautstärke (unverändert)$N$Nwidth `1 &nbsp;` = Standard Stereo (unverändert)$Nwidth `0.5` = 50% Links-Rechts-Crossfeed$Nwidth `0 &nbsp;` = Mono$N$Nboost `-0.8` &amp; width `10` = Gesangsentfernung :^)$N$NDer Equalizer macht nahtlose Alben vollständig nahtlos, also lass' ihn mit allen Werten auf Null (außer width = 1) aktiviert, wenn dir das wichtig ist",
 	"mt_drc": "Aktiviert den Dynamic Range Compressor (Lautstärkeglättung/-begrenzung); aktiviert auch den Equalizer zum Ausgleich, setze alle EQ-Felder außer 'width' auf 0, wenn du das nicht willst$N$Nsenkt die Lautstärke von Audio über SCHWELLENWERT dB; für jedes VERHÄLTNIS dB über SCHWELLENWERT gibt es 1 dB Ausgabe, also bedeuten Standardwerte von tresh -24 und ratio 12, dass es nie lauter als -22 dB werden sollte und der Equalizer-Boost sicher auf 0.8 oder sogar 1.8 mit ATK 0 und einem großen RLS wie 90 erhöht werden kann (funktioniert nur in Firefox; in anderen Browsern ist RLS max. 1)$N$N(siehe Wikipedia, dort wird es viel besser erklärt)",
+	"mt_ss": "`Aktiviert Stille-Überspringen; multipliziert die Wiedergabegeschwindigkeit mit `vor`, nahe Anfang/Ende von Titeln, wenn die Lautstärke unter `laut` liegt und die Position innerhalb der ersten `anf`% oder letzten `end`% ist", //m
+	"mt_ssvt": "Lautstärkeschwelle (0-255)\">laut", //m
+	"mt_ssts": "Aktiv-Schwelle (% Titel, Anfang)\">anf", //m
+	"mt_sste": "Aktiv-Schwelle (% Titel, Ende)\">end", //m
+	"mt_sssm": "Wiedergabegeschwindigkeits-Multiplikator\">vor", //m
 
 	"mb_play": "Abspielen",
 	"mm_hashplay": "Diese Audiodatei abspielen?",
@@ -398,8 +407,8 @@ Ls.deu = {
 	"fr_case": "Groß-/Kleinschreibung beachten (Regex)\">Großschreibung",
 	"fr_win": "Windows-kompatible Namen; ersetzt <code>&lt;&gt;:&quot;\\|?*</code> durch japanische Fullwidth-Zeichen\">win",
 	"fr_slash": "Ersetzt <code>/</code> durch ein Zeichen, das keine neuen Ordner erstellt\">no /",
-	"fr_re": "Regex-Suchmuster für Originaldateinamen; Erfassungsgruppen können im Formatfeld unten als &lt;code&gt;(1)&lt;/code&gt; und &lt;code&gt;(2)&lt;/code&gt; usw. referenziert werden",
-	"fr_fmt": "inspiriert von foobar2000:$N&lt;code&gt;(title)&lt;/code&gt; wird durch Songtitel ersetzt,$N&lt;code&gt;[(artist) - ](title)&lt;/code&gt; überspringt [diesen] Teil falls Interpret leer$N&lt;code&gt;$lpad((tn),2,0)&lt;/code&gt; füllt die Titelnummer auf 2 Ziffern auf",
+	"fr_re": "`Regex-Suchmuster für Originaldateinamen; Erfassungsgruppen können im Formatfeld unten als `(1)` und `(2)` usw. referenziert werden",
+	"fr_fmt": "`inspiriert von foobar2000:$N`(title)` wird durch Songtitel ersetzt,$N`[(artist) - ](title)` überspringt [diesen] Teil falls Interpret leer$N`$lpad((tn),2,0)` füllt die Titelnummer auf 2 Ziffern auf",
 	"fr_pdel": "Löschen",
 	"fr_pnew": "Speichern als",
 	"fr_pname": "Gib der Vorlage einen Namen",
@@ -563,7 +572,7 @@ Ls.deu = {
 	"u_https1": "für bessere Performance solltest du",
 	"u_https2": "auf HTTPS wechseln",
 	"u_https3": " ",
-	"u_ancient": 'Dein Browser ist verdammt antik -- vielleicht solltest du <a href="#" onclick="goto(\'bup\')">stattdessen bup benutzen</a>',
+	"u_ancient": 'Dein Browser ist verdammt antik -- vielleicht solltest du <a href="#" id="u2nah">stattdessen bup benutzen</a>',
 	"u_nowork": "Benötigt Firefox 53+ oder Chrome 57+ oder iOS 11+",
 	"tail_2old": "Benötigt Firefox 105+ oder Chrome 71+ oder iOS 14.5+",
 	"u_nodrop": 'Dein Browser ist zu alt für Drag-and-Drop Uploads',

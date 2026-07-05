@@ -7,7 +7,7 @@ import socket
 import sys
 import time
 
-from .__init__ import ANYWIN, PY2, TYPE_CHECKING, unicode
+from .__init__ import ANYWIN, OPENBSD, PY2, TYPE_CHECKING, UNIX, unicode
 from .cert import gencert
 from .qrkode import QrCode, qr2png, qr2svg, qr2txt, qrgen
 from .util import (
@@ -21,7 +21,9 @@ from .util import (
     VF_CAREFUL,
     Netdev,
     atomic_move,
+    chkcmd,
     get_adapters,
+    list_nics,
     min_ex,
     sunpack,
     termsize,
@@ -460,23 +462,7 @@ class TcpSrv(object):
     def detect_interfaces(self, listen_ips: list[str]) -> dict[str, Netdev]:
         listen_ips = [x for x in listen_ips if not x.startswith(("unix:", "fd:"))]
 
-        nics = get_adapters(True)
-        eps: dict[str, Netdev] = {}
-        for nic in nics:
-            for nip in nic.ips:
-                ipa = nip.ip[0] if ":" in str(nip.ip) else nip.ip
-                sip = "{}/{}".format(ipa, nip.network_prefix)
-                nd = Netdev(sip, nic.index or 0, nic.nice_name, "")
-                eps[sip] = nd
-                try:
-                    idx = socket.if_nametoindex(nd.name)
-                    if idx and idx != nd.idx:
-                        t = "netdev idx mismatch; ifaddr={} cpython={}"
-                        self.log("tcpsrv", t.format(nd.idx, idx), 3)
-                        nd.idx = idx
-                except:
-                    pass
-
+        eps = list_nics()
         netlist = str(sorted(eps.items()))
         if netlist == self.netlist and self.netdevs:
             return {}
@@ -510,6 +496,13 @@ class TcpSrv(object):
         return eps
 
     def _extdevs_nix(self) -> Generator[str, None, None]:
+        if UNIX:
+            so, _ = chkcmd(["netstat", "-nrf", "inet"])
+            for ln in so.split("\n"):
+                if not ln.startswith("default"):
+                    continue
+                yield ln.split()[7] if OPENBSD else ln.split()[3]
+            return
         with open("/proc/net/route", "rb") as f:
             next(f)
             for ln in f:

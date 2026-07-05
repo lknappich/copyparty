@@ -84,8 +84,8 @@ Ls.fin = {
 			["M", "sulje tekstitiedosto"],
 			["E", "muokkaa tekstitiedostoa"],
 			["S", "valitse tiedosto (leikkausta/kopiointia/uudelleennimeämistä varten)"],
-			["Y", "lataa tekstitiedosto"], //m
-			["⇧ J", "kaunista json"], //m
+			["Y", "lataa tekstitiedosto"],
+			["⇧ J", "muotoile/siisti json"],
 		]
 	],
 
@@ -111,14 +111,14 @@ Ls.fin = {
 	"gou": 'ylempi hakemisto">ylös',
 	"gon": 'seuraava hakemisto">seur',
 	"logout": "Kirjaudu ulos ",
-	"login": "Kirjaudu sisään", //m
+	"login": "Kirjaudu sisään",
 	"access": " -oikeudet",
 	"ot_close": "sulje alavalikko",
-	"ot_search": "etsi tiedostoja ominaisuuksien, tiedostopolun tai -nimen, musiikkitägien tai näiden yhdistelmän perusteella$N$N&lt;code&gt;foo bar&lt;/code&gt; = täytyy sisältää sekä «foo» että «bar»,$N&lt;code&gt;foo -bar&lt;/code&gt; = täytyy sisältää «foo» mutta ei «bar»,$N&lt;code&gt;^yana .opus$&lt;/code&gt; = alkaa «yana» ja on «opus»-tiedosto$N&lt;code&gt;&quot;try unite&quot;&lt;/code&gt; = sisältää täsmälleen «try unite»$N$Npäivämäärän muoto on iso-8601, kuten$N&lt;code&gt;2009-12-31&lt;/code&gt; tai &lt;code&gt;2020-09-12 23:30:00&lt;/code&gt;",
+	"ot_search": "`etsi tiedostoja ominaisuuksien, tiedostopolun tai -nimen, musiikkitägien tai näiden yhdistelmän perusteella$N$N`foo bar` = täytyy sisältää sekä «foo» että «bar»,$N`foo -bar` = täytyy sisältää «foo» mutta ei «bar»,$N`^yana .opus$` = alkaa «yana» ja on «opus»-tiedosto$N`&quot;try unite&quot;` = sisältää täsmälleen «try unite»$N$Npäivämäärän muoto on iso-8601, kuten$N`2009-12-31` tai `2020-09-12 23:30:00`",
 	"ot_unpost": "unpost: poista viimeaikaiset tai keskeytä keskeneräiset lataukset",
 	"ot_bup": "bup: tiedostojen 'perus'lähetysohjelma, tukee jopa netscape 4.0",
 	"ot_mkdir": "mkdir: luo uusi hakemisto",
-	"ot_md": "new-file: luo uusi tekstitiedosto", //m
+	"ot_md": "new-file: luo uusi tekstitiedosto",
 	"ot_msg": "msg: lähetä viesti palvelinlokiin",
 	"ot_mp": "mediasoittimen asetukset",
 	"ot_cfg": "asetukset",
@@ -127,7 +127,7 @@ Ls.fin = {
 	"ot_noie": 'Suosittelemme käyttämään uudempaa selainta.',
 
 	"ab_mkdir": "luo hakemisto",
-	"ab_mkdoc": "luo tekstitiedosto", //m
+	"ab_mkdoc": "luo tekstitiedosto",
 	"ab_msg": "lähetä viesti palvelinlokiin",
 
 	"ay_path": "siirry hakemistoihin",
@@ -155,7 +155,7 @@ Ls.fin = {
 	"ul_par": "rinnakkaislatausten lkm:",
 	"ut_rand": "satunnaisgeneroidut tiedostonimet",
 	"ut_u2ts": "kopioi viimeksi muokattu aikaleima$Ntiedostojärjestelmästäsi palvelimelle\">📅",
-	"ut_ow": "korvaa olemassa olevat tiedostot palvelimella?$N🛡️: ei koskaan (luo sen sijaan uuden tiedostonimen)$N🕒: korvaa jos palvelintiedosto on vanhempi kuin omasi$N♻️: korvaa aina jos tiedostot ovat erilaisia$N⏭️: ohita kaikki olemassa olevat tiedostot ehdottomasti", //m
+	"ut_ow": "korvaa olemassa olevat tiedostot palvelimella?$N🛡️: ei koskaan (luo sen sijaan uuden tiedostonimen)$N🕒: korvaa jos palvelintiedosto on vanhempi kuin omasi$N♻️: korvaa aina jos tiedostot ovat erilaisia$N⏭️: ohita kaikki olemassa olevat tiedostot ehdottomasti",
 	"ut_mt": "jatka muiden tiedostojen tiivisteiden laskemista latauksen aikana$N$Nkannattanee poistaa käytöstä, mikäli prosessori tai kovalevy on vanhempaa mallia",
 	"ut_ask": 'kysy vahvistusta ennen latauksen aloittamista">💭',
 	"ut_pot": "paranna latausnopeutta hitailla laitteilla$Nvähentämällä käyttöliittymän monimutkaisuutta",
@@ -206,7 +206,7 @@ Ls.fin = {
 	"u_nav_b": '<a href="#" id="modal-ok">Tiedostoja</a><a href="#" id="modal-ng">Yksi hakemisto</a>',
 
 	"cl_opts": "asetukset",
-	"cl_hfsz": "tiedostokoko", //m
+	"cl_hfsz": "tiedostokoko",
 	"cl_themes": "teema",
 	"cl_langs": "kieli",
 	"cl_ziptype": "hakemiston pakkaustyyppi",
@@ -220,14 +220,15 @@ Ls.fin = {
 	"cl_reset": "palauta",
 	"cl_hpick": "napauta sarakeotsikoita piilottaaksesi alla olevassa taulukossa",
 	"cl_hcancel": "sarakkeiden piilotus peruttu",
-	"cl_rcm": "hiiren oikean painikkeen valikko", //m
+	"cl_rcm": "hiiren pikavalikko",
+	"cl_gauto": "auto田", //m
 
 	"ct_grid": '田 kuvanäkymä',
 	"ct_ttips": '◔ ◡ ◔">ℹ️ vihjelaatikot',
 	"ct_thumb": 'valitse kuvakkeiden / pienoiskuvien välillä kuvanäkymässä $NPikanäppäin: T">🖼️ pienoiskuvat',
 	"ct_csel": 'käytä CTRL ja SHIFT tiedostojen valintaan kuvanäkymässä">valitse',
 	"ct_dsel": 'käytä aluevalintaa tiedostojen valintaan kuvanäkymässä">aluevalinta',
-	"ct_dl": 'pakota lataus (älä näytä upotettuna), kun tiedostoa napsautetaan">dl', //m
+	"ct_dl": 'pakota lataus (älä näytä upotettuna), kun tiedostoa klikataan">dl',
 	"ct_ihop": 'kun kuvakatselin suljetaan, vieritä alas viimeksi katsottuun tiedostoon">g⮯',
 	"ct_dots": 'näytä piilotetut tiedostot (jos palvelin sallii)">piilotiedostot',
 	"ct_qdel": 'kysy vahvistusta vain kerran tiedostoja poistaessa">qdel',
@@ -263,9 +264,9 @@ Ls.fin = {
 
 	"cdt_lim": "tiedostojen enimmäismäärä näytettäväksi hakemistossa",
 	"cdt_ask": "sivun lopussa, sen sijaan että lataa $Nautomaattisesti lisää tiedostoja, kysy mitä tehdä",
-	"cdt_hsort": "kuinka monta lajittelusääntöä (&lt;code&gt;,sorthref&lt;/code&gt;) sisällyttää media-URL:eihin. Tämän asettaminen nollaan jättää myös huomioimatta media-linkeissä sisällytetyt lajittelusäännöt kun napsautat niitä",
-	"cdt_ren": "ota käyttöön mukautettu valikko, tavallinen valikko on käytettävissä painamalla shift ja napsauttamalla oikealla", //m
-	"cdt_rdb": "näytä tavallinen oikean painikkeen valikko, kun mukautettu on jo auki ja oikeaa painiketta painetaan uudelleen", //m
+	"cdt_hsort": "`kuinka monta lajittelusääntöä (`,sorthref`) sisällyttää media-URL:eihin. Tämän asettaminen nollaan jättää myös huomioimatta media-linkeissä sisällytetyt lajittelusäännöt kun napsautat niitä",
+	"cdt_ren": "ota käyttöön mukautettu pikavalikko, tavallinen valikko on käytettävissä painamalla shift ja napsauttamalla hiiren oikeanpuoleisella painikkeella\">aktivoi",
+	"cdt_rdb": "näytä tavallinen pikavalikko, kun mukautettu on jo auki ja oikeanpuoleista painiketta painetaan uudelleen\">x2",
 
 	"tt_entree": "näytä navigointipaneeli$NPikanäppäin: B",
 	"tt_detree": "näytä linkkipolku$NPikanäppäin: B",
@@ -275,6 +276,8 @@ Ls.fin = {
 	"tt_dynt": "kasvata automaattisesti hakemistosyvyyden kasvaessa",
 	"tt_wrap": "rivitys",
 	"tt_hover": "paljasta ylivuotavat rivit leijutettaessa$N( rikkoo vierityksen ellei hiiri $N&nbsp; ole vasemmassa marginaalissa )",
+	"tt_gauto": "näytä ruudukkona tai listana kansion sisällön mukaan", //m
+	"tt_gathr": "käytä ruudukkoa jos tämä prosentti tiedostoista on kuvia/videoita", //m
 
 	"ml_pmode": "hakemiston lopussa...",
 	"ml_btns": "komennot",
@@ -283,6 +286,7 @@ Ls.fin = {
 	"ml_tint": "sävy",
 	"ml_eq": "taajuuskorjain",
 	"ml_drc": "dynaaminen alueen kompressori",
+	"ml_ss": "ohita hiljaiset kohdat",
 
 	"mt_loop": "toista samaa kappaletta\">🔁",
 	"mt_one": "lopeta yhden toiston jälkeen\">1️⃣",
@@ -311,15 +315,20 @@ Ls.fin = {
 	"mt_c2owa": "opus-weba, iOS 17.5:lle ja uudemmille\">owa",
 	"mt_c2caf": "opus-caf, iOS 11:lle - 17:lle\">caf",
 	"mt_c2mp3": "käytä tätä erittäin vanhoissa laitteissa\">mp3",
-	"mt_c2flac": "paras äänenlaatu, mutta isot lataukset\">flac", //m
-	"mt_c2wav": "pakkaamaton toisto (vielä suurempi tiedosto)\">wav", //m
+	"mt_c2flac": "paras äänenlaatu, suuremmat latauskoot\">flac",
+	"mt_c2wav": "pakkaamaton toisto, suurimmat latauskoot\">wav",
 	"mt_c2ok": "hienoa, hyvä valinta",
 	"mt_c2nd": "tuo ei ole suositeltu formaatti laitteellesi, mutta tee miten lystäät",
 	"mt_c2ng": "laitteesi ei näytä tukevan tätä formaattia, mutta yritetään nyt silti",
 	"mt_xowa": "iOS:ssä on bugeja jotka estävät taustatoiston tällä formaatilla; käytä caf:ia tai mp3:a sen sijaan",
 	"mt_tint": "taustan taso (0-100) liukupalkissa$Ntehden puskuroinnista vähemmän häiritsevän",
-	"mt_eq": "aktivoi taajuuskorjaimen ja vahvistussäätimen;$N$Nvahvistus &lt;code&gt;0&lt;/code&gt; = normaali 100% äänenvoimakkuus (muokkaamaton)$N$Nleveys &lt;code&gt;1 &nbsp;&lt;/code&gt; = normaali stereo (muokkaamaton)$Nleveys &lt;code&gt;0.5&lt;/code&gt; = 50% vasen-oikea ristisyöttö$Nleveys &lt;code&gt;0 &nbsp;&lt;/code&gt; = mono$N$Nvahvistus &lt;code&gt;-0.8&lt;/code&gt; &amp; leveys &lt;code&gt;10&lt;/code&gt; = laulun poisto :^)$N$Nequalizerin käyttöönotto tekee saumattomista albumeista täysin saumattomia, joten jätä se päälle kaikilla arvoilla nollassa (paitsi leveys = 1) jos välität siitä",
+	"mt_eq": "`aktivoi taajuuskorjaimen ja vahvistussäätimen;$N$Nvahvistus `0` = normaali 100% äänenvoimakkuus (muokkaamaton)$N$Nleveys `1 &nbsp;` = normaali stereo (muokkaamaton)$Nleveys `0.5` = 50% vasen-oikea ristisyöttö$Nleveys `0 &nbsp;` = mono$N$Nvahvistus `-0.8` &amp; leveys `10` = laulun poisto :^)$N$Nequalizerin käyttöönotto tekee saumattomista albumeista täysin saumattomia, joten jätä se päälle kaikilla arvoilla nollassa (paitsi leveys = 1) jos välität siitä",
 	"mt_drc": "aktivoi dynaamisen alueen kompressorin; ottaa myös käyttöön taajuuskorjaimen tasapainottamaan spagettia, joten aseta kaikki EQ-kentät paitsi 'leveys' nollaan jos et halua sitä$N$Nalentaa äänenvoimakkuutta KYNNYS dB:n yläpuolella; jokaisesta SUHDE dB:stä KYNNYKSEN yli tulee 1 dB ulos, joten oletusarvot kynnys -24 ja suhde 12 tarkoittaa ettei sen pitäisi koskaan tulla kovempaa kuin -22 dB ja on turvallista nostaa equalizerin vahvistus 0.8:aan, tai jopa 1.8:aan ATK 0:lla ja valtavalla RLS:llä kuten 90 (toimii vain firefoxissa; RLS on max 1 muissa selaimissa)$N$N(katso wikipedia, he selittävät sen paljon paremmin)",
+	"mt_ss": "`ottaa käyttöön hiljaisuuden ohituksen; moninkertaistaa toistonopeuden `nop`:lla lähellä kappaleen alkua/loppua, kun äänenvoimakkuus on alle `vol` ja kappaleesta on kulunut vasta on `alk`% tai sitä on jäljellä enää `lop`%",
+	"mt_ssvt": "äänenvoimakkuuden kynnysarvo (0-255)\">vol",
+	"mt_ssts": "alkuraja (prosenttia kappaleen alusta)\">alk",
+	"mt_sste": "loppuraja (prosenttia kappaleen lopusta)\">lop",
+	"mt_sssm": "toistonopeuden kerroin (min. 0.15, max. 8))\">nop",
 
 	"mb_play": "toista",
 	"mm_hashplay": "soita tämä äänitiedosto?",
@@ -336,7 +345,7 @@ Ls.fin = {
 	"mm_eunk": "Tuntematon virhe",
 	"mm_e404": "Kappaletta ei voitu toistaa; virhe 404: Tiedostoa ei löydy.",
 	"mm_e403": "Kappaletta ei voitu toistaa; virhe 403: Pääsy kielletty.\n\nKokeile painaa F5 päivittääksesi, ehkä kirjauduit ulos",
-	"mm_e415": "Kappaletta ei voitu toistaa; virhe 415: Tiedoston muunnos epäonnistui; tarkista palvelinlokit.", //m
+	"mm_e415": "Kappaletta ei voitu toistaa; virhe 415: Tiedoston muunnos epäonnistui; tarkista palvelimen lokitiedostot.",
 	"mm_e500": "Kappaletta ei voitu toistaa; virhe 500: Tarkista palvelinlokit.",
 	"mm_e5xx": "Kappaletta ei voitu toistaa; palvelinvirhe ",
 	"mm_nof": "ei löydy enempää äänitiedostoja lähistöltä",
@@ -356,7 +365,7 @@ Ls.fin = {
 	"f_anota": "vain {0} / {1} kohdetta valittiin;\nvalitaksesi koko hakemiston, vieritä ensin loppuun",
 
 	"f_dls": 'nykyisen hakemiston tiedostolinkit on\nvaihdettu latauslinkeiksi',
-	"f_dl_nd": 'ohitetaan kansio (käytä zip/tar-latausta sen sijaan):\n', //m
+	"f_dl_nd": 'ohitetaan kansio (käytä sen sijaan zip/tar-latausta):\n',
 
 	"f_partial": "Ladataksesi turvallisesti tiedoston joka on parhaillaan latautumassa, klikkaa tiedostoa jolla on sama nimi mutta ilman <code>.PARTIAL</code> päätettä. Paina PERUUTA tai Escape tehdäksesi tämän.\n\nOK / Enter painaminen sivuuttaa tämän varoituksen ja jatkaa <code>.PARTIAL</code> väliaikaistiedoston lataamista, mikä todennäköisesti antaa sinulle vioittunutta dataa.",
 
@@ -398,8 +407,8 @@ Ls.fin = {
 	"fr_case": "isot ja pienet kirjaimet erottava regex\">kirjainkoko",
 	"fr_win": "windows-yhteensopivat nimet; korvaa <code>&lt;&gt;:&quot;\\|?*</code> japanilaisilla leveillä merkeillä\">win",
 	"fr_slash": "korvaa <code>/</code> merkillä joka ei aiheuta uusien hakemistoiden luomista\">ei /",
-	"fr_re": "regex hakukuvio jota käytetään alkuperäisiin tiedostonimiin; kaappausryhmiin voi viitata alla olevassa muotoilukentässä kuten &lt;code&gt;(1)&lt;/code&gt; ja &lt;code&gt;(2)&lt;/code&gt; ja niin edelleen",
-	"fr_fmt": "foobar2000 innoittama:$N&lt;code&gt;(title)&lt;/code&gt; korvataan kappaleen nimellä,$N&lt;code&gt;[(artist) - ](title)&lt;/code&gt; sivuuttaa [tämän] osan jos artisti on tyhjä$N&lt;code&gt;$lpad((tn),2,0)&lt;/code&gt; ",
+	"fr_re": "`regex hakukuvio jota käytetään alkuperäisiin tiedostonimiin; kaappausryhmiin voi viitata alla olevassa muotoilukentässä kuten `(1)` ja `(2)` ja niin edelleen",
+	"fr_fmt": "`foobar2000 innoittama:$N`(title)` korvataan kappaleen nimellä,$N`[(artist) - ](title)` sivuuttaa [tämän] osan jos artisti on tyhjä$N`$lpad((tn),2,0)` ",
 	"fr_pdel": "poista",
 	"fr_pnew": "tallenna nimellä",
 	"fr_pname": "anna nimi uudelle esiasetuksellesi",
@@ -425,16 +434,16 @@ Ls.fin = {
 	"fcc_warn": 'kopioitiin {0} kohdetta leikepöydälle\n\nmutta: vain <b>tämä</b> selain-välilehti voi liittää ne\n(koska valinta on niin valtavan suuri)',
 
 	"fp_apply": "käytä näitä nimiä",
-	"fp_skip": "ohita ristiriidat", //m
+	"fp_skip": "ohita ristiriitatilanteissa",
 	"fp_ecut": "leikkaa tai kopioi ensin joitakin tiedostoja / hakemistoja liitettäväksi / siirrettäväksi\n\nhuom: voit leikata / liittää eri selain-välilehtien välillä",
-	"fp_ename": "{0} kohdetta ei voida siirtää tänne koska nimet ovat jo käytössä. Anna niille uudet nimet alla jatkaaksesi, tai tyhjennä nimi (\"ohita ristiriidat\") ohittaaksesi ne:", //m
-	"fcp_ename": "{0} kohdetta ei voida kopioida tänne koska nimet ovat jo käytössä. Anna niille uudet nimet alla jatkaaksesi, tai tyhjennä nimi (\"ohita ristiriidat\") ohittaaksesi ne:", //m
+	"fp_ename": "{0} kohdetta ei voida siirtää tänne koska nimet ovat jo käytössä. Anna niille uudet nimet alla jatkaaksesi, tai tyhjennä nimi (\"ohita ristiriitatilanteissa\") ohittaaksesi ne:",
+	"fcp_ename": "{0} kohdetta ei voida kopioida tänne koska nimet ovat jo käytössä. Anna niille uudet nimet alla jatkaaksesi, tai tyhjennä nimi (\"ohita ristiriitatilanteissa\") ohittaaksesi ne:",
 	"fp_emore": "tiedostonimien törmäyksiä on vielä korjaamatta",
 	"fp_ok": "siirto OK",
 	"fcp_ok": "kopiointi OK",
 	"fp_busy": "siirretään {0} kohdetta...\n\n{1}",
 	"fcp_busy": "kopioidaan {0} kohdetta...\n\n{1}",
-	"fp_abrt": "keskeytetään...", //m
+	"fp_abrt": "keskeytetään...",
 	"fp_err": "siirto epäonnistui:\n",
 	"fcp_err": "kopiointi epäonnistui:\n",
 	"fp_confirm": "siirrä nämä {0} kohdetta tänne?",
@@ -447,8 +456,8 @@ Ls.fin = {
 	"fcp_both_b": '<a href="#" id="modal-ok">Kopioi</a><a href="#" id="modal-ng">Lähetä</a>',
 
 	"mk_noname": "kirjoita nimi vasemmalla olevaan tekstikenttään ennen kuin teet tuon :p",
-	"nmd_i1": "voit myös lisätä haluamasi tiedostopäätteen, esimerkiksi <code>.md</code>", //m
-	"nmd_i2": "voit luoda vain <code>.{0}</code>-tiedostoja, koska sinulla ei ole poistolupaa", //m
+	"nmd_i1": "voit myös lisätä haluamasi tiedostopäätteen, esimerkiksi <code>.md</code>",
+	"nmd_i2": "voit luoda vain <code>.{0}</code>-tiedostoja, koska sinulla ei ole “delete”-oikeutta",
 
 	"tv_load": "Ladataan tekstidokumenttia:\n\n{0}\n\n{1}% ({2} / {3} Mt ladattu)",
 	"tv_xe1": "tekstitiedoston lataaminen epäonnistui:\n\nvirhe ",
@@ -459,7 +468,7 @@ Ls.fin = {
 	"tvt_prev": "näytä edellinen dokumentti$NPikanäppäin: i\">⬆ edell",
 	"tvt_next": "näytä seuraava dokumentti$NPikanäppäin: K\">⬇ seur",
 	"tvt_sel": "valitse tiedosto &nbsp; ( leikkausta / kopiointia / poistoa / ... varten )$NPikanäppäin: S\">val",
-	"tvt_j": "kaunista json$NPikanäppäin: shift-J\">j", //m
+	"tvt_j": "muotoile/siisti json$NPikanäppäin: shift-J\">j",
 	"tvt_edit": "avaa tiedosto tekstieditorissa$NPikanäppäin: E\">✏️ muokkaa",
 	"tvt_tail": "seuraa tiedoston muutoksia; näytä uudet rivit reaaliaikaisesti\">📡 seuraa",
 	"tvt_wrap": "rivitys\">↵",
@@ -563,7 +572,7 @@ Ls.fin = {
 	"u_https1": "sinun kannattaisi",
 	"u_https2": "vaihtaa https:ään",
 	"u_https3": "paremman suorituskyvyn vuoksi",
-	"u_ancient": 'selaimesi on ns. vaikuttavan ikivanha --  kannattais varmaan <a href="#" onclick="goto(\'bup\')">käyttää bup:ia tän sijaan</a>',
+	"u_ancient": 'selaimesi on ns. vaikuttavan ikivanha --  kannattais varmaan <a href="#" id="u2nah">käyttää bup:ia tän sijaan</a>',
 	"u_nowork": "tarvitaan firefox 53+ tai chrome 57+ tai iOS 11+",
 	"tail_2old": "tarvitaan firefox 105+ tai chrome 71+ tai iOS 14.5+",
 	"u_nodrop": 'selaimesi on liian vanha vedä-ja-pudota lataamiseen',
@@ -644,25 +653,25 @@ Ls.fin = {
 	"ur_um": "Valmis;\n{0} latausta OK,\n{1} latausta epäonnistui, pahoittelen",
 	"ur_sm": "Valmis;\n{0} tiedostoa löytyi palvelimelta,\n{1} tiedostoa EI löytynyt palvelimelta",
 
-	"rc_opn": "avaa", //m
-	"rc_ply": "toista", //m
-	"rc_pla": "toista äänenä", //m
-	"rc_txt": "avaa tiedostoselaimessa", //m
-	"rc_md": "avaa tekstieditorissa", //m
-	"rc_dl": "Lataa", //m
-	"rc_zip": "Lataa arkistona", //m
-	"rc_cpl": "kopioi linkki", //m
-	"rc_del": "poista", //m
-	"rc_cut": "Leikkaa", //m
-	"rc_cpy": "kopioi", //m
-	"rc_pst": "Liitä", //m
-	"rc_rnm": "nimeä uudelleen", //m
-	"rc_nfo": "uusi kansio", //m
-	"rc_nfi": "uusi tiedosto", //m
-	"rc_sal": "valitse kaikki", //m
-	"rc_sin": "käännä valinta", //m
-	"rc_shf": "jaa tämä kansio", //m
-	"rc_shs": "jaa valinta", //m
+	"rc_opn": "avaa",
+	"rc_ply": "toista",
+	"rc_pla": "toista äänitiedostona",
+	"rc_txt": "avaa tekstinäkymässä",
+	"rc_md": "avaa markdown-näkymässä",
+	"rc_dl": "lataa",
+	"rc_zip": "lataa arkistona",
+	"rc_cpl": "kopioi linkki",
+	"rc_del": "poista",
+	"rc_cut": "leikkaa",
+	"rc_cpy": "kopioi",
+	"rc_pst": "liitä",
+	"rc_rnm": "nimeä uudelleen",
+	"rc_nfo": "uusi kansio",
+	"rc_nfi": "uusi tiedosto",
+	"rc_sal": "valitse kaikki",
+	"rc_sin": "käänteinen valinta",
+	"rc_shf": "jaa tämä kansio",
+	"rc_shs": "jaa valinta",
 
 	"lang_set": "ladataanko sivu uudestaan kielen vaihtamiseksi?",
 
@@ -682,11 +691,11 @@ Ls.fin = {
 		"j1": "k304 katkaisee yhteytesi jokaisella HTTP 304:llä, mikä voi estää joitain bugisia välityspalvelimia jumittumasta/lopettamasta sivujen lataamista, <em>mutta</em> se myös vähentää suorituskykyä",
 		"k1": "nollaa asetukset",
 		"l1": "kirjaudu sisään:",
-		"ls3": "kirjaudu sisään", //m
-		"lu4": "käyttäjätunnus", //m
-		"lp4": "salasana", //m
-		"lo3": "kirjaa “{0}” ulos kaikkialta", //m
-		"lo2": "tämä lopettaa istunnon kaikissa selaimissa", //m
+		"ls3": "kirjaudu sisään",
+		"lu4": "käyttäjätunnus",
+		"lp4": "salasana",
+		"lo3": "kirjaa “{0}” ulos kaikkialta",
+		"lo2": "tämä lopettaa istunnon kaikissa selaimissa",
 		"m1": "tervetuloa takaisin,",
 		"n1": "404: ei löytynyt mitään &nbsp;┐( ´ -`)┌",
 		"o1": 'tai ehkä sinulla ei vain ole käyttöoikeuksia? kokeile salasanaa tai <a href="' + SR + '/?h">mene kotiin</a>',
@@ -705,8 +714,8 @@ Ls.fin = {
 		"ta1": "täytä ensin uusi salasana",
 		"ta2": "toista vahvistaaksesi uuden salasanan:",
 		"ta3": "löytyi kirjoitusvirhe; yritä uudelleen",
-		"nop": "VIRHE: Salasana ei voi olla tyhjä", //m
-		"nou": "VIRHE: Käyttäjänimi ja/tai salasana ei voi olla tyhjä", //m
+		"nop": "VIRHE: Salasana ei voi olla tyhjä",
+		"nou": "VIRHE: Käyttäjänimi ja/tai salasana ei voi olla tyhjä",
 		"aa1": "saapuvat:",
 		"ab1": "poista no304 käytöstä",
 		"ac1": "ota no304 käyttöön",

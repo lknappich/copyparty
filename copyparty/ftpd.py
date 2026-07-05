@@ -24,9 +24,11 @@ from .util import (
     ODict,
     Pebkac,
     exclude_dotfiles,
+    exclude_dothidden,
     fsenc,
     ipnorm,
     pybin,
+    read_utf8,
     relchk,
     runhook,
     sanitize_fn,
@@ -200,11 +202,13 @@ class FtpFs(AbstractedFS):
                 cr, cw, cm, cd, _, _, _, _, _ = avfs.uaxs[self.h.uname]
                 if r and not cr or w and not cw or m and not cm or d and not cd:
                     raise FSE(t.format(vpath), 1)
+            else:
+                ap = vfs.canonical(rem, False)
 
             if "bcasechk" in vfs.flags and not vfs.casechk(rem, True):
                 raise FSE("No such file or directory", 1)
 
-            return os.path.join(vfs.realpath, rem), vfs, rem
+            return ap, vfs, rem
         except Pebkac as ex:
             raise FSE(str(ex))
 
@@ -348,7 +352,10 @@ class FtpFs(AbstractedFS):
             vfs_ls.extend(vfs_virt.keys())
 
             if self.uname not in vfs.axs.udot:
-                vfs_ls = exclude_dotfiles(vfs_ls)
+                if "dothidden" in vfs.flags and ".hidden" in [x[0] for x in vfs_ls]:
+                    vfs_ls = exclude_dothidden(vfs_ls, fsroot)
+                else:
+                    vfs_ls = exclude_dotfiles(vfs_ls)
 
             vfs_ls.sort()
             return vfs_ls
@@ -610,17 +617,25 @@ class Ftpd(object):
                 print(t.format(pybin))
                 sys.exit(1)
 
+            if self.args.certkey:
+                h1.keyfile = self.args.certkey
             h1.certfile = self.args.cert
             h1.tls_control_required = True
             h1.tls_data_required = True
 
             hs.append([h1, self.args.ftps])
 
+        zs = self.args.ftp_banner.replace("\\n", "\n")
+        if zs.startswith("@"):
+            zs = read_utf8(None, zs[1:], False)
+        banner = zs.replace("\r", "").replace("\n", "\r\n").strip()
+
         for h_lp in hs:
             h2, lp = h_lp
             FtpHandler.hub = h2.hub = hub
             FtpHandler.args = h2.args = hub.args
             FtpHandler.authorizer = h2.authorizer = FtpAuth(hub)
+            FtpHandler.banner = banner
 
             if self.args.ftp_pr:
                 p1, p2 = [int(x) for x in self.args.ftp_pr.split("-")]

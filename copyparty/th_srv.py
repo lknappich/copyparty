@@ -6,6 +6,7 @@ import io
 import logging
 import os
 import re
+import shlex
 import shutil
 import subprocess as sp
 import tempfile
@@ -17,7 +18,16 @@ from queue import Queue
 from .__init__ import ANYWIN, PY2, TYPE_CHECKING, unicode
 from .authsrv import VFS
 from .bos import bos
-from .mtag import HAVE_FFMPEG, HAVE_FFPROBE, au_unpk, ffprobe
+from .mtag import (
+    HAVE_FFMPEG,
+    HAVE_FFPROBE,
+    TH_BWRAP,
+    au_unpk,
+    bwrap,
+    bwrap_fail,
+    ffprobe,
+    have_ff,
+)
 from .util import BytesIO  # type: ignore
 from .util import (
     FFMPEG_URL,
@@ -46,10 +56,12 @@ if PY2:
 
 HAVE_PIL = False
 HAVE_PILF = False
-HAVE_HEIF = False
-HAVE_AVIF = False
-HAVE_WEBP = False
-HAVE_JXL = False
+H_PIL_HEIF = False
+H_PIL_AVIF = False
+H_PIL_WEBP = False
+H_PIL_JXL = False
+
+TH_CH = {"j": "jpg", "p": "png", "w": "webp", "x": "jxl"}
 
 EXTS_TH = set(["jpg", "webp", "jxl", "png"])
 EXTS_AC = set(["opus", "owa", "caf", "mp3", "flac", "wav"])
@@ -129,7 +141,7 @@ try:
             raise Exception()
 
         Image.new("RGB", (2, 2)).save(BytesIO(), format="webp")
-        HAVE_WEBP = True
+        H_PIL_WEBP = True
     except:
         pass
 
@@ -143,7 +155,7 @@ try:
             pass
 
         Image.new("RGB", (2, 2)).save(BytesIO(), format="jxl")
-        HAVE_JXL = True
+        H_PIL_JXL = True
     except:
         pass
 
@@ -157,7 +169,7 @@ try:
             from pyheif_pillow_opener import register_heif_opener
 
         register_heif_opener()
-        HAVE_HEIF = True
+        H_PIL_HEIF = True
     except:
         pass
 
@@ -166,12 +178,12 @@ try:
             raise Exception()
 
         if ".avif" in Image.registered_extensions():
-            HAVE_AVIF = True
+            H_PIL_AVIF = True
             raise Exception()
 
         import pillow_avif  # noqa: F401  # pylint: disable=unused-import
 
-        HAVE_AVIF = True
+        H_PIL_AVIF = True
     except:
         pass
 
@@ -182,6 +194,10 @@ except:
 try:
     if os.environ.get("PRTY_NO_VIPS"):
         raise ImportError()
+
+    if "VIPS_CONCURRENCY" not in os.environ:
+        # reduces glibc RAM usage from 4.7 to 3.5 GiB ...yep, still bonkers
+        os.environ["VIPS_CONCURRENCY"] = "1"
 
     HAVE_VIPS = True
     import pyvips
@@ -194,16 +210,22 @@ except Exception as e:
         logging.warning("libvips found, but failed to load: " + str(e))
 
 
+PRTY_NO_RAW = os.environ.get("PRTY_NO_RAW")
+PRTY_NO_RAWPY = PRTY_NO_RAW or os.environ.get("PRTY_NO_RAWPY")
+PRTY_NO_DCRAW = PRTY_NO_RAW or os.environ.get("PRTY_NO_DCRAW")
 try:
-    if os.environ.get("PRTY_NO_RAW"):
+    if PRTY_NO_RAWPY:
         raise Exception()
 
-    HAVE_RAW = True
+    HAVE_RAWPY = True
     import rawpy
 
     logging.getLogger("rawpy").setLevel(logging.WARNING)
 except:
-    HAVE_RAW = False
+    HAVE_RAWPY = False
+
+
+HAVE_DCRAW = not PRTY_NO_DCRAW and have_ff("dcraw_emu")
 
 
 th_dir_cache = {}
@@ -216,11 +238,6 @@ def thumb_path(histpath: str, rem: str, mtime: float, fmt: str, ffa: set[str]) -
     rd, fn = vsplit(rem)
     if not rd:
         rd = "\ntop"
-
-    # spectrograms are never cropped; strip fullsize flag
-    ext = rem.split(".")[-1].lower()
-    if ext in ffa and fmt[:2] in ("wf", "jf", "xf"):
-        fmt = fmt.replace("f", "")
 
     dcache = th_dir_cache
     rd_key = rd + "\n" + fmt
@@ -240,8 +257,7 @@ def thumb_path(histpath: str, rem: str, mtime: float, fmt: str, ffa: set[str]) -
     if fmt in EXTS_AC:
         cat = "ac"
     else:
-        fc = fmt[:1]
-        fmt = "webp" if fc == "w" else "png" if fc == "p" else "jxl" if fc == "x" else "jpg"
+        fmt = TH_CH[fmt[:1]]
         cat = "th"
 
     return "%s/%s/%s/%s.%x.%s" % (histpath, cat, rd, fn, int(mtime), fmt)
@@ -253,6 +269,9 @@ class ThumbSrv(object):
         self.asrv = hub.asrv
         self.args = hub.args
         self.log_func = hub.log
+
+        self.log = self._log
+        self.nextlog = 0
 
         self.poke_cd = Cooldown(self.args.th_poke)
 
@@ -266,6 +285,18 @@ class ThumbSrv(object):
         self.nthr = max(1, self.args.th_mt)
 
         self.exts_spec_unsafe = set(self.args.th_spec_cnv.split(","))
+
+        # libvips can easily gobble up 4 GiB of RAM when generating JXL thumbnails on glibc so let's not
+        self.vips_jxl = False
+        if HAVE_VIPS and self.args.th_vips_jxl == 2:
+            self.vips_jxl = True
+        elif HAVE_VIPS and self.args.th_vips_jxl == 1:
+            try:
+                with open("/proc/self/maps", "rb") as f:
+                    zb = f.read()
+                self.vips_jxl = b"/ld-musl-" in zb and b"mimalloc" not in zb
+            except:
+                pass
 
         self.q: Queue[Optional[tuple[str, str, str, VFS]]] = Queue(self.nthr * 4)
         for n in range(self.nthr):
@@ -285,6 +316,8 @@ class ThumbSrv(object):
             self.log(msg, c=3)
             if ANYWIN and self.args.no_acode:
                 self.log("download FFmpeg to fix it:\033[0m " + FFMPEG_URL, 3)
+
+        self.conv_raw = self._conv_rawpy if HAVE_RAWPY else self._conv_dcraw
 
         if self.args.th_clean:
             Daemon(self.cleaner, "thumb.cln")
@@ -308,23 +341,27 @@ class ThumbSrv(object):
             ]
         ]
 
-        if not HAVE_HEIF:
+        if not H_PIL_HEIF:
             for f in "heif heifs heic heics".split(" "):
                 self.fmt_pil.discard(f)
 
-        if not HAVE_AVIF:
+        if not H_PIL_AVIF:
             for f in "avif avifs".split(" "):
                 self.fmt_pil.discard(f)
 
-        if not HAVE_WEBP:
+        if not H_PIL_WEBP:
             for f in "webp".split(" "):
                 self.fmt_pil.discard(f)
 
-        if not HAVE_JXL:
+        if not H_PIL_JXL:
             for f in "jxl".split(" "):
                 self.fmt_pil.discard(f)
 
         self.thumbable: set[str] = set()
+        self._build_thumbable()
+
+    def _build_thumbable(self) -> None:
+        self.thumbable.clear()
 
         if "pil" in self.args.th_dec:
             self.thumbable |= self.fmt_pil
@@ -339,7 +376,14 @@ class ThumbSrv(object):
             for zss in [self.fmt_ffi, self.fmt_ffv, self.fmt_ffa]:
                 self.thumbable |= zss
 
-    def log(self, msg: str, c: Union[int, str] = 0) -> None:
+    def _log(self, msg: str, c: Union[int, str] = 0) -> None:
+        self.log_func("thumb", msg, c)
+
+    def _slog(self, msg: str, c: Union[int, str] = 0) -> None:
+        now = time.time()
+        if c in (0, 6) and now < self.nextlog:
+            return
+        self.nextlog = now + self.args.th_pre_rl
         self.log_func("thumb", msg, c)
 
     def shutdown(self) -> None:
@@ -415,6 +459,10 @@ class ThumbSrv(object):
 
         return None
 
+    def _rebuild_thumbable(self) -> None:
+        self._build_thumbable()
+        self.hub.broker.say("httpsrv.set_th_cfg", self.getcfg(), (self.args.th_no_jxl,))
+
     def getcfg(self) -> dict[str, set[str]]:
         return {
             "thumbable": self.thumbable,
@@ -431,7 +479,12 @@ class ThumbSrv(object):
         zs = "th_dec th_no_webp th_no_jpg"
         for zs in zs.split(" "):
             ret.append("%s(%s)\n" % (zs, getattr(self.args, zs)))
-        zs = "th_qv thsize th_spec_p convt"
+        zs = "th_spec_fl"
+        for zs in zs.split(" "):
+            v = getattr(self.args, zs)
+            if v:
+                ret.append("%s(%s)\n" % (zs, v))
+        zs = "th_qv th_qvx thsize th_spec_p convt"
         for zs in zs.split(" "):
             ret.append("%s(%s)\n" % (zs, vn.flags.get(zs)))
         return "".join(ret)
@@ -513,9 +566,13 @@ class ThumbSrv(object):
                         ext in self.fmt_ffa or ext in self.fmt_ffv
                     )
 
-                    if lib == "pil" and ext in self.fmt_pil:
+                    if lib == "pil" and ext in self.fmt_pil and tex in self.fmt_pil:
                         funs.append(self.conv_pil)
-                    elif lib == "vips" and ext in self.fmt_vips:
+                    elif (
+                        lib == "vips"
+                        and ext in self.fmt_vips
+                        and (tex != "jxl" or self.vips_jxl)
+                    ):
                         funs.append(self.conv_vips)
                     elif lib == "raw" and ext in self.fmt_raw:
                         funs.append(self.conv_raw)
@@ -553,11 +610,12 @@ class ThumbSrv(object):
                     conv_ok = True
                     break
                 except Exception as ex:
+                    r321 = getattr(ex, "returncode", 0) == 321
                     msg = "%s could not create thumbnail of %r\n%s"
-                    msg = msg % (fun.__name__, abspath, min_ex())
+                    msg = msg % (fun.__name__, abspath, ex if r321 else min_ex())
                     c: Union[str, int] = 1 if "<Signals.SIG" in msg else "90"
                     self.log(msg, c)
-                    if getattr(ex, "returncode", 0) != 321:
+                    if not r321:
                         if fun == funs[-1]:
                             try:
                                 with open(ttpath, "wb") as _:
@@ -645,7 +703,8 @@ class ThumbSrv(object):
             im.thumbnail(self.getres(vn, fmt))
 
         fmts = ["RGB", "L"]
-        args = {"quality": vn.flags["th_qv"]}
+        zs = "th_qvx" if tpath.endswith(".jxl") else "th_qv"
+        args = {"quality": vn.flags[zs]}
 
         if tpath.endswith(".webp"):
             # quality 80 = pillow-default
@@ -670,8 +729,9 @@ class ThumbSrv(object):
         with Image.open(fsenc(abspath)) as im:
             self.conv_image_pil(im, tpath, fmt, vn)
 
-    def conv_image_vips(self, loader: "Callable[[int, dict], Any]",
-                        tpath: str, fmt: str, vn: VFS) -> None:
+    def conv_image_vips(
+        self, loader: "Callable[[int, dict], Any]", tpath: str, fmt: str, vn: VFS
+    ) -> None:
         crops = ["centre", "none"]
         if "f" in fmt:
             crops = ["none"]
@@ -695,17 +755,54 @@ class ThumbSrv(object):
         if tpath.endswith("jpg"):
             qv = VIPS_JPG_Q[qv // 5]
             args["optimize_coding"] = True
+        elif tpath.endswith("jxl"):
+            qv = vn.flags["th_qvx"]
+            # args["effort"] = 8
+            #  `- not worth it; twice as slow, size drops 12%, no visual improvement unlike ffmpeg
         img.write_to_file(tpath, Q=qv, strip=True, **args)
         img.invalidate()
 
     def conv_vips(self, abspath: str, tpath: str, fmt: str, vn: VFS) -> None:
         self.wait4ram(0.2, tpath)
+
         def _loader(w: int, kw: dict) -> Any:
             return pyvips.Image.thumbnail(abspath, w, **kw)
+
         self.conv_image_vips(_loader, tpath, fmt, vn)
 
-    def conv_raw(self, abspath: str, tpath: str, fmt: str, vn: VFS) -> None:
-        self.wait4ram(0.2, tpath)
+    def _conv_dcraw(self, abspath: str, tpath: str, fmt: str, vn: VFS) -> None:
+        self.wait4ram(0.6, tpath)
+        bap = fsenc(abspath)
+        # fmt: off
+        cmd = bwrap(HAVE_DCRAW, bap, b"") + [
+            b"-h",  # halfsize
+            b"-o", b"1",  # srgb
+            b"-s", b"0",  # first frame
+            b"-Z", b"-",  # to stdout
+            bap,
+        ]
+        # fmt: on
+        p = sp.Popen(cmd, stdout=sp.PIPE)
+        try:
+            if HAVE_PIL:
+                self.conv_image_pil(Image.open(p.stdout), tpath, fmt, vn)
+            elif HAVE_VIPS:
+                ppm, _ = p.communicate(timeout=vn.flags["convt"])
+
+                def _loader(w: int, kw: dict) -> Any:
+                    return pyvips.Image.thumbnail_buffer(ppm, w, **kw)
+
+                self.conv_image_vips(_loader, tpath, fmt, vn)
+            else:
+                raise Exception(
+                    "either pil or vips is needed to process embedded bitmap thumbnails in raw files"
+                )
+        finally:
+            if p and p.poll() is None:
+                p.kill()
+
+    def _conv_rawpy(self, abspath: str, tpath: str, fmt: str, vn: VFS) -> None:
+        self.wait4ram(0.6, tpath)
         with rawpy.imread(abspath) as raw:
             thumb = raw.extract_thumb()
         if thumb.format == rawpy.ThumbFormat.JPEG and tpath.endswith(".jpg"):
@@ -714,12 +811,14 @@ class ThumbSrv(object):
             with open(tpath, "wb") as f:
                 f.write(thumb.data)
         if HAVE_VIPS:
+
             def _loader(w: int, kw: dict) -> Any:
                 if thumb.format == rawpy.ThumbFormat.BITMAP:
                     img = pyvips.Image.new_from_array(thumb.data, interpretation="rgb")
                     return img.thumbnail_image(w, **kw)
                 else:
                     return pyvips.Image.thumbnail_buffer(thumb.data, w, **kw)
+
             self.conv_image_vips(_loader, tpath, fmt, vn)
         elif HAVE_PIL:
             if thumb.format == rawpy.ThumbFormat.BITMAP:
@@ -737,6 +836,10 @@ class ThumbSrv(object):
         ret, _, _, _ = ffprobe(abspath, int(vn.flags["convt"] / 2))
         if not ret:
             return
+
+        if "vc" not in ret and "ac" in ret:
+            # audio in a video trenchcoat
+            return self.conv_spec(abspath, tpath, fmt, vn)
 
         ext = abspath.rsplit(".")[-1].lower()
         if ext in ["h264", "h265"] or ext in self.fmt_ffi:
@@ -764,16 +867,15 @@ class ThumbSrv(object):
 
         res = self.getres(vn, fmt)
         bscale = scale.format(*list(res)).encode("utf-8")
+        bap_in = fsenc(abspath)
+        bap_out = fsenc(tpath)
         # fmt: off
-        cmd = [
-            b"ffmpeg",
+        cmd = bwrap(HAVE_FFMPEG, bap_in, bap_out) + [
             b"-nostdin",
             b"-v", b"error",
             b"-hide_banner"
-        ]
-        cmd += seek
-        cmd += [
-            b"-i", fsenc(abspath),
+        ] + seek + [
+            b"-i", bap_in,
             b"-map", imap,
             b"-vf", bscale,
             b"-frames:v", b"1",
@@ -781,10 +883,20 @@ class ThumbSrv(object):
         ]
         # fmt: on
 
-        if tpath.endswith(".jpg"):
+        self._ffmpeg_im_o(bap_out, vn, cmd)
+
+    def _ffmpeg_im_o(self, tpath: bytes, vn: VFS, cmd: list[bytes]) -> None:
+        if tpath.endswith(b".jpg"):
             cmd += [
                 b"-q:v",
                 FF_JPG_Q[vn.flags["th_qv"] // 5],  # default=??
+            ]
+        elif tpath.endswith(b".jxl"):
+            cmd += [
+                b"-q:v",
+                unicode(vn.flags["th_qvx"]).encode("ascii"),  # default=??
+                b"-effort:v",
+                b"7",  # default=7, 1=fast, 9=max, 9~=8 but slower
             ]
         else:
             cmd += [
@@ -794,7 +906,7 @@ class ThumbSrv(object):
                 b"6",  # default=4, 0=fast, 6=max
             ]
 
-        cmd += [fsenc(tpath)]
+        cmd.append(tpath)
         self._run_ff(cmd, vn, "convt")
 
     def _run_ff(self, cmd: list[bytes], vn: VFS, kto: str, oom: int = 400) -> None:
@@ -803,9 +915,34 @@ class ThumbSrv(object):
         if not ret:
             return
 
+        if TH_BWRAP:
+            bwrap_fail(serr)
+
         c: Union[str, int] = "90"
         t = "FFmpeg failed (probably a corrupt file):\n"
-        if (
+
+        if "but no decoder found for: hevc" in serr:
+            t = "thumbnail cannot be created due to legal reasons; https://github.com/9001/copyparty/blob/hovudstraum/docs/bad-codecs.md \033[0;90m\n"
+            ret = 321
+            c = 3
+
+        elif cmd[-1].lower().endswith(b".jxl") and (
+            "Error selecting an encoder" in serr
+            or "find a suitable output format" in serr
+            or "Automatic encoder selection failed" in serr
+            or "Default encoder for format webp" in serr
+            or "Unrecognized option 'effort:v" in serr
+            or "Please choose an encoder manually" in serr
+        ):
+            self.args.th_no_jxl = True
+            self.fmt_ffi.discard("jxl")
+            self.fmt_ffv.discard("jxl")
+            self._rebuild_thumbable()
+            t = "FFmpeg failed because it was compiled without jpegxl; enabling --th-no-jxl to force webp output:\n"
+            ret = 321
+            c = 1
+
+        elif (
             (not self.args.th_ff_jpg or time.time() - int(self.args.th_ff_jpg) < 60)
             and cmd[-1].lower().endswith(b".webp")
             and (
@@ -820,7 +957,7 @@ class ThumbSrv(object):
             ret = 321
             c = 1
 
-        if (
+        elif (
             not self.args.th_ff_swr or time.time() - int(self.args.th_ff_swr) < 60
         ) and (
             "Requested resampling engine is unavailable" in serr
@@ -839,7 +976,12 @@ class ThumbSrv(object):
         if len(txt) > 5000:
             txt = txt[:2500] + "...\nff: [...]\nff: ..." + txt[-2500:]
 
-        self.log(t + txt, c=c)
+        try:
+            zs = shlex.join([x.decode("utf-8", "replace") for x in cmd])
+        except:
+            zs = "'" + (b"' '".join(cmd)).decode("utf-8", "replace") + "'"
+
+        self.log("%scmd: %s\n%s" % (t, zs, txt), c=c)
         raise sp.CalledProcessError(ret, (cmd[0], b"...", cmd[-1]))
 
     def conv_waves(self, abspath: str, tpath: str, fmt: str, vn: VFS) -> None:
@@ -867,20 +1009,21 @@ class ThumbSrv(object):
             b",showwavespic=s=2048x64:colors=white"
             b",convolution=1 1 1 1 1 1 1 1 1:1 1 1 1 1 1 1 1 1:1 1 1 1 1 1 1 1 1:1 -1 1 -1 5 -1 1 -1 1"  # idk what im doing but it looks ok
         )
+        bap_in = fsenc(abspath)
+        bap_out = fsenc(tpath)
 
         # fmt: off
-        cmd = [
-            b"ffmpeg",
+        cmd = bwrap(HAVE_FFMPEG, bap_in, bap_out) + [
             b"-nostdin",
             b"-v", b"error",
             b"-hide_banner",
-            b"-i", fsenc(abspath),
+            b"-i", bap_in,
             b"-filter_complex", flt,
             b"-frames:v", b"1",
         ]
         # fmt: on
 
-        cmd += [fsenc(tpath)]
+        cmd.append(bap_out)
         self._run_ff(cmd, vn, "convt")
 
         if "pngquant" in vn.flags:
@@ -947,28 +1090,32 @@ class ThumbSrv(object):
                 except:
                     self.untemp[tpath] = [infile]
 
+            bap_in = fsenc(abspath)
+            bap_out = fsenc(infile)
+
             # fmt: off
-            cmd = [
-                b"ffmpeg",
+            cmd = bwrap(HAVE_FFMPEG, bap_in, bap_out) + [
                 b"-nostdin",
                 b"-v", b"error",
                 b"-hide_banner",
-                b"-i", fsenc(abspath),
+                b"-i", bap_in,
                 b"-map", b"0:a:0",
                 b"-ac", b"1",
                 b"-ar", b"48000",
                 b"-sample_fmt", b"s16",
                 b"-t", b"900",
-                b"-y", fsenc(infile),
+                b"-y", bap_out,
             ]
             # fmt: on
             self._run_ff(cmd, vn, "convt")
 
+        fscale = ":fscale=log" if self.args.th_spec_fl else ""
+
         fc = "[0:a:0]aresample=48000{},showspectrumpic=s="
         if "3" in fmt:
-            fc += "1280x1024,crop=1420:1056:70:48[o]"
+            fc += "1280x1024%s,crop=1420:1056:70:48[o]" % fscale
         else:
-            fc += "640x512,crop=780:544:70:48[o]"
+            fc += "640x512%s,crop=780:544:70:48[o]" % fscale
 
         if self.args.th_ff_swr:
             fco = ":filter_size=128:cutoff=0.877"
@@ -977,34 +1124,22 @@ class ThumbSrv(object):
 
         fc = fc.format(fco)
 
+        bap_in = fsenc(infile)
+        bap_out = fsenc(tpath)
+
         # fmt: off
-        cmd = [
-            b"ffmpeg",
+        cmd = bwrap(HAVE_FFMPEG, bap_in, bap_out) + [
             b"-nostdin",
             b"-v", b"error",
             b"-hide_banner",
-            b"-i", fsenc(infile),
+            b"-i", bap_in,
             b"-filter_complex", fc.encode("utf-8"),
             b"-map", b"[o]",
             b"-frames:v", b"1",
         ]
         # fmt: on
 
-        if tpath.endswith(".jpg"):
-            cmd += [
-                b"-q:v",
-                FF_JPG_Q[vn.flags["th_qv"] // 5],  # default=??
-            ]
-        else:
-            cmd += [
-                b"-q:v",
-                unicode(vn.flags["th_qv"]).encode("ascii"),  # default=75
-                b"-compression_level:v",
-                b"6",  # default=4, 0=fast, 6=max
-            ]
-
-        cmd += [fsenc(tpath)]
-        self._run_ff(cmd, vn, "convt")
+        self._ffmpeg_im_o(bap_out, vn, cmd)
 
     def conv_mp3(self, abspath: str, tpath: str, fmt: str, vn: VFS) -> None:
         quality = self.args.q_mp3.lower()
@@ -1023,24 +1158,26 @@ class ThumbSrv(object):
             qk = b"-q:a"
             qv = quality[1:].encode("ascii")
 
+        bap_in = fsenc(abspath)
+        bap_out = fsenc(tpath)
+
         # extremely conservative choices for output format
         # (always 2ch 44k1) because if a device is old enough
         # to not support opus then it's probably also super picky
 
         # fmt: off
-        cmd = [
-            b"ffmpeg",
+        cmd = bwrap(HAVE_FFMPEG, bap_in, bap_out) + [
             b"-nostdin",
             b"-v", b"error",
             b"-hide_banner",
-            b"-i", fsenc(abspath),
+            b"-i", bap_in,
         ] + self.big_tags(rawtags) + [
             b"-map", b"0:a:0",
             b"-ar", b"44100",
             b"-ac", b"2",
             b"-c:a", b"libmp3lame",
             qk, qv,
-            fsenc(tpath)
+            bap_out,
         ]
         # fmt: on
         self._run_ff(cmd, vn, "aconvt", oom=300)
@@ -1056,16 +1193,18 @@ class ThumbSrv(object):
 
         self.log("conv2 flac", 6)
 
+        bap_in = fsenc(abspath)
+        bap_out = fsenc(tpath)
+
         # fmt: off
-        cmd = [
-            b"ffmpeg",
+        cmd = bwrap(HAVE_FFMPEG, bap_in, bap_out) + [
             b"-nostdin",
             b"-v", b"error",
             b"-hide_banner",
-            b"-i", fsenc(abspath),
+            b"-i", bap_in,
             b"-map", b"0:a:0",
             b"-c:a", b"flac",
-            fsenc(tpath)
+            bap_out,
         ]
         # fmt: on
         self._run_ff(cmd, vn, "aconvt", oom=300)
@@ -1091,16 +1230,18 @@ class ThumbSrv(object):
 
         self.log("conv2 wav", 6)
 
+        bap_in = fsenc(abspath)
+        bap_out = fsenc(tpath)
+
         # fmt: off
-        cmd = [
-            b"ffmpeg",
+        cmd = bwrap(HAVE_FFMPEG, bap_in, bap_out) + [
             b"-nostdin",
             b"-v", b"error",
             b"-hide_banner",
-            b"-i", fsenc(abspath),
+            b"-i", bap_in,
             b"-map", b"0:a:0",
             b"-c:a", codec,
-            fsenc(tpath)
+            bap_out,
         ]
         # fmt: on
         self._run_ff(cmd, vn, "aconvt", oom=300)
@@ -1145,18 +1286,28 @@ class ThumbSrv(object):
         self.log("conv2 %s [%s]" % (container, enc), 6)
         benc = enc.encode("ascii").split(b" ")
 
+        ac = b"2"
+        try:
+            if tags["chs"][1] in ("mono", "1", "1.0"):
+                ac = b"1"
+        except:
+            pass
+
+        bap_in = fsenc(abspath)
+        bap_out = fsenc(tpath)
+
         # fmt: off
-        cmd = [
-            b"ffmpeg",
+        cmd = bwrap(HAVE_FFMPEG, bap_in, bap_out) + [
             b"-nostdin",
             b"-v", b"error",
             b"-hide_banner",
-            b"-i", fsenc(abspath),
+            b"-i", bap_in,
         ] + tagset + [
             b"-map", b"0:a:0",
+            b"-ac", ac,
         ] + benc + [
             b"-f", container,
-            fsenc(tpath)
+            bap_out,
         ]
         # fmt: on
         self._run_ff(cmd, vn, "aconvt", oom=300)
@@ -1185,18 +1336,21 @@ class ThumbSrv(object):
         self.log("conv2 caf-tmp [%s]" % (enc,), 6)
         benc = enc.encode("ascii").split(b" ")
 
+        bap_in = fsenc(abspath)
+        bap_out = fsenc(tmp_opus)
+
         # fmt: off
-        cmd = [
-            b"ffmpeg",
+        cmd = bwrap(HAVE_FFMPEG, bap_in, bap_out) + [
             b"-nostdin",
             b"-v", b"error",
             b"-hide_banner",
-            b"-i", fsenc(abspath),
+            b"-i", bap_in,
             b"-map_metadata", b"-1",
             b"-map", b"0:a:0",
+            b"-ac", b"2",
         ] + benc + [
             b"-f", b"opus",
-            fsenc(tmp_opus)
+            bap_out,
         ]
         # fmt: on
         self._run_ff(cmd, vn, "aconvt", oom=300)
@@ -1210,20 +1364,21 @@ class ThumbSrv(object):
         if dur < 20 or sz < 256 * 1024:
             zs = bq.decode("ascii")
             self.log("conv2 caf-transcode; dur=%d sz=%d q=%s" % (dur, sz, zs), 6)
+            bap_in = fsenc(abspath)
+            bap_out = fsenc(tpath)
             # fmt: off
-            cmd = [
-                b"ffmpeg",
+            cmd = bwrap(HAVE_FFMPEG, bap_in, bap_out) + [
                 b"-nostdin",
                 b"-v", b"error",
                 b"-hide_banner",
-                b"-i", fsenc(abspath),
+                b"-i", bap_in,
                 b"-filter_complex", b"anoisesrc=a=0.001:d=7:c=pink,asplit[l][r]; [l][r]amerge[s]; [0:a:0][s]amix",
                 b"-map_metadata", b"-1",
                 b"-ac", b"2",
                 b"-c:a", b"libopus",
                 b"-b:a", bq,
                 b"-f", b"caf",
-                fsenc(tpath)
+                bap_out,
             ]
             # fmt: on
             self._run_ff(cmd, vn, "aconvt", oom=300)
@@ -1231,18 +1386,19 @@ class ThumbSrv(object):
         else:
             # simple remux should be safe
             self.log("conv2 caf-remux; dur=%d sz=%d" % (dur, sz), 6)
+            bap_in = fsenc(tmp_opus)
+            bap_out = fsenc(tpath)
             # fmt: off
-            cmd = [
-                b"ffmpeg",
+            cmd = bwrap(HAVE_FFMPEG, bap_in, bap_out) + [
                 b"-nostdin",
                 b"-v", b"error",
                 b"-hide_banner",
-                b"-i", fsenc(tmp_opus),
+                b"-i", bap_in,
                 b"-map_metadata", b"-1",
                 b"-map", b"0:a:0",
                 b"-c:a", b"copy",
                 b"-f", b"caf",
-                fsenc(tpath)
+                bap_out,
             ]
             # fmt: on
             self._run_ff(cmd, vn, "aconvt", oom=300)

@@ -25,6 +25,9 @@ function langmod() {
 //
 // you do not need to translate the TLNotes, those are just for you :-)
 //
+// note: if a line starts with ` then that is to enable
+// turning `foo` into <code>foo</code> (only possible for tooltips)
+//
 // when you are happy with this translation and want to submit it,
 // copy the text below into a new file in the translations folder;
 // https://github.com/9001/copyparty/tree/hovudstraum/copyparty/web/tl
@@ -143,7 +146,7 @@ Ls.hmn = {
 	"login": "Login",
 	"access": " access",
 	"ot_close": "close submenu",
-	"ot_search": "search for files by attributes, path / name, music tags, or any combination of those$N$N&lt;code&gt;foo bar&lt;/code&gt; = must contain both «foo» and «bar»,$N&lt;code&gt;foo -bar&lt;/code&gt; = must contain «foo» but not «bar»,$N&lt;code&gt;^yana .opus$&lt;/code&gt; = start with «yana» and be an «opus» file$N&lt;code&gt;&quot;try unite&quot;&lt;/code&gt; = contain exactly «try unite»$N$Nthe date format is iso-8601, like$N&lt;code&gt;2009-12-31&lt;/code&gt; or &lt;code&gt;2020-09-12 23:30:00&lt;/code&gt;",
+	"ot_search": "`search for files by attributes, path / name, music tags, or any combination of those$N$N`foo bar` = must contain both «foo» and «bar»,$N`foo -bar` = must contain «foo» but not «bar»,$N`^yana .opus$` = start with «yana» and be an «opus» file$N`&quot;try unite&quot;` = contain exactly «try unite»$N$Nthe date format is iso-8601, like$N`2009-12-31` or `2020-09-12 23:30:00`",
 	"ot_unpost": "unpost: delete your recent uploads, or abort unfinished ones",
 	"ot_bup": "bup: basic uploader, even supports netscape 4.0",
 	"ot_mkdir": "mkdir: create a new directory",
@@ -292,9 +295,9 @@ Ls.hmn = {
 
 	"cdt_lim": "max number of files to show in a folder",
 	"cdt_ask": "when scrolling to the bottom,$Ninstead of loading more files,$Nask what to do",
-	"cdt_hsort": "how many sorting rules (&lt;code&gt;,sorthref&lt;/code&gt;) to include in media-URLs. Setting this to 0 will also ignore sorting-rules included in media links when clicking them",
-	"cdt_ren": "enable custom right-click menu, you can still access the regular menu by pressing the shift key and right-clicking",
-	"cdt_rdb": "show the regular right-click menu when the custom one is already open and right-clicking again",
+	"cdt_hsort": "`how many sorting rules (`,sorthref`) to include in media-URLs. Setting this to 0 will also ignore sorting-rules included in media links when clicking them",
+	"cdt_ren": "enable custom right-click menu, you can still access the regular menu by pressing the shift key and right-clicking\">enable",
+	"cdt_rdb": "show the regular right-click menu when the custom one is already open and right-clicking again\">double",
 
 	"tt_entree": "show navpane (directory tree sidebar)$NHotkey: B",
 	"tt_detree": "show breadcrumbs$NHotkey: B",
@@ -312,6 +315,7 @@ Ls.hmn = {
 	"ml_tint": "tint",
 	"ml_eq": "audio equalizer",
 	"ml_drc": "dynamic range compressor",
+	"ml_ss": "skip silence",
 
 	"mt_loop": "loop/repeat one song\">🔁",
 	"mt_one": "stop after one song\">1️⃣",
@@ -347,8 +351,14 @@ Ls.hmn = {
 	"mt_c2ng": "your device does not seem to support this output format, but let's try anyways",
 	"mt_xowa": "there are bugs in iOS preventing background playback using this format; please use caf or mp3 instead",
 	"mt_tint": "background level (0-100) on the seekbar$Nto make buffering less distracting",
-	"mt_eq": "enables the equalizer and gain control;$N$Nboost &lt;code&gt;0&lt;/code&gt; = standard 100% volume (unmodified)$N$Nwidth &lt;code&gt;1 &nbsp;&lt;/code&gt; = standard stereo (unmodified)$Nwidth &lt;code&gt;0.5&lt;/code&gt; = 50% left-right crossfeed$Nwidth &lt;code&gt;0 &nbsp;&lt;/code&gt; = mono$N$Nboost &lt;code&gt;-0.8&lt;/code&gt; &amp; width &lt;code&gt;10&lt;/code&gt; = vocal removal :^)$N$Nenabling the equalizer makes gapless albums fully gapless, so leave it on with all the values at zero (except width = 1) if you care about that",
-	"mt_drc": "enables the dynamic range compressor (volume flattener / brickwaller); will also enable EQ to balance the spaghetti, so set all EQ fields except for 'width' to 0 if you don't want it$N$Nlowers the volume of audio above THRESHOLD dB; for every RATIO dB past THRESHOLD there is 1 dB of output, so default values of tresh -24 and ratio 12 means it should never get louder than -22 dB and it is safe to increase the equalizer boost to 0.8, or even 1.8 with ATK 0 and a huge RLS like 90 (only works in firefox; RLS is max 1 in other browsers)$N$N(see wikipedia, they explain it much better)",
+	"mt_eq": "`enables the equalizer and gain control;$N$Nboost `0` = standard 100% volume (unmodified)$N$Nwidth `1 &nbsp;` = standard stereo (unmodified)$Nwidth `0.5` = 50% left-right crossfeed$Nwidth `0 &nbsp;` = mono$N$Nboost `-0.8` &amp; width `10` = vocal removal :^)$N$Nenabling the equalizer makes gapless albums fully gapless, so leave it on with all the values at zero (except width = 1) if you care about that",
+	"mt_drc": "enables the dynamic range compressor (volume flattener / brickwaller); will also enable EQ to balance the spaghetti, so set all EQ fields except for 'width' to 0 if you don't want it$N$Nlowers the volume of audio above THRESHOLD dB; for every RATIO dB past THRESHOLD there is 1 dB of output, so default values of 'tresh' -24 and 'ratio' 12 means it should never get louder than -22 dB and it is safe to increase the equalizer boost to 0.8, or even 1.8 with ATK 0 and a huge RLS like 90 (only works in firefox; RLS is max 1 in other browsers)$N$N(see wikipedia, they explain it much better)",
+	"mt_ss": "`enables skip-silence; multiplies playback speed by `ffwd` near the start/end of songs when volume is under `vol` and the playback position is within the first `start`% or the last `end`% of the track",
+	"mt_ssvt": "volume threshold (0-255)\">vol",
+	"mt_ssts": "active threshold (% of track, start)\">start",
+	"mt_sste": "active threshold (% of track, end)\">end",
+	"mt_ssrt": "volume/speed ramp up/down time\">fade",
+	"mt_sssm": "playback speed multiplier\">ffwd",
 
 	"mb_play": "play",
 	"mm_hashplay": "play this audio file?",
@@ -427,8 +437,8 @@ Ls.hmn = {
 	"fr_case": "case-sensitive regex\">case",
 	"fr_win": "windows-safe names; replace <code>&lt;&gt;:&quot;\\|?*</code> with japanese fullwidth characters\">win",
 	"fr_slash": "replace <code>/</code> with a character that doesn't cause new folders to be created\">no /",
-	"fr_re": "regex search pattern to apply to original filenames; capturing groups can be referenced in the format field below like &lt;code&gt;(1)&lt;/code&gt; and &lt;code&gt;(2)&lt;/code&gt; and so on",
-	"fr_fmt": "inspired by foobar2000:$N&lt;code&gt;(title)&lt;/code&gt; is replaced by song title,$N&lt;code&gt;[(artist) - ](title)&lt;/code&gt; skips [this] part if artist is blank$N&lt;code&gt;$lpad((tn),2,0)&lt;/code&gt; pads tracknumber to 2 digits",
+	"fr_re": "`regex search pattern to apply to original filenames; capturing groups can be referenced in the format field below like `(1)` and `(2)` and so on",
+	"fr_fmt": "`inspired by foobar2000:$N`(title)` is replaced by song title,$N`[(artist) - ](title)` skips [this] part if artist is blank$N`$lpad((tn),2,0)` pads tracknumber to 2 digits",
 	"fr_pdel": "delete",
 	"fr_pnew": "save as",
 	"fr_pname": "provide a name for your new preset",
@@ -477,7 +487,7 @@ Ls.hmn = {
 
 	"mk_noname": "type a name into the text field on the left before you do that :p",
 	"nmd_i1": "also add the file extension you want, for example <code>.md</code>",
-	"nmd_i2": "you can only create <code>.md</code> files because you don't have the delete-permission",
+	"nmd_i2": "you can only create <code>.{0}</code> files because you don't have the delete-permission",
 
 	"tv_load": "Loading text document:\n\n{0}\n\n{1}% ({2} of {3} MiB loaded)",
 	"tv_xe1": "could not load textfile:\n\nerror ",
@@ -592,7 +602,7 @@ Ls.hmn = {
 	"u_https1": "you should",
 	"u_https2": "switch to https",
 	"u_https3": "for better performance",
-	"u_ancient": 'your browser is impressively ancient -- maybe you should <a href="#" onclick="goto(\'bup\')">use bup instead</a>',
+	"u_ancient": 'your browser is impressively ancient -- maybe you should <a href="#" id="u2nah">use bup instead</a>',
 	"u_nowork": "need firefox 53+ or chrome 57+ or iOS 11+",
 	"tail_2old": "need firefox 105+ or chrome 71+ or iOS 14.5+",
 	"u_nodrop": 'your browser is too old for drag-and-drop uploading',

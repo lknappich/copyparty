@@ -1566,14 +1566,21 @@ input.ssconf_v {
 	transform: translateY(-1px);
 	box-shadow: var(--shadow-focus);
 }
+#au_ss,
 #au_drc,
 #au_eq {
 	display: block;
 	margin-top: .5em;
 	padding: 1.3em .3em;
 }
+#au_ss,
 #au_drc {
 	padding: .4em .3em;
+}
+#au_ss.on {
+    width: 3em;
+	height: 1em;
+	overflow: hidden;
 }
 #ico1 {
 	cursor: pointer;

@@ -111,7 +111,7 @@ Ls.nno = {
 	"login": "Logg inn",
 	"access": " åtgang",
 	"ot_close": "lukk reiskap",
-	"ot_search": "søk etter filer ved å angje filnamn, mappenamn, tid, storleik, eller metadata som songtittel / artist / osv.$N$N&lt;code&gt;foo bar&lt;/code&gt; = inneheld båe «foo» og «bar»,$N&lt;code&gt;foo -bar&lt;/code&gt; = innehold «foo» men ikkje «bar»,$N&lt;code&gt;^yana .opus$&lt;/code&gt; = startar med «yana», filtype «opus»$N&lt;code&gt;&quot;try unite&quot;&lt;/code&gt; = «try unite» eksakt$N$Ndatoformat er iso-8601, så f.eks.$N&lt;code&gt;2009-12-31&lt;/code&gt; eller &lt;code&gt;2020-09-12 23:30:00&lt;/code&gt;",
+	"ot_search": "`søk etter filer ved å angje filnamn, mappenamn, tid, storleik, eller metadata som songtittel / artist / osv.$N$N`foo bar` = inneheld båe «foo» og «bar»,$N`foo -bar` = innehold «foo» men ikkje «bar»,$N`^yana .opus$` = startar med «yana», filtype «opus»$N`&quot;try unite&quot;` = «try unite» eksakt$N$Ndatoformat er iso-8601, så f.eks.$N`2009-12-31` eller `2020-09-12 23:30:00`",
 	"ot_unpost": "unpost: slett filer som du nyleg har lastet opp; «angre-knappen»",
 	"ot_bup": "bup: tradisjonell / primitiv filopplasting,$N$Nfungerar i om lag samtlege nettlesarar",
 	"ot_mkdir": "mkdir: lag ei ny mappe",
@@ -218,6 +218,7 @@ Ls.nno = {
 	"cl_hpick": "klikk på overskrifta åt kolonnene du ønskjer å skjule i tabellen nedanfor",
 	"cl_hcancel": "kolonne-skjuling avbrote",
 	"cl_rcm": "høgreklikkmeny",
+	"cl_gauto": "auto田",
 
 	"ct_grid": '田 ikon',
 	"ct_ttips": 'vis hjelpetekst ved å holde musa over ting">ℹ️ tips',
@@ -260,9 +261,9 @@ Ls.nno = {
 
 	"cdt_lim": "maks mengd filer å vise per mappe",
 	"cdt_ask": "vis knappar for å laste fleire filer nederst på sida i staden for å gradvis laste meir av mappea når man scroller ned",
-	"cdt_hsort": "antall sorteringsreglar (&lt;code&gt;,sorthref&lt;/code&gt;) som skal inkluderast når media-URL'ar genererast. Dersom denne er 0 så vil sorteringsreglar i URL'ar korkje bli generert eller lest",
-	"cdt_ren": "slå på tilpassa høgreklikkmeny (den vanlege menyen er tilgjengeleg med shift + høgreklikk)",
-	"cdt_rdb": "høgreklikk to gonger for å vise den vanlege høgreklikkmenyen",
+	"cdt_hsort": "`antall sorteringsreglar (`,sorthref`) som skal inkluderast når media-URL'ar genererast. Dersom denne er 0 så vil sorteringsreglar i URL'ar korkje bli generert eller lest",
+	"cdt_ren": "slå på tilpassa høgreklikkmeny (den vanlege menyen er tilgjengeleg med shift + høgreklikk)\">aktiv",
+	"cdt_rdb": "høgreklikk to gonger for å vise den vanlege høgreklikkmenyen\">x2",
 
 	"tt_entree": "bytt åt mappehierarki$NSnarvei: B",
 	"tt_detree": "bytt åt tradisjonell stivising$NSnarvei: B",
@@ -272,6 +273,8 @@ Ls.nno = {
 	"tt_dynt": "øk bredda på panelet ettersom treet utvider seg",
 	"tt_wrap": "linjebryting",
 	"tt_hover": "vis heile mappenamnet når musepeikaren treff mappa$N( gjer diverre at scrollhjulet fusker dersom musepeikaren ikkje finn seg i grøfta )",
+	"tt_gauto": "byt visingsmodus (liste/ikon) avhengig av mappeinnhald",
+	"tt_gathr": "vis som ikon når denne prosentdelen er bilete/videoar",
 
 	"ml_pmode": "ved enden av mappa",
 	"ml_btns": "knapper",
@@ -280,6 +283,7 @@ Ls.nno = {
 	"ml_tint": "tint",
 	"ml_eq": "audio equalizer (tonejustering)",
 	"ml_drc": "compressor (volumutjevning)",
+	"ml_ss": "spol forbi stillheit",
 
 	"mt_loop": "spel den same songen om og om igjen\">🔁",
 	"mt_one": "spel kun éin song\">1️⃣",
@@ -315,8 +319,13 @@ Ls.nno = {
 	"mt_c2ng": "ser verkelig ikkje ut som enheiten din taklar dette formatet... men ok, vi prøver",
 	"mt_xowa": "iOS har fortsatt problem med avspeling av owa-musikk i bakgrunnen. Bruk caf eller mp3 i staden for",
 	"mt_tint": "nivå av bakgrunnsfarge på søkestripa (0-100),$Ngjer oppdateringer mindre distraherande",
-	"mt_eq": "aktivér tonekontroll og forsterker;$N$Nboost &lt;code&gt;0&lt;/code&gt; = normal volumskala$N$Nwidth &lt;code&gt;1 &nbsp;&lt;/code&gt; = normal stereo$Nwidth &lt;code&gt;0.5&lt;/code&gt; = 50% blanding venstre-høgre$Nwidth &lt;code&gt;0 &nbsp;&lt;/code&gt; = mono$N$Nboost &lt;code&gt;-0.8&lt;/code&gt; &amp; width &lt;code&gt;10&lt;/code&gt; = instrumental :^)$N$Nreduserer óg daudtid mellom songfiler",
+	"mt_eq": "`aktivér tonekontroll og forsterker;$N$Nboost `0` = normal volumskala$N$Nwidth `1 &nbsp;` = normal stereo$Nwidth `0.5` = 50% blanding venstre-høgre$Nwidth `0 &nbsp;` = mono$N$Nboost `-0.8` &amp; width `10` = instrumental :^)$N$Nreduserer óg daudtid mellom songfiler",
 	"mt_drc": "aktivér volum-utjevning (dynamic range compressor); vil óg aktivere tonejustering, så sett alle EQ-feltene bortsett frå 'width' åt 0 viss du ikkje vil ha nokon EQ$N$Nfilteret vil dempe volumet på alt som er høgare enn TRESH dB; for kvar RATIO dB over grensa er det 1dB som treff høgtalarane, så standardverdiane tresh -24 og ratio 12 skal bety at volumet ikkje gjeng høgare enn -22 dB, slik at ein trygt kan øke boost-verdien i equalizeren åt rundt 0.8, eller 1.8 kombinert med ATK 0 og RLS 90 (berre mulig i firefox; andre nettlesarar tek ikkje høgare RLS enn 1)$N$Nwikipedia forklarar dette mykje betre forresten",
+	"mt_ss": "`spolar forbi stille parti i songar; spelar `ffwd` gongar raskare nær starten/slutten av songen når volumet er under `volum` og posisjonen er innanfor dei første `start`% eller dei siste `slutt`% av songen",
+	"mt_ssvt": "volumterskel (0-255)\">volum",
+	"mt_ssts": "aktiv innanfor første % av songen\">start",
+	"mt_sste": "aktiv innanfor siste % av songen\">slutt",
+	"mt_sssm": "avspelingshastigheitsmultiplikator\">ffwd",
 
 	"mb_play": "lytt",
 	"mm_hashplay": "spel denne songen?",
@@ -395,8 +404,8 @@ Ls.nno = {
 	"fr_case": "versalfølsomme uttrykk\">Aa",
 	"fr_win": "bytt ut bokstavane <code>&lt;&gt;:&quot;\\|?*</code> med$Ntilsvarande som windows ikkje får panikk av\">win",
 	"fr_slash": "bytt ut bokstaven <code>/</code> slik at den ikkje forårsakar at nye mapper opprettes\">ikke /",
-	"fr_re": "regex-mønster som køyrast på kvart filnamn. Grupper kan leses ut i format-feltet nedanfor, f.eks. &lt;code&gt;(1)&lt;/code&gt; og &lt;code&gt;(2)&lt;/code&gt; osv.",
-	"fr_fmt": "inspirert av foobar2000:$N&lt;code&gt;(title)&lt;/code&gt; byttast ut med songtittel,$N&lt;code&gt;[(artist) - ](title)&lt;/code&gt; dropper [dette] viss artist er blank$N&lt;code&gt;$lpad((tn),2,0)&lt;/code&gt; visar songnr. med 2 siffer",
+	"fr_re": "`regex-mønster som køyrast på kvart filnamn. Grupper kan leses ut i format-feltet nedanfor, f.eks. `(1)` og `(2)` osv.",
+	"fr_fmt": "`inspirert av foobar2000:$N`(title)` byttast ut med songtittel,$N`[(artist) - ](title)` dropper [dette] viss artist er blank$N`$lpad((tn),2,0)` visar songnr. med 2 siffer",
 	"fr_pdel": "slett",
 	"fr_pnew": "lagre som",
 	"fr_pname": "gje innstillingane dine eit namn",
@@ -444,8 +453,8 @@ Ls.nno = {
 	"fcp_both_b": '<a href="#" id="modal-ok">Kopiér</a><a href="#" id="modal-ng">Last opp</a>',
 
 	"mk_noname": "skriv inn eit namn i tekstboksa åt venstre først :p",
-	"nmd_i1": "leggja også til filendinga du vil, til dømes <code>.md</code>", //m
-	"nmd_i2": "du kan berre laga <code>.{0}</code>-filer fordi du ikkje har delete-tilgang", //m
+	"nmd_i1": "leggja også til filendinga du vil, til dømes <code>.md</code>",
+	"nmd_i2": "du kan berre laga <code>.{0}</code>-filer fordi du ikkje har delete-tilgang",
 
 	"tv_load": "Lastar inn tekstfil:\n\n{0}\n\n{1}% ({2} av {3} MiB lasta ned)",
 	"tv_xe1": "kunne ikkje laste tekstfil:\n\nfeil ",
@@ -560,7 +569,7 @@ Ls.nno = {
 	"u_https1": "du burde",
 	"u_https2": "bytte åt https",
 	"u_https3": "for høgare hastigheit",
-	"u_ancient": 'nettlesaren din er prehistorisk -- mulig du burde <a href="#" onclick="goto(\'bup\')">bruke bup i staden for</a>',
+	"u_ancient": 'nettlesaren din er prehistorisk -- mulig du burde <a href="#" id="u2nah">bruke bup i staden for</a>',
 	"u_nowork": "krev firefox 53+, chrome 57+, eller iOS 11+",
 	"tail_2old": "krev firefox 105+, chrome 71+, eller iOS 14.5+",
 	"u_nodrop": 'nettlesaren din er for gamal åt å laste opp filer ved å drage dei inn i vindauget',

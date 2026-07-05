@@ -2,11 +2,10 @@
 
 var J_BRW = 1;
 
-if (window.rw_edit === undefined)
+if (window.dgauto === undefined)
 	alert('FATAL ERROR: receiving stale data from the server; this may be due to a broken reverse-proxy (stuck cache). Try restarting copyparty and press CTRL-SHIFT-R in the browser');
 
-var XHR = XMLHttpRequest,
-	img_re = /\.(a?png|avif|bmp|gif|heif|jpe?g|jfif|svg|webp|webm|mkv|mp4|m4v|mov)(\?|$)/i;
+var XHR = XMLHttpRequest;
 
 if (1)
 	Ls.eng = {
@@ -122,7 +121,7 @@ if (1)
 		"login": "Login",
 		"access": " access",
 		"ot_close": "close submenu",
-		"ot_search": "search for files by attributes, path / name, music tags, or any combination of those$N$N&lt;code&gt;foo bar&lt;/code&gt; = must contain both «foo» and «bar»,$N&lt;code&gt;foo -bar&lt;/code&gt; = must contain «foo» but not «bar»,$N&lt;code&gt;^yana .opus$&lt;/code&gt; = start with «yana» and be an «opus» file$N&lt;code&gt;&quot;try unite&quot;&lt;/code&gt; = contain exactly «try unite»$N$Nthe date format is iso-8601, like$N&lt;code&gt;2009-12-31&lt;/code&gt; or &lt;code&gt;2020-09-12 23:30:00&lt;/code&gt;",
+		"ot_search": "`search for files by attributes, path / name, music tags, or any combination of those$N$N`foo bar` = must contain both «foo» and «bar»,$N`foo -bar` = must contain «foo» but not «bar»,$N`^yana .opus$` = start with «yana» and be an «opus» file$N`&quot;try unite&quot;` = contain exactly «try unite»$N$Nthe date format is iso-8601, like$N`2009-12-31` or `2020-09-12 23:30:00`",
 		"ot_unpost": "unpost: delete your recent uploads, or abort unfinished ones",
 		"ot_bup": "bup: basic uploader, even supports netscape 4.0",
 		"ot_mkdir": "mkdir: create a new directory",
@@ -229,6 +228,7 @@ if (1)
 		"cl_hpick": "tap on column headers to hide in the table below",
 		"cl_hcancel": "column hiding aborted",
 		"cl_rcm": "right-click menu",
+		"cl_gauto": "autogrid",
 
 		"ct_grid": '田 the grid',
 		"ct_ttips": '◔ ◡ ◔">ℹ️ tooltips',
@@ -271,9 +271,9 @@ if (1)
 
 		"cdt_lim": "max number of files to show in a folder",
 		"cdt_ask": "when scrolling to the bottom,$Ninstead of loading more files,$Nask what to do",
-		"cdt_hsort": "how many sorting rules (&lt;code&gt;,sorthref&lt;/code&gt;) to include in media-URLs. Setting this to 0 will also ignore sorting-rules included in media links when clicking them",
-		"cdt_ren": "enable custom right-click menu, you can still access the regular menu by pressing the shift key and right-clicking",
-		"cdt_rdb": "show the regular right-click menu when the custom one is already open and right-clicking again",
+		"cdt_hsort": "`how many sorting rules (`,sorthref`) to include in media-URLs. Setting this to 0 will also ignore sorting-rules included in media links when clicking them",
+		"cdt_ren": "enable custom right-click menu, you can still access the regular menu by pressing the shift key and right-clicking\">enable",
+		"cdt_rdb": "show the regular right-click menu when the custom one is already open and right-clicking again\">double",
 
 		"tt_entree": "show navpane (directory tree sidebar)$NHotkey: B",
 		"tt_detree": "show breadcrumbs$NHotkey: B",
@@ -283,6 +283,8 @@ if (1)
 		"tt_dynt": "autogrow as tree expands",
 		"tt_wrap": "word wrap",
 		"tt_hover": "reveal overflowing lines on hover$N( breaks scrolling unless mouse $N&nbsp; cursor is in the left gutter )",
+		"tt_gauto": "display as grid or list depending on folder contents",
+		"tt_gathr": "use grid if this percentage of files are pics/vids",
 
 		"ml_pmode": "at end of folder...",
 		"ml_btns": "cmds",
@@ -327,14 +329,13 @@ if (1)
 		"mt_c2ng": "your device does not seem to support this output format, but let's try anyways",
 		"mt_xowa": "there are bugs in iOS preventing background playback using this format; please use caf or mp3 instead",
 		"mt_tint": "background level (0-100) on the seekbar$Nto make buffering less distracting",
-		"mt_eq": "enables the equalizer and gain control;$N$Nboost &lt;code&gt;0&lt;/code&gt; = standard 100% volume (unmodified)$N$Nwidth &lt;code&gt;1 &nbsp;&lt;/code&gt; = standard stereo (unmodified)$Nwidth &lt;code&gt;0.5&lt;/code&gt; = 50% left-right crossfeed$Nwidth &lt;code&gt;0 &nbsp;&lt;/code&gt; = mono$N$Nboost &lt;code&gt;-0.8&lt;/code&gt; &amp; width &lt;code&gt;10&lt;/code&gt; = vocal removal :^)$N$Nenabling the equalizer makes gapless albums fully gapless, so leave it on with all the values at zero (except width = 1) if you care about that",
+		"mt_eq": "`enables the equalizer and gain control;$N$Nboost `0` = standard 100% volume (unmodified)$N$Nwidth `1 &nbsp;` = standard stereo (unmodified)$Nwidth `0.5` = 50% left-right crossfeed$Nwidth `0 &nbsp;` = mono$N$Nboost `-0.8` &amp; width `10` = vocal removal :^)$N$Nenabling the equalizer makes gapless albums fully gapless, so leave it on with all the values at zero (except width = 1) if you care about that",
 		"mt_drc": "enables the dynamic range compressor (volume flattener / brickwaller); will also enable EQ to balance the spaghetti, so set all EQ fields except for 'width' to 0 if you don't want it$N$Nlowers the volume of audio above THRESHOLD dB; for every RATIO dB past THRESHOLD there is 1 dB of output, so default values of 'tresh' -24 and 'ratio' 12 means it should never get louder than -22 dB and it is safe to increase the equalizer boost to 0.8, or even 1.8 with ATK 0 and a huge RLS like 90 (only works in firefox; RLS is max 1 in other browsers)$N$N(see wikipedia, they explain it much better)",
-		"mt_ss": "enables skip silence; multiplies playback speed by &lt;code&gt;sspeed&lt;/code&gt$Nat the start/end of audio tracks when volume is under &lt;code&gt;vthresh&lt;/code&gt$Nand the track is within 0 to &lt;code&gt;sthresh&lt;/code&gt% of the start$Nor &lt;code&gt;100-ethresh&lt;/code&gt to 100% of the end of the track",
-		"mt_ssvt": "skip silence volume threshold (0-255)",
-		"mt_ssts": "skip silence active threshold (% of track, start)",
-		"mt_sste": "skip silence active threshold (% of track, end)",
-		"mt_ssrt": "skip silence volume/speed ramp up/down time",
-		"mt_sssm": "skip silence playback speed multiplier",
+		"mt_ss": "`enables skip-silence; multiplies playback speed by `ffwd` near the start/end of songs when volume is under `vol` and the playback position is within the first `start`% or the last `end`% of the track",
+		"mt_ssvt": "volume threshold (0-255)\">vol",
+		"mt_ssts": "active threshold (% of track, start)\">start",
+		"mt_sste": "active threshold (% of track, end)\">end",
+		"mt_sssm": "playback speed multiplier (range: 0.15 to 8)\">ffwd",
 
 		"mb_play": "play",
 		"mm_hashplay": "play this audio file?",
@@ -413,8 +414,8 @@ if (1)
 		"fr_case": "case-sensitive regex\">case",
 		"fr_win": "windows-safe names; replace <code>&lt;&gt;:&quot;\\|?*</code> with japanese fullwidth characters\">win",
 		"fr_slash": "replace <code>/</code> with a character that doesn't cause new folders to be created\">no /",
-		"fr_re": "regex search pattern to apply to original filenames; capturing groups can be referenced in the format field below like &lt;code&gt;(1)&lt;/code&gt; and &lt;code&gt;(2)&lt;/code&gt; and so on",
-		"fr_fmt": "inspired by foobar2000:$N&lt;code&gt;(title)&lt;/code&gt; is replaced by song title,$N&lt;code&gt;[(artist) - ](title)&lt;/code&gt; skips [this] part if artist is blank$N&lt;code&gt;$lpad((tn),2,0)&lt;/code&gt; pads tracknumber to 2 digits",
+		"fr_re": "`regex search pattern to apply to original filenames; capturing groups can be referenced in the format field below like `(1)` and `(2)` and so on",
+		"fr_fmt": "`inspired by foobar2000:$N`(title)` is replaced by song title,$N`[(artist) - ](title)` skips [this] part if artist is blank$N`$lpad((tn),2,0)` pads tracknumber to 2 digits",
 		"fr_pdel": "delete",
 		"fr_pnew": "save as",
 		"fr_pname": "provide a name for your new preset",
@@ -578,7 +579,7 @@ if (1)
 		"u_https1": "you should",
 		"u_https2": "switch to https",
 		"u_https3": "for better performance",
-		"u_ancient": 'your browser is impressively ancient -- maybe you should <a href="#" onclick="goto(\'bup\')">use bup instead</a>',
+		"u_ancient": 'your browser is impressively ancient -- maybe you should <a href="#" id="u2nah">use bup instead</a>',
 		"u_nowork": "need firefox 53+ or chrome 57+ or iOS 11+",
 		"tail_2old": "need firefox 105+ or chrome 71+ or iOS 14.5+",
 		"u_nodrop": 'your browser is too old for drag-and-drop uploading',
@@ -692,6 +693,7 @@ var LANGN = [
 	["fin", "Suomi"],
 	["fra", "français"],
 	["grc", "Ελληνικά"],
+	["hun", "Magyar"],
 	["ita", "Italiano"],
 	["jpn", "日本語"],
 	["kor", "한국어"],
@@ -714,15 +716,65 @@ var L = Ls[lang] || Ls.eng, LANGS = [];
 for (var a = 0; a < LANGN.length; a++)
 	LANGS.push(LANGN[a][0]);
 
+if (window.glang && navigator.languages && !/\bcplng=/.test(document.cookie))
+	(function() {
+		var lmap = [
+			["eng", /^en/i],
+			["nor", /^n[ob]/i],
+			["chi", /^zh-cn/i],
+			["cze", /^cs/i],
+			["deu", /^de/i],
+			["epo", /^eo/i],
+			["fin", /^fi/i],
+			["fra", /^fr/i],
+			["grc", /^el/i],
+			["hun", /^hu/i],
+			["ita", /^it/i],
+			["jpn", /^ja/i],
+			["kor", /^ko/i],
+			["nld", /^nl/i],
+			["nno", /^nn/i],
+			["pol", /^pl/i],
+			["por", /^pt/i],
+			["rus", /^ru/i],
+			["spa", /^es/i],
+			["swe", /^sv/i],
+			["tur", /^tr/i],
+			["ukr", /^uk/i],
+			["vie", /^vi/i],
+		];
+		for (var a = 0; a < navigator.languages.length; a++) {
+			for (var b = 0; b < lmap.length; b++) {
+				var n = lmap[b][0];
+				if (!lmap[b][1].test(navigator.languages[a]) || !has(LANGS, n))
+					continue;
+
+				if (Ls[n]) {
+					lang = n;
+					L = Ls[n];
+					return;
+				}
+				if (window.stop)
+					window.stop();
+				document.body.innerHTML = 'Loading ' + n;
+				setck("cplng=" + n, location.reload.bind(location));
+				crashed = true;
+				throw 1;
+			}
+		}
+	})();
+
 
 function langtest() {
 	var n = LANGS.length - 1;
 	for (var a = 1; a < LANGS.length; a++)
-		import_js(SR + '/.cpr/tl/' + LANGS[a] + '.js', function () { if (!--n) langtest2(); });
+		import_js(SR + '/.cpr/w/tl/' + LANGS[a] + '.js', function () { if (!--n) langtest2(); });
 }
 function langtest2() {
 for (var a = 0; a < LANGS.length; a++) {
+	if (!Ls[LANGS[a]]) continue;
 	for (var b = a + 1; b < LANGS.length; b++) {
+		if (!Ls[LANGS[b]]) continue;
 		var i1 = Object.keys(Ls[LANGS[a]]).length > Object.keys(Ls[LANGS[b]]).length ? a : b,
 			i2 = i1 == a ? b : a,
 			t1 = Ls[LANGS[i1]],
@@ -736,6 +788,7 @@ for (var a = 0; a < LANGS.length; a++) {
 	}
 }
 }
+langtest2();
 
 
 
@@ -812,7 +865,7 @@ ebi('widget').innerHTML = (
 
 // up2k ui
 ebi('op_up2k').innerHTML = (
-	'<form id="u2form" method="post" enctype="multipart/form-data" onsubmit="return false;"></form>\n' +
+	'<form id="u2form" method="post" enctype="multipart/form-data"></form>\n' +
 
 	'<table id="u2conf">\n' +
 	'	<tr>\n' +
@@ -891,6 +944,9 @@ ebi('op_up2k').innerHTML = (
 	'<div id="u2life"></div>' +
 	'<div id="u2foot"></div>'
 );
+ebi('u2form').onsubmit = function () {
+	return false;
+};
 
 
 ebi('wrap').insertBefore(mknod('div', 'lazy'), ebi('epi'));
@@ -937,18 +993,29 @@ ebi('op_cfg').innerHTML = (
 	'	</div>\n' +
 	'</div>\n' +
 	'<div>\n' +
+	'	<h3>' + L.cl_gauto + '</h3>\n' +
+	'	<div>\n' +
+	'		<a id="gauto" class="tgl btn" href="#" tt="' + L.tt_gauto + '">' + L.enable + '</a>\n' +
+	'		<input type="text" id="ga_thresh" value="" ' + NOAC + ' style="width:1.5em" tt="' + L.tt_gathr + '" />' +
+	'	</div>\n' +
+	'</div>\n' +
+	'<div>\n' +
 	'	<h3>' + L.cl_hfsz + '</h3>\n' +
 	'	<div><select id="fszfmt">\n' +
-	'		<option value="0">0 ┃ 1234567</option>\n' +
-	'		<option value="1">1 ┃ 1 234 567</option>\n' +
-	'		<option value="2">2- ┃ 1.18 M</option>\n' +
-	'		<option value="2c">2c ┃ 1.18 M</option>\n' +
-	'		<option value="3">3- ┃ 1.2 M</option>\n' +
-	'		<option value="3c">3c ┃ 1.2 M</option>\n' +
-	'		<option value="4">4- ┃ 1.18 MB</option>\n' +
-	'		<option value="4c">4c ┃ 1.18 MB</option>\n' +
-	'		<option value="5">5- ┃ 1.2 MB</option>\n' +
-	'		<option value="5c">5c ┃ 1.2 MB</option>\n' +
+	'		<option value="0">0 ┃ 2345678</option>\n' +
+	'		<option value="1">1 ┃ 2 345 678</option>\n' +
+	'		<option value="2">2- ┃ 2.24 M /1024</option>\n' +
+	'		<option value="2c">2c ┃ 2.24 M /1024</option>\n' +
+	'		<option value="3">3- ┃ 2.2 M /1024</option>\n' +
+	'		<option value="3c">3c ┃ 2.2 M /1024</option>\n' +
+	'		<option value="4">4- ┃ 2.24 Mi /1024</option>\n' +
+	'		<option value="4c">4c ┃ 2.24 Mi /1024</option>\n' +
+	'		<option value="5">5- ┃ 2.2 Mi /1024</option>\n' +
+	'		<option value="5c">5c ┃ 2.2 Mi /1024</option>\n' +
+	'		<option value="6">6- ┃ 2.35 MB /1000</option>\n' +
+	'		<option value="6c">6c ┃ 2.35 MB /1000</option>\n' +
+	'		<option value="7">7- ┃ 2.3 MB /1000</option>\n' +
+	'		<option value="7c">7c ┃ 2.3 MB /1000</option>\n' +
 	'		<option value="fuzzy">fuzzy</option>\n' +
 	'	</select></div>\n' +
 	'</div>\n' +
@@ -1007,7 +1074,7 @@ ebi('op_cfg').innerHTML = (
 	'	</div>\n' +
 	'</div>\n' +
 	'<div><h3>' + L.cl_keytype + '</h3><div><select id="key_notation"></select></div></div>\n' +
-	(!MOBILE ? '<div><h3>' + L.cl_rcm + '</h3><div><a id="rcm_en" class="tgl btn" href="#" tt="' + L.cdt_ren + '">enable</a><a id="rcm_db" class="tgl btn" href="#" tt="' + L.cdt_rdb + '">double</a></div></div>' : '') +
+	(!MOBILE ? '<div><h3>' + L.cl_rcm + '</h3><div><a id="rcm_en" class="tgl btn" href="#" tt="' + L.cdt_ren + '</a><a id="rcm_db" class="tgl btn" href="#" tt="' + L.cdt_rdb + '</a></div></div>' : '') +
 	'<div><h3>' + L.cl_hiddenc + ' &nbsp;' + (MOBILE ? '<a href="#" id="hcolsh">' + L.cl_hidec + '</a> / ' : '') + '<a href="#" id="hcolsr">' + L.cl_reset + '</a></h3><div id="hcols"></div></div>'
 );
 
@@ -1134,6 +1201,8 @@ function goto(dest) {
 	if (treectl)
 		treectl.onscroll();
 }
+function go2bup() { goto('bup'); }
+function go2up2k() { goto('up2k'); }
 
 
 var m = SPINNER.split(','),
@@ -1156,9 +1225,7 @@ onresize100.add(read_sbw, true);
 
 
 function check_image_support(format, uri) {
-	var cached
-	    = window['have_' + format]
-	    = sread('have_' + format);
+	var cached = window['have_' + format] = sread('have_' + format);
 	if (cached !== null)
 		return;
 
@@ -1175,6 +1242,11 @@ function check_image_support(format, uri) {
 }
 check_image_support('webp', "data:image/webp;base64,UklGRhoAAABXRUJQVlA4TA0AAAAvAAAAEAcQERGIiP4HAA==");
 check_image_support('jxl', "data:image/jxl;base64,/woIAAAMABKIAgC4AF3lEgA=");
+
+
+var img_re = APPLE ?
+	/\.(a?png|avif|bmp|gif|hei[cf]s?|jpe?g|jfif|svg|webp|webm|mkv|mp4|m4v|mov)(\?|$)/i :
+	/\.(a?png|avif|bmp|gif|jpe?g|jfif|svg|webp|webm|mkv|mp4|m4v|mov)(\?|$)/i;
 
 
 function set_files_html(html) {
@@ -1435,7 +1507,7 @@ var mpl = (function () {
 			c = false;
 		else if (/\.(wav|flac)$/i.exec(cs))
 			c = r.ac_flac;
-		else if (/\.(aac|m4a)$/i.exec(cs))
+		else if (/\.(aac|m4[abr])$/i.exec(cs))
 			c = r.ac_aac;
 		else if (/\.(oga|ogg|opus)$/i.exec(cs) && (!can_ogg || mpl.ac2 == 'mp3'))
 			c = true;
@@ -1632,9 +1704,9 @@ mpl.init_ac2();
 
 
 var re_m3u = /\.(m3u8?)$/i;
-var re_au_native = (can_ogg || have_acode) ? /\.(aac|flac|m4a|mp3|oga|ogg|opus|wav)$/i : /\.(aac|flac|m4a|mp3|wav)$/i,
+var re_au_native = (can_ogg || have_acode) ? /\.(aac|flac|m4[abr]|mp3|oga|ogg|opus|wav)$/i : /\.(aac|flac|m4[abr]|mp3|wav)$/i,
 	re_au_vid = /\.(3gp|asf|avi|flv|m4v|mkv|mov|mp4|mpeg|mpeg2|mpegts|mpg|mpg2|nut|ogm|ogv|rm|ts|vob|webm|wmv)$/i,
-	re_au_all = /\.(aac|ac3|aif|aiff|alac|alaw|amr|ape|au|dfpwm|dts|flac|gsm|it|itgz|itxz|itz|m4a|mdgz|mdxz|mdz|mo3|mod|mp2|mp3|mpc|mptm|mt2|mulaw|oga|ogg|okt|opus|ra|s3m|s3gz|s3xz|s3z|tak|tta|ulaw|wav|wma|wv|xm|xmgz|xmxz|xmz|xpk|3gp|asf|avi|flv|m4v|mkv|mov|mp4|mpeg|mpeg2|mpegts|mpg|mpg2|nut|ogm|ogv|rm|ts|vob|webm|wmv)$/i;
+	re_au_all = /\.(aac|ac3|aif|aiff|alac|alaw|amr|ape|au|b[cfr]stm|dfpwm|dts|flac|gsm|it|itgz|itxz|itz|m4[abr]|mdgz|mdxz|mdz|mka|mo3|mod|mp2|mp3|mpc|mptm|mt2|mulaw|oga|ogg|okt|opus|ra|s3m|s3gz|s3xz|s3z|tak|tta|ulaw|wav|wma|wv|xm|xmgz|xmxz|xmz|xpk|3gp|asf|avi|flv|m4v|mkv|mov|mp4|mpeg|mpeg2|mpegts|mpg|mpg2|nut|ogm|ogv|rm|ts|vob|webm|wmv)$/i;
 
 
 // extract songs + add play column
@@ -1715,7 +1787,9 @@ function MPlayer() {
 			if (!tid || tid.indexOf('af-') !== 0)
 				continue;
 
-			order.push(tid.slice(1));
+			tid = tid.slice(1);
+			if (r.tracks[tid]) 
+				order.push(tid);
 		}
 		r.order = order;
 		r.shuffle();
@@ -1727,6 +1801,7 @@ function MPlayer() {
 	r.ftimer = null;
 	r.fade_in = function () {
 		r.nopause();
+		start_actx();
 		r.fvol = 0;
 		r.fdir = 0.025 * r.vol * (CHROME ? 1.5 : 1);
 		if (r.au) {
@@ -1737,6 +1812,7 @@ function MPlayer() {
 		}
 	};
 	r.fade_out = function () {
+		mpss.stop();
 		r.fvol = r.vol;
 		r.fdir = -0.05 * r.vol * (CHROME ? 2 : 1);
 		r.ftid = r.au.tid;
@@ -1763,8 +1839,10 @@ function MPlayer() {
 			if (isNum(t))
 				r.au.currentTime = Math.max(t, 0);
 		}
-		else if (r.fvol > r.vol)
+		else if (r.fvol > r.vol) {
 			r.fvol = r.vol;
+			mpss.go();
+		}
 		else
 			done = false;
 
@@ -1836,7 +1914,7 @@ function MPlayer() {
 
 		// breaks touchbar-macs
 		console.log('init fau');
-		r.fau = new Audio(SR + '/.cpr/deps/busy.mp3?_=' + TS);
+		r.fau = new Audio(SR + '/.cpr/w/deps/busy.mp3?_=' + TS);
 		r.fau.loop = true;
 		r.fau.play();
 	};
@@ -2596,8 +2674,6 @@ var mpui = (function () {
 			// occasionally draw buffered regions
 			if (nth % 5 == 0)
 				pbar.drawbuf();
-
-			if (!IE && afilt.ssen) skipSilence();
 		}
 
 		// preload next song
@@ -2711,9 +2787,8 @@ var afilt = (function () {
 		"drcv": [-24, 30, 12, 0.01, 0.25],
 		"drch": ['tresh', 'knee', 'ratio', 'atk', 'rls'],
 		"drck": ['threshold', 'knee', 'ratio', 'attack', 'release'],
-		"sscl": ['vthresh', "sthresh", "ethresh", 'sspeed', 'rspeed'],
-		"sstt": [L.mt_ssvt, L.mt_ssts, L.mt_sste, L.mt_ssrt, L.mt_sssm],
-		"sscv": [1, 5, 5, 5.0, 0.2],
+		"sscl": [L.mt_ssvt, L.mt_ssts, L.mt_sste, L.mt_sssm],
+		"sscv": [1, 5, 5, 5.0],
 		"drcn": null,
 		"filters": [],
 		"filterskip": [],
@@ -2725,7 +2800,10 @@ var afilt = (function () {
 	};
 
 	function setvis(vis) {
-		ebi('audio_eq').parentNode.style.display = ebi('audio_drc').parentNode.style.display = (vis ? '' : 'none');
+		ebi('audio_eq').parentNode.style.display =
+		ebi('audio_drc').parentNode.style.display =
+		ebi('audio_ss').parentNode.style.display =
+		(vis ? '' : 'none');
 	}
 
 	setvis(ACtx);
@@ -2789,6 +2867,7 @@ var afilt = (function () {
 
 		r.drcv = jread('au_drcv', r.drcv);
 		r.sscv = jread('au_sscv', r.sscv);
+		mpss.load();
 	}
 	catch (ex) { }
 
@@ -2806,6 +2885,7 @@ var afilt = (function () {
 	};
 
 	r.stop = function () {
+		mpss.stop();
 		if (r.filters.length)
 			for (var a = 0; a < r.filters.length; a++)
 				r.filters[a].disconnect();
@@ -2833,10 +2913,12 @@ var afilt = (function () {
 			bcfg_set('au_eq', r.eqen = false);
 			bcfg_set('au_drc', r.drcen = false);
 		}
-		else if (v === true && r.drcen && !r.eqen)
+		else if (v === true && (r.drcen || r.ssen) && !r.eqen)
 			bcfg_set('au_eq', r.eqen = true);
-		else if (v === false && !r.eqen)
+		else if (v === false && !r.eqen) {
 			bcfg_set('au_drc', r.drcen = false);
+			bcfg_set('au_ss', r.ssen = false);
+		}
 
 		r.drcn = null;
 
@@ -2853,6 +2935,9 @@ var afilt = (function () {
 		au.id = au.id || Date.now();
 		mp.acs = r.acst[au.id] = r.acst[au.id] || actx.createMediaElementSource(au);
 
+		if (r.ssen)
+			add_ss();
+
 		if (r.eqen)
 			add_eq();
 
@@ -2866,6 +2951,15 @@ var afilt = (function () {
 
 		mp.acs.connect(r.filters.length ?
 			r.filters[r.filters.length - 1] : actx.destination);
+
+		if (!au.paused)
+			mpss.go();
+	}
+
+	function add_ss() {
+		r.filters.push(afilt.ssg = actx.createGain());
+		r.filters.push(afilt.ssa = actx.createAnalyser());
+		afilt.ssa.fftSize = 256;
 	}
 
 	function add_eq() {
@@ -3033,6 +3127,7 @@ var afilt = (function () {
 
 			r.sscv[n] = v;
 			jwrite('au_sscv', r.sscv);
+			mpss.load();
 		}
 		catch (ex) {
 			err = true;
@@ -3104,7 +3199,7 @@ var afilt = (function () {
 		'<a id="au_ss" class="tgl btn" href="#" tt="' + L.mt_ss + '">' + L.enable + '</a></td>'];
 
 	for (var a = 0; a < r.sscl.length; a++) {
-		html.push('<td tt="' + r.sstt[a] + '">' + r.sscl[a] + '</td>');
+		html.push('<td tt="' + r.sscl[a] + '</td>');
 		h2.push('<td><input type="text" class="ssconf_v" ' + NOAC + ' k="' + a + '" value="' + r.sscv[a] + '" /></td>');
 	}
 
@@ -3273,6 +3368,7 @@ function play(tid, is_ev, seek) {
 		if (mpl.waves)
 			pbar.loadwaves(url.replace(/\bth=(opus|mp3)&/, '') + '&th=p');
 
+		mpss.go();
 		mpui.progress_updater();
 		pbar.onresize();
 		vbar.onresize();
@@ -3334,7 +3430,7 @@ function evau_error(e) {
 			break;
 		case eplaya.error.MEDIA_ERR_SRC_NOT_SUPPORTED:
 			err = L.mm_esupp;
-			if (/\.(aac|m4a)(\?|$)/i.exec(eplaya.rsrc) && !mpl.ac_aac) {
+			if (/\.(aac|m4[abr])(\?|$)/i.exec(eplaya.rsrc) && !mpl.ac_aac) {
 				try {
 					ebi('ac_aac').click();
 					QS('a.play.act').click();
@@ -3669,7 +3765,7 @@ function sortfiles(nodes) {
 					if ((v + '').indexOf('<a ') === 0)
 						v = v.split('>')[1];
 					else if (name == "href" && v)
-						v = uricom_dec(v);
+						v = uri2txt(v, true);
 
 					nodes[b]._sv = v
 				}
@@ -4054,6 +4150,8 @@ var fileman = (function () {
 			if (this.textContent == 'write-only')
 				for (var a = 0; a < pbtns.length; a++)
 					clmod(pbtns[a], 'on', pbtns[a].textContent == 'write');
+			if (this.textContent == 'get' && clgot(this, 'on') && has(perms, 'read'))
+				clmod(pbtns[0], 'on');
 		}
 		clmod(pbtns[0], 'on', 1);
 
@@ -4440,8 +4538,9 @@ var fileman = (function () {
 			}
 
 			var msg = esc(L.fr_busy.format(f.length, f[0].ofn));
-			msg += '\n<a id="fs_abrt" class="btn" href="#" onclick="fs_abrt()">' + L.fs_abrt + '</a>';
+			msg += '\n<a id="fs_abrt" class="btn" href="#">' + L.fs_abrt + '</a>';
 			toast.show('inf r', 0, msg);
+			ebi('fs_abrt').onclick = fs_abrt;
 			var dst = base + uricom_enc(f[0].inew.value, false);
 
 			function rename_cb() {
@@ -4622,8 +4721,9 @@ var fileman = (function () {
 		r.ccp = true;
 		r.clip = vps.slice(2);
 
+		var prefix = sread("clip_uo") || location.origin;
 		try {
-			cliptxt(location.origin + r.clip.join('\n' + location.origin));
+			cliptxt(prefix + r.clip.join('\n' + prefix));
 		}
 		catch (ex) {}
 
@@ -4767,8 +4867,9 @@ var fileman = (function () {
 				return paster();
 
 			var msg = esc((r.ccp ? L.fcp_busy : L.fp_busy).format(f.length + 1, uricom_dec(t.src)));
-			msg += '\n<a id="fs_abrt" class="btn" href="#" onclick="fs_abrt()">' + L.fs_abrt + '</a>';
+			msg += '\n<a id="fs_abrt" class="btn" href="#">' + L.fs_abrt + '</a>';
 			toast.show('inf r', 0, msg);
+			ebi('fs_abrt').onclick = fs_abrt;
 
 			var xhr = new XHR(),
 				act = r.ccp ? '?copy=' : '?move=',
@@ -5000,7 +5101,7 @@ var showfile = (function () {
 		qsr('#prism_css');
 		var el = mknod('link', 'prism_css');
 		el.rel = 'stylesheet';
-		el.href = SR + '/.cpr/deps/prism' + (light ? '' : 'd') + '.css?_=' + TS;
+		el.href = SR + '/.cpr/w/deps/prism' + (light ? '' : 'd') + '.css?_=' + TS;
 		document.head.appendChild(el);
 	};
 
@@ -5213,7 +5314,7 @@ var showfile = (function () {
 				if (!defer)
 					fun(el.firstChild);
 				else
-					import_js(SR + '/.cpr/deps/prism.js', function () { fun(); });
+					import_js(SR + '/.cpr/w/deps/prism.js', function () { fun(); });
 			}
 			if (!txt && r.wrap)
 				el.className = 'wrap';
@@ -5321,8 +5422,8 @@ var showfile = (function () {
 			Prism.highlightElement(el);
 		}
 		catch (ex) { }
-        btn.setAttribute('download', ebi('docname').innerHTML);
-        btn.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(jt));
+		btn.setAttribute('download', ebi('docname').innerHTML);
+		btn.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(jt));
 	};
 
 	r.mktree = function () {
@@ -5530,6 +5631,16 @@ var thegrid = (function () {
 			r.setvis();
 	};
 
+	r.autogrid = function (res) {
+		var ni = 0;
+		var nf = res.files.length;
+		for (var a = 0; a < nf; a++)
+			if (img_re.test('.' + res.files[a].ext))
+				ni++;
+		if (nf)
+			thegrid.en = 100 * ni / nf >= r.gathr;
+	};
+
 	function setln(v) {
 		if (v) {
 			r.ln += v;
@@ -5642,8 +5753,10 @@ var thegrid = (function () {
 		var ths = QSA('#ggrid>a');
 
 		for (var a = 0, aa = ths.length; a < aa; a++) {
-			var tr = ebi(ths[a].getAttribute('ref')).closest('tr'),
-				cl = tr.className || '';
+			var ref = ths[a].getAttribute('ref');
+			if (!ref)
+				continue;
+			var cl = ebi(ref).closest('tr').className || '';
 
 			if (noq_href(ths[a]).endsWith('/'))
 				cl += ' dir';
@@ -5752,7 +5865,7 @@ var thegrid = (function () {
 				ihref = addq(ihref, 'th=' + (
 					have_jxl  ? 'x' :
 					have_webp ? 'w' :
-					            'j'
+					'j'
 				));
 				if (!r.crop)
 					ihref += 'f';
@@ -5779,10 +5892,15 @@ var thegrid = (function () {
 
 			html.push('<a href="' + ohref + '" ref="' + ref +
 				'"' + ac + ' ttt="' + esc(name) + '"><img style="height:' +
-				(r.sz / 1.25) + 'em" loading="lazy" onload="th_onload(this)" src="' +
+				(r.sz / 1.25) + 'em" loading="lazy" fetchPriority="low" src="' +
 				ihref + '" /><span' + ac + '>' + ao.innerHTML + '</span></a>');
 		}
 		ggrid.innerHTML = html.join('\n');
+
+		var ths = QSA('#ggrid>a>img');
+		for (var a = 0, aa = ths.length; a < aa; a++)
+			ths[a].onload = th_onload;
+
 		clmod(ggrid, 'crop', r.crop);
 		clmod(ggrid, 'nocrop', !r.crop);
 
@@ -5793,7 +5911,7 @@ var thegrid = (function () {
 		if (srch && r.sel)
 			gsel.click();
 
-		var ths = QSA('#ggrid>a');
+		ths = QSA('#ggrid>a');
 		for (var a = 0, aa = ths.length; a < aa; a++) {
 			ths[a].ondblclick = gclick2;
 			ths[a].onclick = gclick1;
@@ -5828,7 +5946,11 @@ var thegrid = (function () {
 			},
 			onChange: function (i, maxIdx) {
 				if (this[i].imageElement) {
-					sethash('g' + this[i].imageElement.getAttribute('ref') + getsort());
+					var h = 'g' + this[i].imageElement.getAttribute('ref');
+					if (this[i].page)
+						h += ',p' + this[i].page;
+					h += getsort();
+					sethash(h);
 				}
 			}
 		});
@@ -5917,14 +6039,25 @@ var thegrid = (function () {
 		pbar.onresize();
 		vbar.onresize();
 	});
+	bcfg_bind(r, 'gaen', 'gauto', !!dgauto, function(v) {
+		if (r.en && sread("griden") != 1) {
+			r.en = false;
+			r.setvis(true);
+		}
+	});
+	ebi('ga_thresh').value = r.gathr = icfg_get('ga_thresh', dgauto || 70);
+	ebi('ga_thresh').oninput = function (e) {
+		var n = parseInt(this.value);
+		swrite('ga_thresh', r.gathr = (isNum(n) ? n : 0) || 70);
+	};
 	ebi('wtgrid').onclick = ebi('griden').onclick;
 
 	return r;
 })();
 
 
-function th_onload(el) {
-	el.style.height = '';
+function th_onload() {
+	this.style.height = '';
 }
 
 
@@ -6022,7 +6155,7 @@ function hkhelp() {
 		html.push('<table>');
 		for (var a = 0; a < c.length; a++)
 			try {
-				if (c[a].length != 2)
+				if (!Array.isArray(c[a]))
 					html.push('<tr><th colspan="2">' + esc(c[a]) + '</th></tr>');
 				else {
 					var t1 = c[a][0].replace('⇧', '<b>⇧</b>');
@@ -6160,6 +6293,9 @@ var ahotkeys = function (e) {
 		if (thegrid.en)
 			return ebi('griden').click();
 	}
+
+	if (aet == 'input')
+		return;
 
 	var in_ftab = (aet == 'tr' || aet == 'td') && ae.closest('#files');
 	if (in_ftab) {
@@ -7629,6 +7765,9 @@ var treectl = (function () {
 			}
 		}
 
+		if (thegrid.gaen && sread('griden') != 1)
+			thegrid.autogrid(res);
+
 		if (url) setTimeout(asdf, 1); else asdf();
 	}
 
@@ -7750,7 +7889,7 @@ var treectl = (function () {
 		delete res['a'];
 		var keys = Object.keys(res);
 		for (var a = 0; a < keys.length; a++)
-			keys[a] = [uricom_dec(keys[a]), keys[a]];
+			keys[a] = [uri2txt(keys[a]), keys[a]];
 
 		if (ENATSORT)
 			keys.sort(function (a, b) { return NATSORT.compare(a[0], b[0]); });
@@ -7912,12 +8051,17 @@ function apply_perms(res) {
 	a.style.display = '';
 	tt.att(QS('#ops'));
 
+	var v_perms = perms.slice(0);
+	var have_read = has(perms, 'read');
+	if (have_read)
+		apop(v_perms, 'get');
+
 	for (var a = 0; a < chk.length; a++)
-		if (has(perms, chk[a]))
+		if (has(v_perms, chk[a]))
 			axs.push(chk[a].slice(0, 1).toUpperCase() + chk[a].slice(1));
 
 	axs = axs.join('-');
-	if (perms.length == 1) {
+	if (v_perms.length == 1) {
 		aclass = ' class="warn">';
 		axs += '-Only';
 	}
@@ -7959,7 +8103,6 @@ function apply_perms(res) {
 	document.body.setAttribute('perms', perms.join(' '));
 
 	var have_write = has(perms, "write"),
-		have_read = has(perms, "read"),
 		de = document.documentElement,
 		tds = QSA('#u2conf td');
 
@@ -8858,6 +9001,13 @@ var msel = (function () {
 			return;
 		}
 
+		if (this.status == 405) {
+			tb.value = '';
+			sf.textContent = 'already existed';
+			treectl.goto(this.vp + uricom_enc(this.dn) + '/', true);
+			return tree_scrollto();
+		}
+
 		xhrchk(this, L.fd_xe1, L.fd_xe2);
 
 		if (this.status !== 201) {
@@ -8983,8 +9133,8 @@ var globalcss = (function () {
 var sandboxjs = (function () {
 	var ret = '',
 		busy = false,
-		url = SR + '/.cpr/util.js?_=' + TS,
-		tag = '<script src="' + url + '"></script>';
+		url = SR + '/.cpr/w/util.js?_=' + TS,
+		tag = '<script nonce="' + JS_NONCE + '" src="' + url + '"></script>';
 
 	return function () {
 		if (ret || busy)
@@ -8994,7 +9144,7 @@ var sandboxjs = (function () {
 		xhr.open('GET', url, true);
 		xhr.onload = function () {
 			if (this.status == 200)
-				ret = '<script>' + this.responseText + '</script>';
+				ret = '<script nonce="' + JS_NONCE + '">' + this.responseText + '</script>';
 		};
 		xhr.send();
 		busy = true;
@@ -9020,7 +9170,7 @@ function show_md(md, name, div, url, depth) {
 		}
 
 		wfp_debounce.n--;
-		return import_js(SR + '/.cpr/deps/marked.js', function () {
+		return import_js(SR + '/.cpr/w/deps/marked.js', function () {
 			show_md(md, name, div, url, 1);
 		});
 	}
@@ -9142,8 +9292,9 @@ function sandbox(tgt, rules, allow, cls, html) {
 	html = '<html class="iframe ' + document.documentElement.className +
 		'"><head><style>html{background:#eee;color:#000}</style><style>' + globalcss() +
 		'</style><base target="_parent"></head><body id="b" class="logue ' + cls + '">' + html +
-		'<script>' + env + '</script>' + sandboxjs() +
-		'<script>var d=document.documentElement,TS="' + TS + '",' +
+		'<script nonce="' + JS_NONCE + '">' + env + '</script>' + sandboxjs() +
+		'<script nonce="' + JS_NONCE + '">' +
+		'var d=document.documentElement,TS="' + TS + '",' +
 		'loc=new URL("' + location.href.split('?')[0] + '");' +
 		'function say(m){window.parent.postMessage(m,"*")};' +
 		'setTimeout(function(){var its=0,pih=-1,f=function(){' +
@@ -9599,7 +9750,7 @@ var rcm = (function () {
 			var row = mknod('tr', 'rcm_tmp',
 				'<td>-new-</td><td colspan="' + (QSA("#files thead th").length - 1) + '"><input id="tempname" class="i" type="text" placeholder="' + (is_dir ? 'Folder' : 'File') + ' Name"></td>');
 			QS("#files tbody").appendChild(row);
-	    }
+		}
 		else {
 			var row = mknod('a', 'rcm_tmp',
 				'<span class="dir" style="align-self:end"><input id="tempname" class="dir" type="text" placeholder="' + (is_dir ? 'Folder' : 'File') + ' Name"></span>');
@@ -9909,7 +10060,7 @@ function reload_browser() {
 		if (e.target.closest('#widget,#ops,.opview,.doc')) return;
 
 		if (e.target.closest('#gfiles'))
-			ebi('gfiles').style.userSelect = "none"
+			ebi('gfiles').style.userSelect = "none";
 
 		var pos = getpp(e);
 		startx = pos.x;
@@ -9950,7 +10101,9 @@ function reload_browser() {
 			return;
 		}
 		if (!dragging && dist > mvthresh && !window.getSelection().toString()) {
-			if (fwrap = e.target.closest('#wrap')) 
+			if (e.target instanceof Element)
+				fwrap = e.target.closest('#wrap');
+			if (fwrap) 
 				fwrap.style.userSelect = 'none';
 			else return;
 			start_drag();
@@ -9994,7 +10147,8 @@ function reload_browser() {
 
 		window.addEventListener('dragstart', function(e) {
 			if (treectl.dsel && (is_selma || dragging)) {
-				e.preventDefault();
+				if (!QS('body.bbox-open'))
+					ev(e);
 			}
 		});
 	}
@@ -10002,72 +10156,44 @@ function reload_browser() {
 	dsel_init();
 })();
 
-var ssint = null;
 
-function skipSilence() {
-	var ae = mp.au;
-	var ssconf = afilt.sscv;
+var mpss = (function() {
+	var r = {}, config, ssint, npaint = 0;
 
-	var config = {
-		vthresh: ssconf[0],
-		sthresh: ssconf[1],
-		etresh: ssconf[2],
-		sspeed: ssconf[3],
-		rspeed: ssconf[4],
-		loopInterval: 25
+	r.load = function () {
+		if (!afilt.ssg)
+			return false;
+
+		config = {
+			vthresh: afilt.sscv[0],
+			sthresh: afilt.sscv[1],
+			etresh: afilt.sscv[2],
+			sspeed: clamp(afilt.sscv[3], 0.15, 8.0),
+			rspeed: 0.2,
+			loopInterval: 25,
+		};
+		return true;
 	};
 
-	if (!ae._ssa) {
-		var ctx = new AudioContext();
-	
-		var asrc = ctx.createMediaElementSource(ae);
-		var analyser = ctx.createAnalyser();
-		var gnod = ctx.createGain();
-
-		analyser.fftSize = 256;
-		asrc.connect(analyser);
-		analyser.connect(gnod);
-		gnod.connect(ctx.destination);
-
-		ae._analyser = analyser;
-		ae._gnod = gnod;
-		ae._actx = ctx;
-		ae._ssa = true;
-
-		ae.addEventListener('play', function() {
-			if (ctx.state === 'suspended') ctx.resume();
-			startLoop();
-		});
-
-		ae.addEventListener('pause', stopLoop);
-		ae.addEventListener('ended', stopLoop);
-
-		ae.addEventListener('durationchange', function() {
-			if (ae._gnod) ae._gnod.gain.value = 1.0;
-			ae.playbackRate = 1.0;
-		});
-
-		if (!ae.paused && !ae.ended) {
-			startLoop();
-		}
-	}
-
-	function startLoop() {
-		if (!ssint) { 
+	r.go = function () {
+		if (!ssint && afilt.ssen && r.load())
 			ssint = setInterval(detectSilence, config.loopInterval);
-		}
-	}
+	};
 
-	function stopLoop() {
-		if (ssint) {
-			clearInterval(ssint);
-			ssint = null;
-		}
-		if(ae._gnod) ae._gnod.gain.value = 1.0;
-		ae.playbackRate = 1.0;
-	}
+	r.stop = function () {
+		clearInterval(ssint);
+		ssint = null;
+		if (!mp) return;
+		if (afilt.ssg) afilt.ssg.gain.value = 1.0;
+		if (mp.au && mp.au._ss) mp.au.playbackRate = 1.0;
+		if (mp.au2 && mp.au2._ss) mp.au2.playbackRate = 1.0;
+	};
 
 	function detectSilence() {
+		var ae = mp.au;
+		ae._ss = true;
+
+		var gain = afilt.ssg.gain;
 		var duration = ae.duration || 0;
 	
 		var slimit = duration * (config.sthresh / 100);
@@ -10079,13 +10205,18 @@ function skipSilence() {
 		var is_silent = false;
 
 		if (in_limits) {
-			var analyser = ae._analyser;
+			var analyser = afilt.ssa;
 			var da = new Uint8Array(analyser.frequencyBinCount);
 			analyser.getByteFrequencyData(da);
 
 			var maxvol = 0;
 			for (var i = 0; i < da.length; i++) {
 				if (da[i] > maxvol) maxvol = da[i];
+			}
+
+			if (++npaint > 4) {
+				npaint = 0;
+				ebi('au_ss').innerHTML = maxvol;
 			}
 
 			if (maxvol < config.vthresh) {
@@ -10099,15 +10230,17 @@ function skipSilence() {
 			if (Math.abs(ae.playbackRate - tspeed) > 0.01) {
 				ae.playbackRate += (tspeed - ae.playbackRate) * config.rspeed;
 			}
-			if (Math.abs(ae._gnod.gain.value - tvol) > 0.01) {
-				ae._gnod.gain.value += (tvol - ae._gnod.gain.value) * config.rspeed;
+			if (Math.abs(gain.value - tvol) > 0.01) {
+				gain.value += (tvol - gain.value) * config.rspeed;
 			}
 		} else {
 			ae.playbackRate = 1.0;
-			ae._gnod.gain.value = 1.0;
+			gain.value = 1.0;
 		}
 	}
-}
+
+	return r;
+})();
 
 treectl.hydrate();
 

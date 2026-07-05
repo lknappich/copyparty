@@ -110,7 +110,7 @@ Ls.vie = {
 	"access": "quyền truy cập",
 	"ot_close": "đóng menu con",
 
-	"ot_search": "tìm kiếm các tệp theo thuộc tính, đường dẫn / tên, tag nhạc hoặc bất kỳ sự kết hợp nào của chúng$N$N&lt;code&gt;foo bar&lt;/code&gt; = phải chứa cả «foo» và «bar»,$N&lt;code&gt;foo -bar&lt;/code&gt; = phải chứa «foo» nhưng không chứa «bar»,$N&lt;code&gt;^yana .opus$&lt;/code&gt; = bắt đầu bằng «yana» và là tệp «opus»$N&lt;code&gt;&quot;try unite&quot;&lt;/code&gt; = chứa chính xác «try unite»$N$Nđịnh dạng ngày là iso-8601, như$N&lt;code&gt;2009-12-31&lt;/code&gt; hoặc &lt;code&gt;2020-09-12 23:30:00&lt;/code&gt;",
+	"ot_search": "`tìm kiếm các tệp theo thuộc tính, đường dẫn / tên, tag nhạc hoặc bất kỳ sự kết hợp nào của chúng$N$N`foo bar` = phải chứa cả «foo» và «bar»,$N`foo -bar` = phải chứa «foo» nhưng không chứa «bar»,$N`^yana .opus$` = bắt đầu bằng «yana» và là tệp «opus»$N`&quot;try unite&quot;` = chứa chính xác «try unite»$N$Nđịnh dạng ngày là iso-8601, như$N`2009-12-31` hoặc `2020-09-12 23:30:00`",
 
 	"ot_unpost": "unpost: xoá các tệp đã tải lên gần đây hoặc huỷ những tệp đang tải dở",
 	"ot_bup": "bup: trình tải lên cơ bản, hỗ trợ cả Netscape 4.0",
@@ -221,6 +221,7 @@ Ls.vie = {
 	"cl_hpick": "chạm vào tiêu đề cột để ẩn trong bảng bên dưới",
 	"cl_hcancel": "đã hủy việc ẩn cột",
 	"cl_rcm": "menu chuột phải", //m
+	"cl_gauto": "lưới tự động", //m
 
 	// settings / tuỳ chọn
 	"ct_grid": '田 chế độ lưới',
@@ -267,9 +268,9 @@ Ls.vie = {
 	// big dirs
 	"cdt_lim": "số tệp tối đa hiển thị trong thư mục",
 	"cdt_ask": "khi cuộn xuống cuối,$Nthay vì tải thêm tệp,$Nhỏi người dùng muốn làm gì",
-	"cdt_hsort": "số lượng luật sắp xếp(&lt;code&gt;,sorthref&lt;/code&gt;) được đưa vào URL media. Đặt bằng 0 cũng sẽ bỏ qua các quy tắc sắp xếp trong liên kết media khi nhấp vào chúng",
-	"cdt_ren": "bật menu chuột phải tùy chỉnh, menu mặc định vẫn truy cập được bằng shift + chuột phải", //m
-	"cdt_rdb": "hiển thị menu chuột phải thông thường khi menu tùy chỉnh đã mở và nhấp chuột phải lần nữa", //m
+	"cdt_hsort": "`số lượng luật sắp xếp(`,sorthref`) được đưa vào URL media. Đặt bằng 0 cũng sẽ bỏ qua các quy tắc sắp xếp trong liên kết media khi nhấp vào chúng",
+	"cdt_ren": "bật menu chuột phải tùy chỉnh, menu mặc định vẫn truy cập được bằng shift + chuột phải\">bật", //m
+	"cdt_rdb": "hiển thị menu chuột phải thông thường khi menu tùy chỉnh đã mở và nhấp chuột phải lần nữa\">x2", //m
 
 	"tt_entree": "hiển thị thanh điều hướng (cây thư mục)$NPhím tắt: B",
 	"tt_detree": "hiển thị đường dẫn$NPhím tắt: B",
@@ -279,17 +280,17 @@ Ls.vie = {
 	"tt_dynt": "tự mở rộng khi cây mở rộng",
 	"tt_wrap": "ngắt dòng",
 	"tt_hover": "hiện thị dòng tràn khi rê chuột$N( không cuộn được nếu $N&nbsp; con trỏ chuột nằm ngoài cột trái )",
+	"tt_gauto": "hiển thị dạng lưới hoặc danh sách tùy theo nội dung thư mục", //m
+	"tt_gathr": "dùng lưới nếu tỷ lệ tệp này là ảnh/video", //m
 
 	"ml_pmode": "ở cuối thư mục...",
 	"ml_btns": "lệnh",
 	"ml_tcode": "mã hoá lại",
-	// chắc là phần nhạc
 	"ml_tcode2": "mã hoá lại thành",
 	"ml_tint": "tô màu",
 	"ml_eq": "bộ cân bằng âm thanh",
 	"ml_drc": "bộ nén dải động",
-
-	// nhạc
+	"ml_ss": "bỏ qua khoảng lặng", //m
 
 	"mt_loop": "lặp lại một bài\">🔁",
 	"mt_one": "dừng sau một bài\">1️⃣",
@@ -326,9 +327,15 @@ Ls.vie = {
 	"mt_xowa": "có một vài lỗi trên iOS ngăn phát nền với định dạng này; vui lòng dùng caf hoặc mp3",
 	"mt_tint": "mức nền (0-100) trên thanh tiến trình",
 	
-	"mt_eq": "bật bộ cân bằng âm thanh và bộ tăng ích;$N$Nboost &lt;code&gt;0 &nbsp;&lt;/code&gt; = âm lượng chuẩn 100% (không chỉnh)$N$Nwidth &lt;code&gt;1 &nbsp;&lt;/code&gt; = stereo chuẩn (không chỉnh)$Nwidth &lt;code&gt;0.5&lt;/code&gt; = 50% pha trái-phải$Nwidth &lt;code&gt;0 &nbsp;&lt;/code&gt; = mono$N$Nboost &lt;code&gt;-0.8&lt;/code&gt; &amp; width &lt;code&gt;10&lt;/code&gt; = loại bỏ lời hát :^)$N$Nbật EQ giúp cho album được phát liền mạch không ngắt quãng, nên giữ các giá trị bằng 0 (trừ width = 1) nếu bạn không muốn thay đổi âm thanh gốc",
+	"mt_eq": "`bật bộ cân bằng âm thanh và bộ tăng ích;$N$Nboost `0 &nbsp;` = âm lượng chuẩn 100% (không chỉnh)$N$Nwidth `1 &nbsp;` = stereo chuẩn (không chỉnh)$Nwidth `0.5` = 50% pha trái-phải$Nwidth `0 &nbsp;` = mono$N$Nboost `-0.8` &amp; width `10` = loại bỏ lời hát :^)$N$Nbật EQ giúp cho album được phát liền mạch không ngắt quãng, nên giữ các giá trị bằng 0 (trừ width = 1) nếu bạn không muốn thay đổi âm thanh gốc",
 
 	"mt_drc": "bật bộ nén dải động (làm phẳng âm lượng / brickwaller); cũng bật EQ để cân bằng, nên đặt tất cả EQ trừ 'width' = 0 nếu không muốn$N$Ngiảm âm thanh trên THRESHOLD dB; với mỗi RATIO dB vượt THRESHOLD thì có 1 dB đầu ra, ví dụ tresh -24 và ratio 12 => âm lượng không vượt -22 dB, có thể tăng EQ boost lên 0.8 hoặc 1.8 với ATK 0 và RLS lớn 90 (chỉ Firefox; RLS max 1 trên browser khác)$N$NXem Wikipedia để hiểu chi tiết hơn",
+
+	"mt_ss": "`bật bỏ qua im lặng; nhân tốc độ phát với `nh` gần đầu/cuối khi âm lượng dưới `am` và vị trí trong `dau`% đầu hoặc `cuoi`% cuối", //m
+	"mt_ssvt": "ngưỡng âm lượng (0-255)\">am", //m
+	"mt_ssts": "ngưỡng hoạt động (% bài, đầu)\">dau", //m
+	"mt_sste": "ngưỡng hoạt động (% bài, cuối)\">cuoi", //m
+	"mt_sssm": "hệ số tốc độ phát\">nh", //m
 
 	"mb_play": "phát",
 	"mm_hashplay": "phát bản nhạc này?",
@@ -407,8 +414,8 @@ Ls.vie = {
 	"fr_case": "regex phân biệt hoa thường\">case",
 	"fr_win": "tên tương thích Windows; thay <code>&lt;&gt;:&quot;\\|?*</code> bằng ký tự fullwidth tiếng Nhật\">win",
 	"fr_slash": "thay <code>/</code> bằng ký tự khác để tránh tạo thư mục mới\">no /",
-	"fr_re": "regex áp dụng lên tên gốc; các nhóm bắt có thể được tham chiếu trong trường định dạng bên dưới như &lt;code&gt;(1)&lt;/code&gt;, &lt;code&gt;(2)&lt;/code&gt; ...",
-	"fr_fmt": "lấy cảm hứng từ foobar2000:$N&lt;code&gt;(title)&lt;/code&gt; được thay bằng tên bài hát,$N&lt;code&gt;[(artist) - ](title)&lt;/code&gt; bỏ qua phần trong ngoặc nếu artist trống,$N&lt;code&gt;$lpad((tn),2,0)&lt;/code&gt; thêm số 0 để tracknumber đủ 2 chữ số",
+	"fr_re": "`regex áp dụng lên tên gốc; các nhóm bắt có thể được tham chiếu trong trường định dạng bên dưới như `(1)`, `(2)` ...",
+	"fr_fmt": "`lấy cảm hứng từ foobar2000:$N`(title)` được thay bằng tên bài hát,$N`[(artist) - ](title)` bỏ qua phần trong ngoặc nếu artist trống,$N`$lpad((tn),2,0)` thêm số 0 để tracknumber đủ 2 chữ số",
 	"fr_pdel": "xóa",
 	"fr_pnew": "lưu dưới tên mới",
 	"fr_pname": "nhập tên cho preset mới",
@@ -574,7 +581,7 @@ Ls.vie = {
 	"u_https2": "chuyển sang https",
 	"u_https3": "để có hiệu suất tốt hơn",
 
-	"u_ancient": "trình duyệt của bạn quá cũ; bạn có thể <a href=\"#\" onclick=\"goto('bup')\">dùng bup</a> thay thế",
+	"u_ancient": "trình duyệt của bạn quá cũ; bạn có thể <a href=\"#\" id=\"u2nah\">dùng bup</a> thay thế",
 	"u_nowork": "cần Firefox 53+, Chrome 57+ hoặc iOS 11+",
 	"tail_2old": "cần Firefox 105+, Chrome 71+ hoặc iOS 14.5+",
 	"u_nodrop": "trình duyệt của bạn quá cũ để dùng kéo thả khi tải lên",

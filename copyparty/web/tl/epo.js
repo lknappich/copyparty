@@ -114,7 +114,7 @@ Ls.epo = {
 	"login": "Ensaluti",
 	"access": " atingo",
 	"ot_close": "fermi submenuon",
-	"ot_search": "serĉi dosierojn per atributoj, indiko / nomo, etikedoj de muziko aŭ ĉiu kombinaĵo de tiuj parametroj$N$N&lt;code&gt;foo bar&lt;/code&gt; = devas enhavi ambaŭ «foo» kaj «bar»,$N&lt;code&gt;foo -bar&lt;/code&gt; = devas enhavi «foo», sed ne «bar»,$N&lt;code&gt;^yana .opus$&lt;/code&gt; = komenci per «yana» kaj esti dosieron de formato «opus»$N&lt;code&gt;&quot;try unite&quot;&lt;/code&gt; = enhavi precipe «try unite»$N$Nformato de datoj estas iso-8601, ekzemple$N&lt;code&gt;2009-12-31&lt;/code&gt; aŭ &lt;code&gt;2020-09-12 23:30:00&lt;/code&gt;",
+	"ot_search": "`serĉi dosierojn per atributoj, indiko / nomo, etikedoj de muziko aŭ ĉiu kombinaĵo de tiuj parametroj$N$N`foo bar` = devas enhavi ambaŭ «foo» kaj «bar»,$N`foo -bar` = devas enhavi «foo», sed ne «bar»,$N`^yana .opus$` = komenci per «yana» kaj esti dosiero de formato «opus»$N`&quot;try unite&quot;` = enhavi precipe «try unite»$N$Nformato de datoj estas iso-8601, ekzemple$N`2009-12-31` aŭ `2020-09-12 23:30:00`",
 	"ot_unpost": "unpost: forigi viaj plej lastaj alŝutoj, aŭ ĉesigi nefinigitajn",
 	"ot_bup": "bup: fundamenta alŝutilo, funkias eĉ kun netscape 4.0",
 	"ot_mkdir": "mkdir: krei novan dosierujon",
@@ -221,18 +221,19 @@ Ls.epo = {
 	"cl_hpick": "alklaki la kapojn de kolumnoj por kasi en la suban tabelon",
 	"cl_hcancel": "kaŝado de kolumno nuligita",
 	"cl_rcm": "dekstra-klaka menuo",
+	"cl_gauto": "aŭto田",
 
 	"ct_grid": '田 krado',
 	"ct_ttips": '◔ ◡ ◔">ℹ️ ŝpruchelpiloj',
 	"ct_thumb": 'dum krado-vido, baskuli montradon de simboloj aŭ bildetoj$NFulmoklavo: T">🖼️ bildetoj',
 	"ct_csel": 'uzi STIR kaj MAJ por elekti dosierojn en krado-vido">elekto',
 	"ct_dsel": 'uzi tren-elekton en krado-vido">treni',
-	"ct_dl": 'devigi elŝuton (ne montri enkadre), kiam dosiero estas alklakita">dl',
-	"ct_ihop": 'montri la lastan viditan bildo-dosieron post fermado de bildo-vidilo">g⮯',
+	"ct_dl": 'devigi elŝuton (ne montri enkadre), kiam dosiero estas alklakita">elŝuti',
+	"ct_ihop": 'rulumi al la lasta vidita bildo-dosiero post fermado de bildo-vidilo">🖼️⮯',
 	"ct_dots": 'montri kaŝitajn dosierojn (se servilo permesas)">kaŝitaj',
 	"ct_qdel": 'peti konfirmon nur unufoje antaŭ forigado">rapid-forig.',
 	"ct_dir1st": 'ordigi dosierujojn antaŭ dosieroj">📁 unue',
-	"ct_nsort": 'numera ordigo de dosiernomoj (ekz. &lt;code&gt;2&lt;/code&gt; antaŭ &lt;code&gt;11&lt;/code&gt;)">№.ord',
+	"ct_nsort": '`numera ordigo de dosiernomoj (ekz. `2` antaŭ `11`)">№.ord',
 	"ct_utc": 'montri ĉiuj datoj kaj tempoj per UTC">UTC',
 	"ct_readme": 'montri enhavon de README.md en listaĵo de dosieroj">📜 readme',
 	"ct_idxh": 'montri paĝon index.html anstataŭ listaĵo de dosieroj">htm',
@@ -263,9 +264,9 @@ Ls.epo = {
 
 	"cdt_lim": "maks. nombro de dosieroj por montri en dosierujo",
 	"cdt_ask": "je malsupro de paĝo, peti por ago$Nanstataŭ ŝarĝi pli da dosieroj",
-	"cdt_hsort": "kiom da ordigo-reguloj (&lt;code&gt;,sorthref&lt;/code&gt;) inkludi en adreso de la paĝo. Se agordita kiel 0, reguloj, inkluditaj en la adreso, estos ignoritaj",
-	"cdt_ren": "ebligi propran dekstra-klakan menuon, la normala menuo restas alirebla per MAJ + dekstra klako",
-	"cdt_rdb": "montri la normalan dekstraklakan menuon, kiam la propra jam estas malfermita kaj oni denove dekstre klakas",
+	"cdt_hsort": "`kiom da ordigo-reguloj (`,sorthref`) inkludi en adreso de la paĝo. Se agordita kiel 0, reguloj, inkluditaj en la adreso, estos ignoritaj",
+	"cdt_ren": "ebligi propran dekstra-klakan menuon, la normala menuo restas alirebla per MAJ + dekstra klako\">ŝalti",
+	"cdt_rdb": "montri la normalan dekstraklakan menuon, kiam la propra jam estas malfermita kaj oni denove dekstre klakas\">duobla",
 
 	"tt_entree": "montri arbovidan navig-panelon$NFulmoklavo: B",
 	"tt_detree": "montri paĝnivelan navig-panelon$NFulmoklavo: B",
@@ -275,6 +276,8 @@ Ls.epo = {
 	"tt_dynt": "aŭtomate pligrandigi panelon",
 	"tt_wrap": "linifaldo",
 	"tt_hover": "montri kompletajn nomojn sur musumo$N( paneas rulumadon, se la kursoro de muso $N&nbsp; ne estas en la maldekstra malplenaĵo )",
+	"tt_gauto": "montri kiel krado aŭ listo laŭ dosieruja enhavo",
+	"tt_gathr": "uzi kradon se ĉi tiu elcento da dosieroj estas bildoj/filmetoj",
 
 	"ml_pmode": "je la fino de dosierujo...",
 	"ml_btns": "komandoj",
@@ -283,6 +286,7 @@ Ls.epo = {
 	"ml_tint": "kolorado",
 	"ml_eq": "ekvalizilo",
 	"ml_drc": "kompresoro",
+	"ml_ss": "preterpasi silenton",
 
 	"mt_loop": "ripeti unu kanton\">🔁",
 	"mt_one": "haltigi post unu kanto\">1️⃣",
@@ -290,10 +294,10 @@ Ls.epo = {
 	"mt_aplay": "ludi aŭtomate, se ligilo enhavas identigilon de kanto$N$Nmalŝaltado de ĉi tiu agordo ankaŭ malŝaltas ĝisdatigadon de paĝ-adreso, por ke ludado ne rekomenciĝas, se la paĝo estos poste malfermita sen aliaj agordoj\">a▶",
 	"mt_preload": "komenci ŝargadon de sekva kanto antaŭ la fino de la nuna, por kontinua ludado\">antaŭŝarg.",
 	"mt_prescan": "eniri la sekvan dosierujon antaŭ la fino de la lasta kanto, $Npor ke la retumilo ne interrompis la ludadon\">nav",
-	"mt_fullpre": "antaŭŝargi la tutan kanton;$N✅ ŝalti por <b>malaltkvalitaj</b> konektoj,$N❌ eble <b>malŝalti</b> por malrapidaj konektoj\">full",
+	"mt_fullpre": "antaŭŝargi la tutan kanton;$N✅ ŝalti por <b>malaltkvalitaj</b> konektoj,$N❌ eble <b>malŝalti</b> por malrapidaj konektoj\">tute",
 	"mt_fau": "por poŝtelefonoj: komenci sekvan kanton, eĉ se ĝi ne estis tute ŝargita (povas difektigi la montradon de muzikaĵ-etikedoj)\">☕️",
 	"mt_waves": "bildigo:$Nmontri amplitudon de ludanta kanto en ludadbreto\">~",
-	"mt_npclip": "montri butonojn por kopiado de ludanta kanto\">/np",
+	"mt_npclip": "montri butonojn por kopiado de ludanta kanto\">/np", //ne tradukita: "/np" estas referenco al komando, uzata en IRC-babilejoj
 	"mt_m3u_c": "montri butonojn por kopiado de elektitaj kantoj kiel m3u8-ludlisto\">📻",
 	"mt_octl": "integrado kun operaciumo (medio-klavoj kaj montriloj)\">integr.",
 	"mt_oseek": "movi tra kanto per operaciumaj stiriloj$N$Nnoto: en iuj komputiloj  (iPhone),$N ĉi tiu agordo anstataŭigas la butonon de sekva kanto\">movado",
@@ -318,8 +322,13 @@ Ls.epo = {
 	"mt_c2ng": "via aparato ŝajne ne subtenas ĉi tiun formaton, sed ni provu uzi ĝin malgraŭe",
 	"mt_xowa": "estas difektoj en iOS, kiuj preventas fonan ludadon per ĉi tiu formato; bonvolu uzi caf aŭ mp3 anstataŭe",
 	"mt_tint": "travideblo (0-100) de ludadbreto$Nvi povas ŝanĝi ĝin, se ĝi aspektas tro distre dum ŝargado",
-	"mt_eq": "ŝaltas ekvalizilon kaj stirilon de plifortigado;$N$Nboost (plifortigado) &lt;code&gt;0&lt;/code&gt; = senmodifa 100%a laŭteco$N$Nwidth (larĝo) &lt;code&gt;1 &nbsp;&lt;/code&gt; = senmodifa dukanala sono$Nwidth (larĝo) &lt;code&gt;0.5&lt;/code&gt; = 50% miksado inter maldekstra kaj dekstra kanaloj$Nwidth (larĝo) &lt;code&gt;0 &nbsp;&lt;/code&gt; = unukanala sono$N$Nboost &lt;code&gt;-0.8&lt;/code&gt; &amp; width &lt;code&gt;10&lt;/code&gt; = senvokigo :^)$N$Nŝaltita ekvalizilo ankaŭ forigas paŭzojn inter muzikaĵoj en senpaŭzaj albumoj, agordi ĉion kiel 0 (sed 'width' kiel 1), se vi volas nur tion",
+	"mt_eq": "`ŝaltas ekvalizilon kaj stirilon de plifortigado;$N$Nboost (plifortigado) `0` = senmodifa 100%a laŭteco$N$Nwidth (larĝo) `1 &nbsp;` = senmodifa dukanala sono$Nwidth (larĝo) `0.5` = 50% miksado inter maldekstra kaj dekstra kanaloj$Nwidth (larĝo) `0 &nbsp;` = unukanala sono$N$Nboost `-0.8` &amp; width `10` = senvokigo :^)$N$Nŝaltita ekvalizilo ankaŭ forigas paŭzojn inter muzikaĵoj en senpaŭzaj albumoj, agordi ĉion kiel 0 (sed 'width' kiel 1), se vi volas nur tion",
 	"mt_drc": "ŝaltas kompresoron de dinamiko (glatigas laŭtecon de muzikaĵoj); ankaŭ ŝaltas ekvalizilon, do agordu ĉion (sed 'width') kiel 0, se vi ne volas ĝin; $N$Nplimalgrandigas laŭtecon de aŭdio super sojlo-valoro ('tresh') da dB; ĉiu proporcio-valoro ('ratio') da dB post 'tresh' 1 dB estos eligita, do implicitaj valoroj (tresh = -24, ratio = 12) faras, ke laŭteco neniam pli grandas ol -22 dB; tiel estas sendanĝera agordi 'boost'on kiel 0.8 aŭ eĉ 1.8 dum ATK = 0 kaj grandega RLS, kiel 90 (funkcias nur en Firefox, RLS estas maksimume 1 en aliaj retumiloj)$N$N(rigardu vikipedion, ĝi klariĝas pli bone)",
+	"mt_ss": "`ebligas transsalti silenton; multobligas la ludrapidon per `×rapid` ĉe komenco/fino de aŭdiaĵoj, kiam la laŭteco estas sub `laŭt` kaj la pozicio estas ene de la komencaj `ek%` aŭ finaj `fin%`",
+	"mt_ssvt": "maksimuma laŭtnivelo por silentsaltado (0-255)\">laŭt",
+	"mt_ssts": "komenca intervalo por silentsaltado (% de trakolongo)\">ek%",
+	"mt_sste": "fina intervalo por silentsaltado (% de trakolongo)\">fin%",
+	"mt_sssm": "multiplikado de ludrapideco dum silentsaltado\">×rapid",
 
 	"mb_play": "ludi",
 	"mm_hashplay": "ludi ĉi tiun aŭdiodosieron?",
@@ -336,7 +345,7 @@ Ls.epo = {
 	"mm_eunk": "Nekonata eraro",
 	"mm_e404": "Ne povas ludi aŭdiaĵon; eraro 404: Dosiero ne trovita.",
 	"mm_e403": "Ne povas ludi aŭdiaĵon; eraro 403: Atingo malpermesita.\n\nKlopodu reŝargi paĝon per klavo F5, eble via seanco senvalidiĝis",
-	"mm_e415": "Ne povas ludi aŭdiaĵon; eraro 415: Transkodigo de dosiero malsukcesis; rigardu la protokolojn de servilo.", //m
+	"mm_e415": "Ne povas ludi aŭdiaĵon; eraro 415: Transkodigo de dosiero malsukcesis; rigardu la protokolojn de la servilo.",
 	"mm_e500": "Ne povas ludi aŭdiaĵon; eraro 500: Rigardu la protokolojn de servilo.",
 	"mm_e5xx": "Ne povas ludi aŭdiaĵon; servila eraro ",
 	"mm_nof": "neniuj aŭdio-dosieroj trovitaj proksime",
@@ -356,7 +365,7 @@ Ls.epo = {
 	"f_anota": "nur {0} de {1} eroj estis elektita;\nrulumi al la malsupro por elekti la tutan dosierujon",
 
 	"f_dls": 'la ligiloj de dosieroj en ĉi tiu dosierujo estis\nanstataŭigitaj per elŝuto-ligiloj',
-	"f_dl_nd": 'preterlasante dosierujon (uzu zip/tar-elŝuton anstataŭe):\n', //m
+	"f_dl_nd": 'dosierujo preterlasita (uzu zip/tar-elŝuton anstataŭe):\n',
 
 	"f_partial": "Por sendifekta elŝuto de nune-alŝutata dosiero, elektu dosieron kun sama nomo, sed sen etendaĵo <code>.PARTIAL</code>. Bonvolu uzi la butonon \"Rezigni\" aŭ klavon ESK por fari tion.\n\nSe vi uzas OK / Enter, la provizora dosiero <code>.PARTIAL</code> estos elŝutita, kiu tre probable enhavas nekompletajn datumojn.",
 
@@ -398,8 +407,8 @@ Ls.epo = {
 	"fr_case": "uskleciva regula esprimo\">uskleco",
 	"fr_win": "Windows-taŭgaj nomoj; signoj <code>&lt;&gt;:&quot;\\|?*</code> estos anstataŭigitaj per japanaj duobla-larĝaj signoj\">win",
 	"fr_slash": "anstataŭigi <code>/</code>n per signo, kiu ne devigas kreadon de novaj dosierujoj\">sen /",
-	"fr_re": "ŝablono de regula esprimo, kiu estos aplikita al originalaj dosiernomoj; kaptogrupoj povas esti referencita en formatkampo, ekz. &lt;code&gt;(1)&lt;/code&gt;, &lt;code&gt;(2)&lt;/code&gt; k.t.p.",
-	"fr_fmt": "inspirita de foobar2000:$N&lt;code&gt;(title)&lt;/code&gt; anstataŭigitas per nomo de muzikaĵo,$N&lt;code&gt;[(artist) - ](title)&lt;/code&gt; preterpasas [ĉi tiun] parton, se artisto ne estas specifita$N&lt;code&gt;$lpad((tn),2,0)&lt;/code&gt; aldonas nulojn en trakonombro ĝis 2 ciferoj",
+	"fr_re": "`ŝablono de regula esprimo, kiu estos aplikita al originalaj dosiernomoj; kaptogrupoj povas esti referencita en formatkampo, ekz. `(1)`, `(2)` k.t.p.",
+	"fr_fmt": "`inspirita de foobar2000:$N`(title)` anstataŭigitas per nomo de muzikaĵo,$N`[(artist) - ](title)` preterpasas [ĉi tiun] parton, se artisto ne estas specifita$N`$lpad((tn),2,0)` aldonas nulojn en trakonombro ĝis 2 ciferoj",
 	"fr_pdel": "forigi",
 	"fr_pnew": "konservi kiel",
 	"fr_pname": "nomu vian novan ŝablonon",
@@ -425,10 +434,10 @@ Ls.epo = {
 	"fcc_warn": '{0} aĵoj kopiitaj al tondujo\n\nnur <b>ĉi tiu</b> langeto de retumilo povas alglui ilin\n(pro la grando de elektaĵo)',
 
 	"fp_apply": "uzi ĉi tiujn nomojn",
-	"fp_skip": "preterpasi konfliktojn", //m
+	"fp_skip": "preterpasi konfliktojn",
 	"fp_ecut": "unue eltondi aŭ kopii dosier(uj)ojn, do alglui ĝin poste\n\nnoto: tondujo ankaŭ funkcias inter aliaj langetoj de retumilo",
-	"fp_ename": "{0} aĵoj ne povas esti movitaj, ĉar iliaj nomoj estas jam uzataj. Alinomi ilin sube aŭ lasi la nomokampojn malplenaj (\"preterpasi konfliktojn\") por preterpasi:", //m
-	"fcp_ename": "{0} aĵoj ne povas esti kopiitaj, ĉar iliaj nomoj estas jam uzataj. Alinomi ilin sube aŭ lasi la nomokampojn malplenaj (\"preterpasi konfliktojn\") por preterpasi:", //m
+	"fp_ename": "{0} aĵoj ne povas esti movitaj, ĉar iliaj nomoj estas jam uzataj. Alinomi ilin sube aŭ lasi la nomokampojn malplenaj (\"preterpasi konfliktojn\") por preterpasi:",
+	"fcp_ename": "{0} aĵoj ne povas esti kopiitaj, ĉar iliaj nomoj estas jam uzataj. Alinomi ilin sube aŭ lasi la nomokampojn malplenaj (\"preterpasi konfliktojn\") por preterpasi:",
 	"fp_emore": "ankoraŭ restas koincidoj de dosiernomoj, kiuj bezonas solvon",
 	"fp_ok": "movado sukcesis",
 	"fcp_ok": "kopiado sukcesis",
@@ -447,8 +456,8 @@ Ls.epo = {
 	"fcp_both_b": '<a href="#" id="modal-ok">Kopii</a><a href="#" id="modal-ng">Alŝuti</a>',
 
 	"mk_noname": "tajpu nomon en tekstokampo maldekstre antaŭ vi faras ĉi tion :p",
-	"nmd_i1": "vi povas aldoni la deziratan sufikson, ekzemple <code>.md</code>", //m
-	"nmd_i2": "vi povas krei nur <code>.{0}</code>-dosierojn ĉar vi ne havas forigan permeson", //m
+	"nmd_i1": "vi povas aldoni la deziratan sufikson, ekzemple <code>.md</code>",
+	"nmd_i2": "vi povas krei nur <code>.{0}</code>-dosierojn, ĉar vi ne rajtas forigi dosierojn",
 
 	"tv_load": "Ŝargado de teksto-dokumento:\n\n{0}\n\n{1}% ({2} da {3} MiB ŝargita)",
 	"tv_xe1": "ne povas ŝargi teksto-dosieron:\n\neraro ",
@@ -563,7 +572,7 @@ Ls.epo = {
 	"u_https1": "vi devas",
 	"u_https2": "ŝalti HTTPS-protokolon",
 	"u_https3": "por pli bona rendimento",
-	"u_ancient": 'via retumilo estas vere antikva -- eble vi devus <a href="#" onclick="goto(\'bup\')">uzi alŝutilon bup anstataŭe</a>',
+	"u_ancient": 'via retumilo estas vere antikva -- eble vi devus <a href="#" id="u2nah">uzi alŝutilon bup anstataŭe</a>',
 	"u_nowork": "Firefox 53+ aŭ Chrome 57+ aŭ iOS 11+ necesas",
 	"tail_2old": "Firefox 105+ aŭ Chrome 71+ aŭ iOS 14.5+ necesas",
 	"u_nodrop": 'via retumilo estas tro malnova por ŝova-kaj-demeta alŝutado',
@@ -644,25 +653,25 @@ Ls.epo = {
 	"ur_um": "Finita;\n{0} alŝutoj sukcesis,\n{1} alŝutoj malsukcesis, pardonon",
 	"ur_sm": "Finita;\n{0} dosieroj trovitaj ĉe la servilo,\n{1} dosieroj NE trovitaj ĉe la servilo",
 
-	"rc_opn": "malfermi", //m
-	"rc_ply": "Ludi", //m
-	"rc_pla": "Ludi kiel sonon", //m
-	"rc_txt": "malfermi en dosiera vidilo", //m
-	"rc_md": "malfermi en tekstredaktilo", //m
-	"rc_dl": "elŝuti", //m
-	"rc_zip": "elŝuti kiel arkivon", //m
-	"rc_cpl": "kopii ligilon", //m
-	"rc_del": "forigi", //m
-	"rc_cut": "eltondi", //m
-	"rc_cpy": "kopii", //m
-	"rc_pst": "alglui", //m
-	"rc_rnm": "alinomi", //m
-	"rc_nfo": "nova dosierujo", //m
-	"rc_nfi": "nova dosiero", //m
-	"rc_sal": "elekti ĉion", //m
-	"rc_sin": "inversigi elekton", //m
-	"rc_shf": "kunhavigi ĉi tiun dosierujon", //m
-	"rc_shs": "kunhavigi elekton", //m
+	"rc_opn": "malfermi",
+	"rc_ply": "ludi",
+	"rc_pla": "ludi kiel aŭdiaĵo",
+	"rc_txt": "malfermi per tekstovidilo",
+	"rc_md": "malfermi per tekstoredaktilo",
+	"rc_dl": "elŝuti",
+	"rc_zip": "elŝuti kiel arkivo",
+	"rc_cpl": "kopii ligilon",
+	"rc_del": "forigi",
+	"rc_cut": "eltondi",
+	"rc_cpy": "kopii",
+	"rc_pst": "alglui",
+	"rc_rnm": "alinomi",
+	"rc_nfo": "nova dosierujo",
+	"rc_nfi": "nova dosiero",
+	"rc_sal": "elekti ĉiujn",
+	"rc_sin": "inversigi elekton",
+	"rc_shf": "kunhavigi ĉi tiun dosierujon",
+	"rc_shs": "kunhavigi elekton",
 
 	"lang_set": "ĉu reŝargi paĝon por efektivigi lingvo-ŝanĝon?",
 
@@ -705,8 +714,8 @@ Ls.epo = {
 		"ta1": "entajpu novan pasvorton unue",
 		"ta2": "retajpu por konfirmi:",
 		"ta3": "tajpo-eraro; bonvolu provu denove",
-		"nop": "ERARO: Pasvorto ne povas esti malplena", //m
-		"nou": "ERARO: Uzantnomo kaj/aŭ pasvorto ne povas esti malplena", //m
+		"nop": "ERARO: Pasvorto ne povas esti malplena",
+		"nou": "ERARO: Uzantnomo kaj/aŭ pasvorto ne povas esti malplena",
 		"aa1": "aktivaj alŝutoj:",
 		"ab1": "malŝalti no304-on",
 		"ac1": "ŝalti no304-on",

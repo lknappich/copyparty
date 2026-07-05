@@ -114,7 +114,7 @@ Ls.por = {
 	"login": "Fazer login",
 	"access": " acesso",
 	"ot_close": "fechar submenu",
-	"ot_search": "procurar arquivos por atributos, caminho / nome, tags de música ou qualquer combinação deles$N$N&lt;code&gt;foo bar&lt;/code&gt; = deve conter ambos «foo» e «bar»,$N&lt;code&gt;foo -bar&lt;/code&gt; = deve conter «foo» mas não «bar»,$N&lt;code&gt;^yana .opus$&lt;/code&gt; = começar com «yana» e ser um arquivo «opus»$N&lt;code&gt;&quot;try unite&quot;&lt;/code&gt; = conter exatamente «try unite»$N$No formato de data é iso-8601, como$N&lt;code&gt;2009-12-31&lt;/code&gt; ou &lt;code&gt;2020-09-12 23:30:00&lt;/code&gt;",
+	"ot_search": "`procurar arquivos por atributos, caminho / nome, tags de música ou qualquer combinação deles$N$N`foo bar` = deve conter ambos «foo» e «bar»,$N`foo -bar` = deve conter «foo» mas não «bar»,$N`^yana .opus$` = começar com «yana» e ser um arquivo «opus»$N`&quot;try unite&quot;` = conter exatamente «try unite»$N$No formato de data é iso-8601, como$N`2009-12-31` ou `2020-09-12 23:30:00`",
 	"ot_unpost": "despublicar: excluir seus uploads recentes, ou abortar os que não foram concluídos",
 	"ot_bup": "bup: uploader básico, até suporta netscape 4.0",
 	"ot_mkdir": "mkdir: criar um novo diretório",
@@ -221,6 +221,7 @@ Ls.por = {
 	"cl_hpick": "toque nos cabeçalhos das colunas para ocultá-los na tabela abaixo",
 	"cl_hcancel": "ocultar coluna abortado",
 	"cl_rcm": "menu de clique direito",
+	"cl_gauto": "auto田", //m
 
 	"ct_grid": '田 a grade',
 	"ct_ttips": '◔ ◡ ◔">ℹ️ dicas de ferramentas',
@@ -263,9 +264,9 @@ Ls.por = {
 
 	"cdt_lim": "número máximo de arquivos para mostrar em uma pasta",
 	"cdt_ask": "ao rolar para o final,$Nem vez de carregar mais arquivos,$Nperguntar o que fazer",
-	"cdt_hsort": "quantas regras de ordenação (&lt;code&gt;,sorthref&lt;/code&gt;) incluir em URLs de mídia. Definir isso para 0 também ignorará as regras de ordenação incluídas em links de mídia quando você clicar neles",
-	"cdt_ren": "ativar menu de clique direito personalizado, o menu normal permanece acessível com shift + clique direito",
-	"cdt_rdb": "mostrar o menu padrão do botão direito quando o menu personalizado já estiver aberto e houver um novo clique",
+	"cdt_hsort": "`quantas regras de ordenação (`,sorthref`) incluir em URLs de mídia. Definir isso para 0 também ignorará as regras de ordenação incluídas em links de mídia quando você clicar neles",
+	"cdt_ren": "ativar menu de clique direito personalizado, o menu normal permanece acessível com shift + clique direito\">ativar",
+	"cdt_rdb": "mostrar o menu padrão do botão direito quando o menu personalizado já estiver aberto e houver um novo clique\">x2", //m
 
 	"tt_entree": "mostrar painel de navegação (árvore de diretórios)$NHotkey: B",
 	"tt_detree": "mostrar breadcrumbs$NHotkey: B",
@@ -275,6 +276,8 @@ Ls.por = {
 	"tt_dynt": "crescer automaticamente à medida que a árvore se expande",
 	"tt_wrap": "quebra de linha",
 	"tt_hover": "revelar linhas transbordando ao passar o mouse$N( quebra a rolagem a menos que o cursor do mouse $N&nbsp; esteja na margem esquerda )",
+	"tt_gauto": "exibir como grade ou lista dependendo do conteúdo da pasta", //m
+	"tt_gathr": "usar grade se esta porcentagem de arquivos for imagens/vídeos", //m
 
 	"ml_pmode": "ao final da pasta...",
 	"ml_btns": "comandos",
@@ -283,6 +286,7 @@ Ls.por = {
 	"ml_tint": "matiz",
 	"ml_eq": "equalizador de áudio",
 	"ml_drc": "compressor de faixa dinâmica",
+	"ml_ss": "ignorar silêncio", //m
 
 	"mt_loop": "loop/repetir uma música\">🔁",
 	"mt_one": "parar depois de uma música\">1️⃣",
@@ -318,8 +322,13 @@ Ls.por = {
 	"mt_c2ng": "seu dispositivo não parece suportar este formato de saída, mas vamos tentar mesmo assim",
 	"mt_xowa": "existem bugs no iOS que impedem a reprodução em segundo plano usando este formato; por favor, use caf ou mp3 em vez disso",
 	"mt_tint": "nível de fundo (0-100) na barra de busca$Npara tornar o buffer menos distrativo",
-	"mt_eq": "ativa o equalizador e o controle de ganho;$N$Nimpulsão &lt;code&gt;0&lt;/code&gt; = volume padrão de 100% (não modificado)$N$Nlargura &lt;code&gt;1 &nbsp;&lt;/code&gt; = estéreo padrão (não modificado)$Nlargura &lt;code&gt;0.5&lt;/code&gt; = 50% de crossfeed esquerda-direita$Nlargura &lt;code&gt;0 &nbsp;&lt;/code&gt; = mono$N$Nimpulsão &lt;code&gt;-0.8&lt;/code&gt; & largura &lt;code&gt;10&lt;/code&gt; = remoção de vocal :^)$N$Natvar o equalizador torna os álbuns sem interrupções totalmente sem interrupções, então deixe-o ligado com todos os valores em zero (exceto largura = 1) se você se importa com isso",
+	"mt_eq": "`ativa o equalizador e o controle de ganho;$N$Nimpulsão `0` = volume padrão de 100% (não modificado)$N$Nlargura `1 &nbsp;` = estéreo padrão (não modificado)$Nlargura `0.5` = 50% de crossfeed esquerda-direita$Nlargura `0 &nbsp;` = mono$N$Nimpulsão `-0.8` & largura `10` = remoção de vocal :^)$N$Natvar o equalizador torna os álbuns sem interrupções totalmente sem interrupções, então deixe-o ligado com todos os valores em zero (exceto largura = 1) se você se importa com isso",
 	"mt_drc": "ativa o compressor de faixa dinâmica (nivelador de volume / brickwaller); também ativará o EQ para equilibrar o spaghetti, então defina todos os campos EQ exceto 'width' para 0 se você não quiser$N$Nabaixa o volume do áudio acima do THRESHOLD dB; para cada RATIO dB após o THRESHOLD há 1 dB de saída, então os valores padrão de tresh -24 e ratio 12 significam que nunca deve ficar mais alto que -22 dB e é seguro aumentar o impulso do equalizador para 0.8, ou até 1.8 com ATK 0 e um enorme RLS como 90 (só funciona no firefox; RLS é no máximo 1 em outros navegadores)$N$N(veja a wikipedia, eles explicam muito melhor)",
+	"mt_ss": "`ativa pular silêncio; multiplica a velocidade por `av` perto do início/fim quando o volume está abaixo de `vol` e a posição está nos primeiros `ini`% ou últimos `fim`%", //m
+	"mt_ssvt": "limiar de volume (0-255)\">vol", //m
+	"mt_ssts": "limiar ativo (% faixa, início)\">ini", //m
+	"mt_sste": "limiar ativo (% faixa, fim)\">fim", //m
+	"mt_sssm": "multiplicador de velocidade de reprodução\">av", //m
 
 	"mb_play": "reproduzir",
 	"mm_hashplay": "reproduzir este arquivo de áudio?",
@@ -398,8 +407,8 @@ Ls.por = {
 	"fr_case": "regex sensível a maiúsculas e minúsculas\">case",
 	"fr_win": "nomes seguros para windows; substituir <code>&lt;&gt;:&quot;\\|?*</code> por caracteres japoneses de largura total\">win",
 	"fr_slash": "substituir <code>/</code> por um caractere que não cause a criação de novas pastas\">no /",
-	"fr_re": "padrão de busca regex para aplicar aos nomes de arquivos originais; grupos de captura podem ser referenciados no campo de formato abaixo como &lt;code&gt;(1)&lt;/code&gt; e &lt;code&gt;(2)&lt;/code&gt; e assim por diante",
-	"fr_fmt": "inspirado por foobar2000:$N&lt;code&gt;(título)&lt;/code&gt; é substituído pelo título da música,$N&lt;code&gt;[(artista) - ](título)&lt;/code&gt; pula esta parte se o artista estiver em branco$N&lt;code&gt;$lpad((tn),2,0)&lt;/code&gt; preenche o número da faixa com 2 dígitos",
+	"fr_re": "`padrão de busca regex para aplicar aos nomes de arquivos originais; grupos de captura podem ser referenciados no campo de formato abaixo como `(1)` e `(2)` e assim por diante",
+	"fr_fmt": "`inspirado por foobar2000:$N`(título)` é substituído pelo título da música,$N`[(artista) - ](título)` pula esta parte se o artista estiver em branco$N`$lpad((tn),2,0)` preenche o número da faixa com 2 dígitos",
 	"fr_pdel": "excluir",
 	"fr_pnew": "salvar como",
 	"fr_pname": "forneça um nome para seu novo preset",
@@ -563,7 +572,7 @@ Ls.por = {
 	"u_https1": "você deveria",
 	"u_https2": "mudar para https",
 	"u_https3": "para um melhor desempenho",
-	"u_ancient": 'seu navegador é impressionantemente antigo -- talvez você devesse <a href="#" onclick="goto(\'bup\')">usar o bup em vez disso</a>',
+	"u_ancient": 'seu navegador é impressionantemente antigo -- talvez você devesse <a href="#" id="u2nah">usar o bup em vez disso</a>',
 	"u_nowork": "precisa do firefox 53+ ou chrome 57+ ou iOS 11+",
 	"tail_2old": "precisa do firefox 105+ ou chrome 71+ ou iOS 14.5+",
 	"u_nodrop": 'seu navegador é muito antigo para upload de arrastar e soltar',

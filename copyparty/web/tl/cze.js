@@ -118,7 +118,7 @@ Ls.cze = {
 	"login": "Přihlásit se", //m
 	"access": " přístup",
 	"ot_close": "zavřít podnabídku",
-	"ot_search": "hledat soubory podle atributů, cesty / názvu, hudebních tagů nebo jejich kombinace$N$N&lt;code&gt;foo bar&lt;/code&gt; = musí obsahovat jak «foo» tak «bar»,$N&lt;code&gt;foo -bar&lt;/code&gt; = musí obsahovat «foo» ale ne «bar»,$N&lt;code&gt;^yana .opus$&lt;/code&gt; = začíná na «yana» a je to «opus» soubor$N&lt;code&gt;&quot;try unite&quot;&lt;/code&gt; = obsahuje přesně «try unite»$N$Nformát data je iso-8601, jako$N&lt;code&gt;2009-12-31&lt;/code&gt; nebo &lt;code&gt;2020-09-12 23:30:00&lt;/code&gt;",
+	"ot_search": "`hledat soubory podle atributů, cesty / názvu, hudebních tagů nebo jejich kombinace$N$N`foo bar` = musí obsahovat jak «foo» tak «bar»,$N`foo -bar` = musí obsahovat «foo» ale ne «bar»,$N`^yana .opus$` = začíná na «yana» a je to «opus» soubor$N`&quot;try unite&quot;` = obsahuje přesně «try unite»$N$Nformát data je iso-8601, jako$N`2009-12-31` nebo `2020-09-12 23:30:00`",
 	"ot_unpost": "unpost: smazat vaše nedávné nahrání nebo zrušit nedokončené",
 	"ot_bup": "bup: základní nahrávač, podporuje i netscape 4.0",
 	"ot_mkdir": "mkdir: vytvořit nový adresář",
@@ -225,6 +225,7 @@ Ls.cze = {
 	"cl_hpick": "klepněte na záhlaví sloupců pro skrytí v tabulce níže",
 	"cl_hcancel": "skrývání sloupců zrušeno",
 	"cl_rcm": "kontextová nabídka", //m
+	"cl_gauto": "auto mřížka", //m
 
 	"ct_grid": '田 mřížka',
 	"ct_ttips": '◔ ◡ ◔">ℹ️ nápovědy',
@@ -267,9 +268,9 @@ Ls.cze = {
 
 	"cdt_lim": "maximální počet souborů k zobrazení ve složce",
 	"cdt_ask": "při posunování na konec,$Nmísto načítání více souborů,$N se zeptat co dělat",
-	"cdt_hsort": "kolik pravidel řazení (&lt;code&gt;,sorthref&lt;/code&gt;) zahrnout do media-URL. Nastavení na 0 bude také ignorovat pravidla řazení zahrnutá v media odkazech při kliknutí na ně",
-	"cdt_ren": "povolit vlastní kontextovou nabídku, běžnou nabídku lze otevřít podržením klávesy shift a kliknutím pravým tlačítkem", //m
-	"cdt_rdb": "zobrazit běžné menu pravého tlačítka, když je vlastní již otevřené a znovu se klikne pravým", //m
+	"cdt_hsort": "`kolik pravidel řazení (`,sorthref`) zahrnout do media-URL. Nastavení na 0 bude také ignorovat pravidla řazení zahrnutá v media odkazech při kliknutí na ně",
+	"cdt_ren": "povolit vlastní kontextovou nabídku, běžnou nabídku lze otevřít podržením klávesy shift a kliknutím pravým tlačítkem\">povolit", //m
+	"cdt_rdb": "zobrazit běžné menu pravého tlačítka, když je vlastní již otevřené a znovu se klikne pravým\">x2", //m
 
 	"tt_entree": "zobrazit navigační panel (postranní strom adresářů)$NKlávesová zkratka: B",
 	"tt_detree": "zobrazit drobečkovou navigaci$NKlávesová zkratka: B",
@@ -279,6 +280,8 @@ Ls.cze = {
 	"tt_dynt": "automaticky rozrůstat jak se strom rozšiřuje",
 	"tt_wrap": "zalomení řádků",
 	"tt_hover": "odhalit přetékající řádky při najetí$N( ruší posun pokud kurzor myši $N&nbsp; není v levém okraji )",
+	"tt_gauto": "zobrazit jako mřížku nebo seznam podle obsahu složky", //m
+	"tt_gathr": "použít mřížku, pokud toto procento souborů tvoří obrázky/videa", //m
 
 	"ml_pmode": "na konci složky...",
 	"ml_btns": "příkazy",
@@ -287,6 +290,7 @@ Ls.cze = {
 	"ml_tint": "odstín",
 	"ml_eq": "audio ekvalizér",
 	"ml_drc": "kompresor dynamického rozsahu",
+	"ml_ss": "přeskočit ticho", //m
 
 	"mt_loop": "smyčka/opakovat jednu skladbu\">🔁",
 	"mt_one": "zastavit po jedné skladbě\">1️⃣",
@@ -322,8 +326,13 @@ Ls.cze = {
 	"mt_c2ng": "vaše zařízení, zdá se, nepodporuje tento výstupní formát, ale zkusíme to",
 	"mt_xowa": "v iOS jsou chyby bránící přehrávání na pozadí s tímto formátem; použijte prosím caf nebo mp3",
 	"mt_tint": "úroveň pozadí (0-100) na posuvníku$Nabyste učinili ukládání do vyrovnávací paměti méně rušivým",
-	"mt_eq": "povoluje ekvalizér a ovládání zisku;$N$Nboost &lt;code&gt;0&lt;/code&gt; = standardní 100% hlasitost (nezměněno)$N$Nwidth &lt;code&gt;1 &nbsp;&lt;/code&gt; = standardní stereo (nezměněno)$Nwidth &lt;code&gt;0.5&lt;/code&gt; = 50% levý-pravý crossfeed$Nwidth &lt;code&gt;0 &nbsp;&lt;/code&gt; = mono$N$Nboost &lt;code&gt;-0.8&lt;/code&gt; &amp; width &lt;code&gt;10&lt;/code&gt; = odstranění vokálů :^)$N$Npovolení ekvalizéru činí alba bez mezer zcela bez mezer, takže to nechte zapnuté se všemi hodnotami na nule (kromě width = 1), pokud vám na tom záleží",
+	"mt_eq": "`povoluje ekvalizér a ovládání zisku;$N$Nboost `0` = standardní 100% hlasitost (nezměněno)$N$Nwidth `1 &nbsp;` = standardní stereo (nezměněno)$Nwidth `0.5` = 50% levý-pravý crossfeed$Nwidth `0 &nbsp;` = mono$N$Nboost `-0.8` &amp; width `10` = odstranění vokálů :^)$N$Npovolení ekvalizéru činí alba bez mezer zcela bez mezer, takže to nechte zapnuté se všemi hodnotami na nule (kromě width = 1), pokud vám na tom záleží",
 	"mt_drc": "povoluje kompresor dynamického rozsahu (vyrovnávač hlasitosti / brickwaller); také povolí EQ pro vyvážení špaget, takže nastavte všechna EQ pole kromě 'width' na 0, pokud to nechcete$N$Nsnižuje hlasitost zvuku nad THRESHOLD dB; pro každý RATIO dB za THRESHOLD je 1 dB výstupu, takže výchozí hodnoty tresh -24 a ratio 12 znamenají, že by nikdy nemělo být hlasitější než -22 dB a je bezpečné zvýšit boost ekvalizéru na 0.8, nebo dokonce 1.8 s ATK 0 a obrovským RLS jako 90 (funguje pouze ve firefoxu; RLS je max 1 v jiných prohlížečích)$N$N(viz wikipedia, vysvětlují to mnohem lépe)",
+	"mt_ss": "`povolí přeskočení ticha; násobí rychlost přehrávání `rych` u začátku/konce skladeb, když je hlasitost pod `hl` a pozice je v prvních `zač`% nebo posledních `kon`%", //m
+	"mt_ssvt": "prahová hlasitost (0-255)\">hl", //m
+	"mt_ssts": "aktivní práh (% stopy, začátek)\">zač", //m
+	"mt_sste": "aktivní práh (% stopy, konec)\">kon", //m
+	"mt_sssm": "násobič rychlosti přehrávání\">rych", //m
 
 	"mb_play": "přehrát",
 	"mm_hashplay": "přehrát tento audio soubor?",
@@ -402,8 +411,8 @@ Ls.cze = {
 	"fr_case": "regex citlivý na velikost písmen\">velikost",
 	"fr_win": "názvy bezpečné pro windows; nahradit <code>&lt;&gt;:&quot;\\|?*</code> japonskými plnošířkovými znaky\">win",
 	"fr_slash": "nahradit <code>/</code> znakem který nezpůsobí vytvoření nových složek\">žádné /",
-	"fr_re": "vzor regex hledání k aplikaci na původní názvy souborů; zachycené skupiny mohou být odkazovány v poli formátu níže jako &lt;code&gt;(1)&lt;/code&gt; a &lt;code&gt;(2)&lt;/code&gt; atd.",
-	"fr_fmt": "inspirováno foobar2000:$N&lt;code&gt;(title)&lt;/code&gt; je nahrazeno názvem skladby,$N&lt;code&gt;[(artist) - ](title)&lt;/code&gt; přeskočí [tuto] část pokud je umělec prázdný$N&lt;code&gt;$lpad((tn),2,0)&lt;/code&gt; doplní číslo stopy na 2 číslice",
+	"fr_re": "`vzor regex hledání k aplikaci na původní názvy souborů; zachycené skupiny mohou být odkazovány v poli formátu níže jako `(1)` a `(2)` atd.",
+	"fr_fmt": "`inspirováno foobar2000:$N`(title)` je nahrazeno názvem skladby,$N`[(artist) - ](title)` přeskočí [tuto] část pokud je umělec prázdný$N`$lpad((tn),2,0)` doplní číslo stopy na 2 číslice",
 	"fr_pdel": "smazat",
 	"fr_pnew": "uložit jako",
 	"fr_pname": "zadejte název pro vaše nové přednastavení",
@@ -567,7 +576,7 @@ Ls.cze = {
 	"u_https1": "měli byste",
 	"u_https2": "přejít na https",
 	"u_https3": "pro lepší výkon",
-	"u_ancient": "váš prohlížeč je úctyhodně starý -- možná byste měli <a href=\"#\" onclick=\"goto('bup')\">použít bup</a>",
+	"u_ancient": "váš prohlížeč je úctyhodně starý -- možná byste měli <a href=\"#\" id=\"u2nah\">použít bup</a>",
 	"u_nowork": "vyžadován firefox 53+ nebo chrome 57+ nebo iOS 11+",
 	"tail_2old": "vyžadován firefox 105+ nebo chrome 71+ nebo iOS 14.5+",
 	"u_nodrop": "váš prohlížeč je příliš starý pro nahrávání přetažením (drag-and-drop)",

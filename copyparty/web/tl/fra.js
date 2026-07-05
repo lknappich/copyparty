@@ -114,7 +114,7 @@ Ls.fra = {
 	"login": "Se connecter", //m
 	"access": " accès",
 	"ot_close": "fermer le sous-menu",
-	"ot_search": "chercher des fichiers par leurs attributs, chemin / nom, tag musicaux, ou nimporte quelle combinaison de ces options$N$N&lt;code&gt;foo bar&lt;/code&gt; = doit contenir à la fois «foo» et «bar»,$N&lt;code&gt;foo -bar&lt;/code&gt; = doit contenir «foo» mais pas «bar»,$N&lt;code&gt;^yana .opus$&lt;/code&gt; = commence par «yana» et est un fichier «opus»$N&lt;code&gt;&quot;try unite&quot;&lt;/code&gt; = contient exactement «try unite»$N$Nle format de date est iso-8601, comme$N&lt;code&gt;2009-12-31&lt;/code&gt; ou &lt;code&gt;2020-09-12 23:30:00&lt;/code&gt;",
+	"ot_search": "`chercher des fichiers par leurs attributs, chemin / nom, tag musicaux, ou nimporte quelle combinaison de ces options$N$N`foo bar` = doit contenir à la fois «foo» et «bar»,$N`foo -bar` = doit contenir «foo» mais pas «bar»,$N`^yana .opus$` = commence par «yana» et est un fichier «opus»$N`&quot;try unite&quot;` = contient exactement «try unite»$N$Nle format de date est iso-8601, comme$N`2009-12-31` ou `2020-09-12 23:30:00`",
 	"ot_unpost": "unpost: supprimer vos téléchargements récents, ou annuler ceux en cours",
 	"ot_bup": "bup: téléverseur de base, prend même en charge netscape 4.0",
 	"ot_mkdir": "mkdir: créer un nouveau répertoire",
@@ -221,6 +221,7 @@ Ls.fra = {
 	"cl_hpick": "cliquez sur les en-têtes de colonnes pour les masquer dans le tableau ci-dessous",
 	"cl_hcancel": "masquage des colonnes annulé",
 	"cl_rcm": "menu contextuel", //m
+	"cl_gauto": "auto-grille", //m
 
 	"ct_grid": '田 grille',
 	"ct_ttips": '◔ ◡ ◔">ℹ️ infobulles',
@@ -263,9 +264,9 @@ Ls.fra = {
 
 	"cdt_lim": "nombre maximum de fichiers à afficher dans un dossier",
 	"cdt_ask": "lorsque vous faites défiler vers le bas,$Nau lieu de charger plus de fichiers,$Ndemander quoi faire",
-	"cdt_hsort": "combien de règles de tri (&lt;code&gt;,sorthref&lt;/code&gt;) à inclure dans les media-URLs. Définir cette valeur à 0 ignorera également les règles de tri incluses dans les liens média lorsque vous cliquez dessus.",
-	"cdt_ren": "activer le menu contextuel personnalisé, le menu normal reste accessible avec shift + clic droit", //m
-	"cdt_rdb": "afficher le menu clic droit normal lorsque le menu personnalisé est déjà ouvert et qu’on clique à nouveau", //m
+	"cdt_hsort": "`combien de règles de tri (`,sorthref`) à inclure dans les media-URLs. Définir cette valeur à 0 ignorera également les règles de tri incluses dans les liens média lorsque vous cliquez dessus.",
+	"cdt_ren": "activer le menu contextuel personnalisé, le menu normal reste accessible avec shift + clic droit\">activer", //m
+	"cdt_rdb": "afficher le menu clic droit normal lorsque le menu personnalisé est déjà ouvert et qu’on clique à nouveau\">x2", //m
 
 	"tt_entree": "afficher le panneau de navigation (arborescence des dossiers)$NHotkey: B",
 	"tt_detree": "afficher le fil d’Ariane$NHotkey: B",
@@ -275,6 +276,8 @@ Ls.fra = {
 	"tt_dynt": "croissance automatique à mesure que l'arborescence s'étend",
 	"tt_wrap": "retour à la ligne",
 	"tt_hover": "révéler les lignes débordantes au survol$N( interrompt le défilement à moins que le curseur de la souris ne soit dans la gouttière gauche )",
+	"tt_gauto": "afficher en grille ou liste selon le contenu du dossier", //m
+	"tt_gathr": "utiliser la grille si ce pourcentage de fichiers sont des images/vidéos", //m
 
 	"ml_pmode": "à la fin du dossier…",
 	"ml_btns": "cmds",
@@ -283,6 +286,7 @@ Ls.fra = {
 	"ml_tint": "teinte",
 	"ml_eq": "égaliseur audio",
 	"ml_drc": "compresseur de plage dynamique",
+	"ml_ss": "ignorer les silences", //m
 
 	"mt_loop": "répéter en boucle une musique\">🔁",
 	"mt_one": "stopper après une musique\">1️⃣",
@@ -318,8 +322,13 @@ Ls.fra = {
 	"mt_c2ng": "votre appareil ne semble pas prendre en charge ce format de sortie, mais essayons quand même",
 	"mt_xowa": "il y a des bugs dans iOS qui empeche d'avoir une lecture en ariere plan en utilisant ce format; utilisez caf ou mp3 à la place",
 	"mt_tint": "niveau d’arrière-plan (0–100) de la barre de progression$Npour rendre la mise en mémoire tampon moins gênante",
-	"mt_eq": "active l'égaliseur et le contrôle de gain;$N$Nboost &lt;code&gt;0&lt;/code&gt; = volume standard 100% (non modifié)$N$Nwidth &lt;code&gt;1 &nbsp;&lt;/code&gt; = stéréo standard (non modifié)$Nwidth &lt;code&gt;0.5&lt;/code&gt; = 50% de crossfeed gauche-droite$Nwidth &lt;code&gt;0 &nbsp;&lt;/code&gt; = mono$N$Nboost &lt;code&gt;-0.8&lt;/code&gt; &amp; width &lt;code&gt;10&lt;/code&gt; = suppression vocale :^)$N$Nl'activation de l'égaliseur rend les albums gapless entièrement gapless, alors laissez-le activé avec toutes les valeurs à zéro (sauf largeur = 1) si vous vous en souciez",
+	"mt_eq": "`active l'égaliseur et le contrôle de gain;$N$Nboost `0` = volume standard 100% (non modifié)$N$Nwidth `1 &nbsp;` = stéréo standard (non modifié)$Nwidth `0.5` = 50% de crossfeed gauche-droite$Nwidth `0 &nbsp;` = mono$N$Nboost `-0.8` &amp; width `10` = suppression vocale :^)$N$Nl'activation de l'égaliseur rend les albums gapless entièrement gapless, alors laissez-le activé avec toutes les valeurs à zéro (sauf largeur = 1) si vous vous en souciez",
 	"mt_drc": "active le compresseur de plage dynamique (aplanisseur de volume / brickwaller); activera également l'EQ pour équilibrer les choses, donc définissez tous les champs EQ sauf 'width' sur 0 si vous ne le voulez pas$N$Ndiminue le volume de l'audio au-dessus de THRESHOLD dB; pour chaque RATIO dB au-delà de THRESHOLD, il y a 1 dB de sortie, donc des valeurs par défaut de tresh -24 et ratio 12 signifient qu'il ne devrait jamais être plus fort que -22 dB et qu'il est sûr d'augmenter le boost de l'égaliseur à 0.8, ou même 1.8 avec ATK 0 et un énorme RLS comme 90 (ne fonctionne que dans firefox; RLS est max 1 dans les autres navigateurs)$N$N(voir wikipedia, ils expliquent cela beaucoup mieux)",
+	"mt_ss": "`active le saut de silence ; multiplie la vitesse de lecture par `av` près du début/fin quand le volume est sous `vol` et la position est dans les `deb`% premiers ou `fin`% derniers", //m
+	"mt_ssvt": "seuil de volume (0-255)\">vol", //m
+	"mt_ssts": "seuil actif (% piste, début)\">deb", //m
+	"mt_sste": "seuil actif (% piste, fin)\">fin", //m
+	"mt_sssm": "multiplicateur de vitesse de lecture\">av", //m
 
 	"mb_play": "lecture",
 	"mm_hashplay": "lire ce fichier audio ?",
@@ -398,8 +407,8 @@ Ls.fra = {
 	"fr_case": "regex sensible à la casse\">case",
 	"fr_win": "noms windows-safe; remplacer <code>&lt;&gt;:&quot;\\|?*</code> par des caractères japonais en pleine largeur\">win",
 	"fr_slash": "remplacer <code>/</code> par un caractère qui ne provoque pas la création de nouveaux dossiers\">no /",
-	"fr_re": "modèle de recherche regex à appliquer aux noms de fichiers originaux ; les groupes capturés peuvent être référencés dans le champ de format ci-dessous comme &lt;code&gt;(1)&lt;/code&gt; et &lt;code&gt;(2)&lt;/code&gt; et ainsi de suite",
-	"fr_fmt": "inspiré par foobar2000 : $N&lt;code&gt;(title)&lt;/code&gt; est remplacé par le titre de la chanson, $N&lt;code&gt;[(artist) - ](title)&lt;/code&gt; saute [cette] partie si l'artiste est vide, $N&lt;code&gt;$lpad((tn),2,0)&lt;/code&gt; remplit le numéro de piste à 2 chiffres",
+	"fr_re": "`modèle de recherche regex à appliquer aux noms de fichiers originaux ; les groupes capturés peuvent être référencés dans le champ de format ci-dessous comme `(1)` et `(2)` et ainsi de suite",
+	"fr_fmt": "`inspiré par foobar2000 : $N`(title)` est remplacé par le titre de la chanson, $N`[(artist) - ](title)` saute [cette] partie si l'artiste est vide, $N`$lpad((tn),2,0)` remplit le numéro de piste à 2 chiffres",
 	"fr_pdel": "supprimer",
 	"fr_pnew": "enregistrer sous",
 	"fr_pname": "donnez un nom pour le nouveau preset",
@@ -563,7 +572,7 @@ Ls.fra = {
 	"u_https1": "vous devriez",
 	"u_https2": "passer à https",
 	"u_https3": "pour de meilleure performances",
-	"u_ancient": 'votre navigateur est impressionnamment ancien -- vous devriez peut-être <a href="#" onclick="goto(\'bup\')">utiliser bup à la place</a>',
+	"u_ancient": 'votre navigateur est impressionnamment ancien -- vous devriez peut-être <a href="#" id="u2nah">utiliser bup à la place</a>',
 	"u_nowork": "nécessite firefox 53+ ou chrome 57+ ou iOS 11+",
 	"tail_2old": "nécessite firefox 105+ ou chrome 71+ ou iOS 14.5+",
 	"u_nodrop": 'votre navigateur est trop ancien pour le téléversement par glisser-déposer',
