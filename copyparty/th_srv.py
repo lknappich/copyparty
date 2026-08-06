@@ -1,5 +1,5 @@
 # coding: utf-8
-from __future__ import print_function, unicode_literals
+from __future__ import division, print_function, unicode_literals
 
 import hashlib
 import io
@@ -31,6 +31,7 @@ from .mtag import (
 from .util import BytesIO  # type: ignore
 from .util import (
     FFMPEG_URL,
+    SCWD,
     VF_CAREFUL,
     Cooldown,
     Daemon,
@@ -273,7 +274,7 @@ class ThumbSrv(object):
         self.log = self._log
         self.nextlog = 0
 
-        self.poke_cd = Cooldown(self.args.th_poke)
+        self.poke_cd = Cooldown(self.args.th_poke) if self.args.th_poke else None
 
         self.mutex = threading.Lock()
         self.busy: dict[str, list[threading.Condition]] = {}
@@ -774,7 +775,7 @@ class ThumbSrv(object):
         self.wait4ram(0.6, tpath)
         bap = fsenc(abspath)
         # fmt: off
-        cmd = bwrap(HAVE_DCRAW, bap, b"") + [
+        cmd = bwrap(HAVE_DCRAW[0], bap, b"") + [
             b"-h",  # halfsize
             b"-o", b"1",  # srgb
             b"-s", b"0",  # first frame
@@ -782,7 +783,7 @@ class ThumbSrv(object):
             bap,
         ]
         # fmt: on
-        p = sp.Popen(cmd, stdout=sp.PIPE)
+        p = sp.Popen(cmd, stdout=sp.PIPE, cwd=SCWD)
         try:
             if HAVE_PIL:
                 self.conv_image_pil(Image.open(p.stdout), tpath, fmt, vn)
@@ -833,13 +834,20 @@ class ThumbSrv(object):
 
     def conv_ffmpeg(self, abspath: str, tpath: str, fmt: str, vn: VFS) -> None:
         self.wait4ram(0.2, tpath)
-        ret, _, _, _ = ffprobe(abspath, int(vn.flags["convt"] / 2))
+        ret, raw, strms, ctnr = ffprobe(abspath, int(vn.flags["convt"] / 2))
         if not ret:
             return
 
         if "vc" not in ret and "ac" in ret:
             # audio in a video trenchcoat
             return self.conv_spec(abspath, tpath, fmt, vn)
+
+        for strm in strms:
+            if (
+                strm.get("codec_type") == "video"
+                and strm.get("DISPOSITION:attached_pic") == "1"
+            ):
+                return self.conv_emb_cv(abspath, tpath, fmt, vn, strm)
 
         ext = abspath.rsplit(".")[-1].lower()
         if ext in ["h264", "h265"] or ext in self.fmt_ffi:
@@ -870,7 +878,7 @@ class ThumbSrv(object):
         bap_in = fsenc(abspath)
         bap_out = fsenc(tpath)
         # fmt: off
-        cmd = bwrap(HAVE_FFMPEG, bap_in, bap_out) + [
+        cmd = bwrap(HAVE_FFMPEG[0], bap_in, bap_out) + [
             b"-nostdin",
             b"-v", b"error",
             b"-hide_banner"
@@ -911,7 +919,7 @@ class ThumbSrv(object):
 
     def _run_ff(self, cmd: list[bytes], vn: VFS, kto: str, oom: int = 400) -> None:
         # self.log((b" ".join(cmd)).decode("utf-8"))
-        ret, _, serr = runcmd(cmd, timeout=vn.flags[kto], nice=True, oom=oom)
+        ret, _, serr = runcmd(cmd, cwd=SCWD, timeout=vn.flags[kto], nice=True, oom=oom)
         if not ret:
             return
 
@@ -1013,7 +1021,7 @@ class ThumbSrv(object):
         bap_out = fsenc(tpath)
 
         # fmt: off
-        cmd = bwrap(HAVE_FFMPEG, bap_in, bap_out) + [
+        cmd = bwrap(HAVE_FFMPEG[0], bap_in, bap_out) + [
             b"-nostdin",
             b"-v", b"error",
             b"-hide_banner",
@@ -1094,7 +1102,7 @@ class ThumbSrv(object):
             bap_out = fsenc(infile)
 
             # fmt: off
-            cmd = bwrap(HAVE_FFMPEG, bap_in, bap_out) + [
+            cmd = bwrap(HAVE_FFMPEG[0], bap_in, bap_out) + [
                 b"-nostdin",
                 b"-v", b"error",
                 b"-hide_banner",
@@ -1128,7 +1136,7 @@ class ThumbSrv(object):
         bap_out = fsenc(tpath)
 
         # fmt: off
-        cmd = bwrap(HAVE_FFMPEG, bap_in, bap_out) + [
+        cmd = bwrap(HAVE_FFMPEG[0], bap_in, bap_out) + [
             b"-nostdin",
             b"-v", b"error",
             b"-hide_banner",
@@ -1166,7 +1174,7 @@ class ThumbSrv(object):
         # to not support opus then it's probably also super picky
 
         # fmt: off
-        cmd = bwrap(HAVE_FFMPEG, bap_in, bap_out) + [
+        cmd = bwrap(HAVE_FFMPEG[0], bap_in, bap_out) + [
             b"-nostdin",
             b"-v", b"error",
             b"-hide_banner",
@@ -1197,7 +1205,7 @@ class ThumbSrv(object):
         bap_out = fsenc(tpath)
 
         # fmt: off
-        cmd = bwrap(HAVE_FFMPEG, bap_in, bap_out) + [
+        cmd = bwrap(HAVE_FFMPEG[0], bap_in, bap_out) + [
             b"-nostdin",
             b"-v", b"error",
             b"-hide_banner",
@@ -1234,7 +1242,7 @@ class ThumbSrv(object):
         bap_out = fsenc(tpath)
 
         # fmt: off
-        cmd = bwrap(HAVE_FFMPEG, bap_in, bap_out) + [
+        cmd = bwrap(HAVE_FFMPEG[0], bap_in, bap_out) + [
             b"-nostdin",
             b"-v", b"error",
             b"-hide_banner",
@@ -1297,7 +1305,7 @@ class ThumbSrv(object):
         bap_out = fsenc(tpath)
 
         # fmt: off
-        cmd = bwrap(HAVE_FFMPEG, bap_in, bap_out) + [
+        cmd = bwrap(HAVE_FFMPEG[0], bap_in, bap_out) + [
             b"-nostdin",
             b"-v", b"error",
             b"-hide_banner",
@@ -1340,7 +1348,7 @@ class ThumbSrv(object):
         bap_out = fsenc(tmp_opus)
 
         # fmt: off
-        cmd = bwrap(HAVE_FFMPEG, bap_in, bap_out) + [
+        cmd = bwrap(HAVE_FFMPEG[0], bap_in, bap_out) + [
             b"-nostdin",
             b"-v", b"error",
             b"-hide_banner",
@@ -1367,7 +1375,7 @@ class ThumbSrv(object):
             bap_in = fsenc(abspath)
             bap_out = fsenc(tpath)
             # fmt: off
-            cmd = bwrap(HAVE_FFMPEG, bap_in, bap_out) + [
+            cmd = bwrap(HAVE_FFMPEG[0], bap_in, bap_out) + [
                 b"-nostdin",
                 b"-v", b"error",
                 b"-hide_banner",
@@ -1389,7 +1397,7 @@ class ThumbSrv(object):
             bap_in = fsenc(tmp_opus)
             bap_out = fsenc(tpath)
             # fmt: off
-            cmd = bwrap(HAVE_FFMPEG, bap_in, bap_out) + [
+            cmd = bwrap(HAVE_FFMPEG[0], bap_in, bap_out) + [
                 b"-nostdin",
                 b"-v", b"error",
                 b"-hide_banner",
@@ -1419,7 +1427,7 @@ class ThumbSrv(object):
         return ret
 
     def poke(self, tdir: str) -> None:
-        if not self.poke_cd.poke(tdir):
+        if not self.poke_cd or not self.poke_cd.poke(tdir):
             return
 
         ts = int(time.time())

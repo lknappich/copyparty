@@ -76,6 +76,7 @@ built in Norway 🇳🇴 with contributions from [not-norway](https://github.com
         * [connecting to webdav from windows](#connecting-to-webdav-from-windows) - using the GUI
     * [tftp server](#tftp-server) - a TFTP server (read/write) can be started using `--tftp 3969`
     * [smb server](#smb-server) - unsafe, slow, not recommended for wan
+    * [wopi server](#wopi-server) - edit office documents in the web-ui
     * [browser ux](#browser-ux) - tweaking the ui
     * [opengraph](#opengraph) - discord and social-media embeds
     * [file deduplication](#file-deduplication) - enable symlink-based upload deduplication
@@ -136,6 +137,7 @@ built in Norway 🇳🇴 with contributions from [not-norway](https://github.com
     * [client-side](#client-side) - when uploading files
 * [security](#security) - there is a [discord server](https://discord.gg/25J8CdTT6G) with announcements
     * [gotchas](#gotchas) - behavior that might be unexpected
+    * [csp nonce](#csp-nonce) - unauthorized javascript is blocked
     * [cors](#cors) - cross-site request config
     * [filekeys](#filekeys) - prevent filename bruteforcing
         * [dirkeys](#dirkeys) - share specific folders in a volume
@@ -617,11 +619,25 @@ hiding specific subfolders  by mounting another volume on top of them
 
 for example `-v /mnt::r -v /var/empty:web/certs:` (note: no permissions) mounts the server folder `/mnt` as the webroot, but another volume is mounted at `/web/certs` -- so visitors can only see the contents of `/mnt` and `/mnt/web` (at URLs `/` and `/web`), but not `/mnt/web/certs` because URL `/web/certs` is mapped to `/var/empty`
 
+to fully unmap it from the filesystem, specify `//NULL` instead of a real path such as `/var/empty`, so for example `-v /mnt::r -v //NULL:web/certs:` ensures `/web/certs` will never be accessible by anyone
+
 the example config file right above this section may explain this better; the first volume `/` is mapped to `/srv` which means http://127.0.0.1:3923/music would try to read `/srv/music` on the server filesystem, but since there's another volume at `/music` mapped to `/mnt/music` then it'll go to `/mnt/music` instead
 
 so, to shadow a file/folder, define a volume but leave out the `accs:` section
 
 > ℹ️ this also works for single files, because files can also be volumes
+
+config file example for unmapping folders by shadowing:
+
+```yaml
+[/drives]
+  /mnt   # url "/drives" goes to "/mnt"
+  accs:
+    r: *  # everyone can read
+
+[/drives/foo/bar]
+  //NULL  # blocks access to "/mnt/foo/bar"
+```
 
 
 ## dotfiles
@@ -760,7 +776,7 @@ press `g` or `田` to toggle grid-view instead of the file listing  and `t` togg
 ![copyparty-thumbs-fs8](https://user-images.githubusercontent.com/241032/129636211-abd20fa2-a953-4366-9423-1c88ebb96ba9.png)
 
 it does static images with Pillow / pyvips / FFmpeg, and uses FFmpeg for video files, so you may want to `--no-thumb` or maybe just `--no-vthumb` depending on how dangerous your users are
-* pyvips is 3x faster than Pillow, Pillow is 3x faster than FFmpeg
+* Pillow is 3x faster (and safer) than FFmpeg
 * disable thumbnails for specific volumes with volflag `dthumb` for all, or `dvthumb` / `dathumb` / `dithumb` for video/audio/images only
 * for installing FFmpeg on windows, see [optional dependencies](#optional-dependencies)
 
@@ -769,6 +785,7 @@ audio files are converted into spectrograms using FFmpeg unless you `--no-athumb
 images with the following names (see `--th-covers`) become the thumbnail of the folder they're in: `folder.png`, `folder.jpg`, `cover.png`, `cover.jpg`
 * the order is significant, so if both `cover.png` and `folder.jpg` exist in a folder, it will pick the first matching `--th-covers` entry (`folder.jpg`)
 * and, if you enable [file indexing](#file-indexing), it will also try those names as dotfiles (`.folder.jpg` and so), and then fallback on the first picture in the folder (if it has any pictures at all)
+* disable folderthumbs with `--th-covers no`
 
 enabling `multiselect` lets you click files to select them, and then shift-click another file for range-select
 * `multiselect` is mostly intended for phones/tablets, but the `sel` option in the `[⚙️] settings` tab is better suited for desktop use, allowing selection by CTRL-clicking and range-selection with SHIFT-click, all without affecting regular clicking
@@ -1324,7 +1341,8 @@ for the above example to work, add the commandline argument `-e2ts` to also scan
 # server config
 
 using arguments or config files, or a mix of both:
-* config files (`-c some.conf`) can set additional commandline arguments; see [./docs/example.conf](docs/example.conf) and [./docs/example2.conf](docs/example2.conf)
+* using a config-file (`-c some.conf`) is best, easier to read/maintain; see [./docs/example.conf](docs/example.conf)
+  * for complex and intricate setups, see how [./docs/example2.conf](docs/example2.conf) includes additional config-files/folders with `% copyparty.d` which loads [./docs/copyparty.d/some.conf](docs/copyparty.d/some.conf)
 * `kill -s USR1` (same as `systemctl reload copyparty`) to reload accounts and volumes from config files without restarting
   * or click the `[reload cfg]` button in the control-panel if the user has `a`/admin in any volume
   * changes to the `[global]` config section requires a restart to take effect
@@ -1614,6 +1632,15 @@ the smb protocol listens on TCP port 445, which is a privileged port on linux an
 authenticate with one of the following:
 * username `$username`, password `$password`
 * username `$password`, password `k`
+
+
+## wopi server
+
+edit office documents in the web-ui
+
+needs a wopi client to work, and the only supported wopi client is a selfhosted collabora online server; eventually onlyoffice will probably also be supported: [issue #1574](https://github.com/9001/copyparty/issues/1574)
+
+no further documentation or examples yet, [issue #1575](https://github.com/9001/copyparty/issues/1575)
 
 
 ## browser ux
@@ -2562,6 +2589,7 @@ buggy feature? rip it out  by setting any of the following environment variables
 | `PRTY_NO_IPV6`       | disable some ipv6 support (should not be necessary since windows 2000) |
 | `PRTY_NO_LZMA`       | disable streaming xz compression of incoming uploads |
 | `PRTY_NO_MP`         | disable all use of the python `multiprocessing` module (actual multithreading, cpu-count for parsers/thumbnailers) |
+| `PRTY_NO_UNIDATA`    | disable loading the unicodedata c-extension; saves 400k ram, breaks `--srch-nfkc` |
 | `PRTY_NO_SQLITE`     | disable all database-related functionality (file indexing, metadata indexing, most file deduplication logic) |
 | `PRTY_NO_TLS`        | disable native HTTPS support; if you still want to accept HTTPS connections then TLS must now be terminated by a reverse-proxy |
 | `PRTY_NO_TPOKE`      | disable systemd-tmpfilesd avoider |
@@ -2636,8 +2664,6 @@ the homebrew package is maintained by the homebrew team (thanks!)
 requires a [flake-enabled](https://nixos.wiki/wiki/Flakes) installation of nix
 
 some recommended dependencies are enabled by default; [override the package](https://github.com/9001/copyparty/blob/hovudstraum/contrib/package/nix/copyparty/default.nix#L3-L22) if you want to add/remove some features/deps
-
-`ffmpeg-full` was chosen over `ffmpeg-headless` mainly because we need `withWebp` (and `withOpenmpt` is also nice) and being able to use a cached build felt more important than optimizing for size at the time -- PRs welcome if you disagree 👍
 
 
 ## nixos module
@@ -3037,6 +3063,9 @@ some notes on hardening
   * the `nohtml` volflag also enables `noscript` which, on its own, prevents *most* javascript from running; enabling just `noscript` without `nohtml` makes it probably-safe (see below) to view html and svg files, but `nohtml` is necessary to block javascript in markdown documents
     * "probably-safe" because it relies on `Content-Security-Policy` so it depends on the reverseproxy to forward it, and the browser to understand it, but `nohtml` (the nuclear option) always works
 * when running behind a reverse-proxy, listen on a unix-socket for tighter access control (and more performance); see [reverse-proxy](#reverse-proxy) or [`--help-bind`](https://copyparty.eu/cli/#bind-help-page)
+* put ffmpeg into a sandbox (helps against future ffmpeg vulns) by configuring [--th-bwrap](https://copyparty.eu/cli/#g-th-bwrap) and enable it with `--use-bwrap y`
+  * usually impossible when running in docker or podman
+  * the default value of `--th-bwrap` (see `--help` on your own server) is autogenerated best-effort guess based on your setup; installing `bwrap` and configuring this is up to you (good luck)
 
 safety profiles:
 
@@ -3080,6 +3109,23 @@ behavior that might be unexpected
   * or eliminate the problem entirely by only giving write-access to trustworthy people :^)
 
 
+## csp nonce
+
+unauthorized javascript is blocked  by means of the default [content-security-policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP) which enforces "script nonces", to help prevent XSS and similar
+
+usually this Just Works and is correctly configured by default; you can stop reading this section and move on, nothing to see here
+
+but if you are the unlucky 0.1% with a hosting-setup funky enough for this to not work as intended, then you will also be seeing this message: `Looks like javascript is broken; see "csp nonce" in the readme`
+
+there is two possible reasons why this might happen:
+
+1. your browser is simply too old to understand the javascript, which is not likely, because just about every browser is supported, even internet explorer 11
+
+2. something in your hosting-setup is tampering with the responses from copyparty and destroying this security feature; the culprit is probably a misconfigured reverseproxy, a CDN, a WAF, or some other mitm, but a popular offender is **"cloudflare rocket loader"**
+
+you can try to **temporarily** set global-options `--csp-ui no` and `--csp-dl no` and restart copyparty to check whether it is due to reason #2. Remember to refresh the webbrowser with CTRL-SHIFT-R to check properly. If that makes the problem go away, then turn them back off (**never** keep them enabled), restart copyparty, open the `Network` tab in the webbrowser, and refresh the website; you should see the `content-security-policy` header including a nonce, for example `nonce-BxcJbvdu1z3S/ycPBjVWuA==` which should also appear inside the HTML of that response like this: `<script nonce="BxcJbvdu1z3S/ycPBjVWuA==">` -- if it doesn't then that's the problem; something in your hosting stack is dangerously misconfigured
+
+
 ## cors
 
 cross-site request config
@@ -3105,6 +3151,8 @@ permissions `wG` (write + upget) lets users upload files and receive their own f
 ### dirkeys
 
 share specific folders in a volume  without giving away full read-access to the rest -- the visitor only needs the `g` (get) permission to view the link
+
+> ℹ️ a better alternative to this is [shares](#shares)
 
 volflag `dk` generates dirkeys (per-directory accesskeys) for all folders, granting read-access to that folder; by default only that folder itself, no subfolders
 
@@ -3221,7 +3269,7 @@ enable sending [zeromq messages](#zeromq) from event-hooks: `pyzmq`
 
 enable [smb](#smb-server) support (**not** recommended): `impacket==0.13.0`
 
-`pyvips` gives higher quality thumbnails than `Pillow` and is 320% faster, using 270% more ram
+`pyvips` adds support for some additional image formats, but can use extreme amounts of RAM
 * to install `pyvips` on Linux: `sudo apt install libvips42 && python3 -m pip install --user -U pyvips`
 * to install `pyvips` on windows: `pip install --user -U "pyvips[binary]"`
 

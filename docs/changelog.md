@@ -1,4 +1,177 @@
 ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀  
+# 2026-0727-2202  `v1.20.19`  SECURITY: fix FTP upload outside volume
+
+## ⚠️ ATTN: this release fixes a vulnerability in FTP and FTPS (not SFTP)
+
+the FTP-server (default-disabled) would allow uploading to any folder that the copyparty process had permission to write to, but with certain limitations; see [GHSA-phv8-wgjp-g4p9](https://github.com/9001/copyparty/security/advisories/GHSA-phv8-wgjp-g4p9)
+
+## recent important news
+
+* [v1.20.19 (2026-07-27)](https://github.com/9001/copyparty/releases/tag/v1.20.19) fixed an FTP-server vuln (upload outside defined volumes)
+* [v1.20.17 (2026-07-06)](https://github.com/9001/copyparty/releases/tag/v1.20.17) fixed a vuln when a volume has both filekeys and dirkeys enabled
+* [v1.20.17 (2026-07-06)](https://github.com/9001/copyparty/releases/tag/v1.20.17) introduced csp nonces, possibly breaking some javascript-based plugins
+
+## 🧪 new features
+
+* #1495 wopi integration -- edit office documents in the web-ui (thx @brandon-doornbos!) d57bb0c7 10db4236
+  * currently only works with collabora online as wopi client #1574 and there's no docs/examples #1575
+* thumbnails: use embedded cover-image in videos when available 59524018
+* thumbnails: folder-thumbs can be disabled with `th-covers: no` (volflag or global) 856fada3
+* #1555 macos: add [--srch-nfkc](https://copyparty.eu/cli/#g-srch-nfkc) to fix searching for filenames / paths in CJK languages a7c99094
+  * reduces search performance to around 30% when enabled
+* hooks: `xbr` / `xar` did not include old/new abspath as parameters; now they do c122e103
+
+## 🩹 bugfixes
+
+* ftp: fix [GHSA-phv8-wgjp-g4p9](https://github.com/9001/copyparty/security/advisories/GHSA-phv8-wgjp-g4p9) b331bb1c
+* #1563 moving files between volumes could fail depending on OS and underlying filesystem c70dc7ac
+* fix drag-drop uploading in certain glitchy KDE environments (thx @tilse!) daf144af
+* hooks: `xiu` crashed if the fork-flag was set (thx @stackxp!) aa862353
+* hooks: `xau` without json-flag would be given the wark (file hash) instead of the abspath bae77b90
+* shares: fix markdown-viewer (`?v`) inside shares 6a9437b7
+* ftp: fix logging from `xbu` hooks 9912a951
+* fix slow boot if a volume had lots of files in its toplevel folder cdb474c8
+* python2.7: fix multithreaded file-hashing 0f2040c3
+
+## 🔧 other changes
+
+* #1556 the libvips thumbnailer was demoted to last-fallback due to frequently using excessive amounts of ram ed0be42a
+* if [-lo](https://copyparty.eu/cli/#g-lo) points to an existing file, it will now be appended to instead of overwritten depending on [--rlo](https://copyparty.eu/cli/#g-help-rlo) b6abc33f
+* #1530 nixos: the nix package now uses `ffmpeg-headless` instead of `ffmpeg-full` (thx @nyakase!) fface524
+* slightly longer session cookie (was 20, now 24 chars) 537a99df
+* Windows-specific:
+  * add a warning regarding the risks of DLL-hijacking when relevant bb40804f
+  * fix some trivial PATH-related footguns cea97ac6
+  * faster creation of sparse files bc45299b
+  * fix detection of filesystem characteristics 6226858b
+
+
+
+▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀  
+# 2026-0709-2254  `v1.20.18`  bwrap off
+
+## 🧪 new features
+
+* [shadowing](https://github.com/9001/copyparty/#shadowing): filesystem-path `//NULL` will fully unmap a volume from the server's filesystem (no more `/var/lib/empties/4` jank) 88846061
+
+## 🩹 bugfixes
+
+* fix a false-positive warning on startup 12878e6c1cbf4417da42d46230dff686dd48760b
+
+## 🔧 other changes
+
+* #1552 #1551 default-disabled the bwrap ffmpeg sandbox; 85a8cc99
+  * sandboxing can fail in too many creative ways (funky linux distros with funky filesystem layouts and policies) so autoconfiguring bwrap is not feasible
+  * to enable it, set `use-bwrap: y` after adjusting [th-bwrap](https://copyparty.eu/cli/#g-th-bwrap) to match your OS/env
+    * see the default `th-bwrap` value in `--help` on your server for a best-effort guess
+* always rotate (never overwrite) `-lo` logfiles on startup unless `--rlo no` 29e145f5
+* thumbnails: save a tiny bit of I/O by not refreshing expiration-times if `th-clean` (expiration) is disabled anyways e15f2927
+
+## 🌠 fun facts
+
+* no
+
+
+
+▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀  
+# 2026-0706-1937  `v1.20.17`  SECURITY: fix dirkeys
+
+## ⚠️ ATTN: this release fixes a dirkey vulnerability
+
+in volumes with **both** [dirkeys](https://github.com/9001/copyparty/#dirkeys) and [filekeys](https://github.com/9001/copyparty/#filekeys) enabled (default-disabled), a valid filekey could be converted into a dirkey, granting read-access to the containing folder
+
+## recent important news
+
+* [v1.20.17 (2026-07-06)](https://github.com/9001/copyparty/releases/tag/v1.20.17) fixed a vuln when a volume has both filekeys and dirkeys enabled
+* [v1.20.17 (2026-07-06)](https://github.com/9001/copyparty/releases/tag/v1.20.17) introduced csp nonces, possibly breaking some javascript-based plugins
+
+## 🧪 new features
+
+* enforce csp nonces on javascript (additional xss defense) d3b95994
+  * this could *possibly* break some aftermarket javascript-based plugins ([--js-browser](https://copyparty.eu/cli/#g-js-browser) / [--html-head](https://copyparty.eu/cli/#g-html-head))
+  * now probably safe to disable the markdown/logue sandboxes ([--no-sb-md](https://copyparty.eu/cli/#g-no-sb-md) / `--no-sb-lg`) in most deployments, avoiding #230
+* sandbox ffmpeg/ffprobe in bwrap to defend against future FFmpeg vulns efa43f89 85be3b8d
+  * doesn't work in docker / podman, so `initcfg` in the images have [use-bwrap: n](https://copyparty.eu/cli/#g-use-bwrap) to disable it db68353e
+  * doesn't work in [prisonparty](https://github.com/9001/copyparty/blob/hovudstraum/bin/prisonparty.sh) either... pain peko
+* #1535 cbz-reader: go-to-page (thx @romfir!) 12d877b0
+* volflags `plainreadme` and `plainlogues` to show readmes/logues as plaintext 9fa950bc
+* volflags for `no_readme` and `no_logues` (previously global-only) 379c0aa6
+* u2c: new mode to calculate wark from data on stdin 90639de9
+* #1504 `--ftp-banner` 8242e693
+
+## 🩹 bugfixes
+
+* GHSA-x5pq-m9p8-f4vx (dir/filekey confusion) (thx @poolcritter!) e4075533
+* fix resuming xbu-relocated partial uploads 5beecd66
+* fix resuming partial uploads after server restart 22c3a3dd
+* openbsd: fix signal masking for custom signals a00bc93f
+* #1119 #1528 fix directory sort-order edgecases (thx @NecRaul!) d33d1132
+* #1526 fix [--rotf-tz](https://copyparty.eu/cli/#g-rotf-tz); was effectively volflag-only (thx @NecRaul!) e017b1bc
+
+## 🔧 other changes
+
+* ffmpeg: remove lots of obscure codecs and formats for improved security 4c820301
+* textfile-editor: some tweaks to the autobackup feature;
+  * option [--md-nhist](https://copyparty.eu/cli/#g-md-nhist) to limit the number of old versions to keep 34c856e8
+  * browsing old versions is now default-disabled; [--show-hist](https://copyparty.eu/cli/#g-show-hist) reenables it fa1499ae
+* #1512 web-ui: if mkdir fails because folder already exists, then just cd into it 5dbff4af
+* #1519 sftp: reduce excessive spam from portscanners 8c4e9313
+* make database corruption more obvious on startup (usually due to broken server filesystem/hardware) be31a744
+* docker:
+  * #1532 add LABELs for version and creationtime 32d074ff
+  * updated the [image compatibility matrix](https://github.com/9001/copyparty/tree/hovudstraum/scripts/docker#editions) c3eb9ece
+    * the `iv` image is no longer available for arm32 / armv6 6e75faa6
+
+## 🌠 fun facts
+
+* contains patches powered by [seventhrun - the ill shit](https://www.youtube.com/watch?v=_QW8mY663Ho&list=PLBO2h-GzDvIYRmupTCAasjzDjNxvjG639&index=12) + the rest of basschasers2 on [the Oslo-Bergen line](https://a.ocv.me/pub/g/2026/07/PXL_20260702_190436425b.jpg?cache), 1110 masl
+* to those who celebrate, happy 6/7
+
+
+
+▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀  
+# 2026-0526-1845  `v1.20.16`  s6-ready
+
+## 🧪 new features
+
+* #1463 opds: improved compatibility with various clients (thx @kamaeff!) 9068ec6a
+* #1485 users with read-access can now create get-only shares (thx @Scotsguy!) 0bb80e92
+* #1466 support the s6 service notification protocol (thx @mobin-2008!) 8c201b84 ca406472
+* download-as-zip/tar: the toplevel folder can be renamed with url-param `&name=foo` or entirely removed with `&name` cc5420a3
+* #1487 option to generate music spectrograms with logarithmic frequency scale (thx @9hax!) 83dc20f3
+* option to set custom name/path for ffmpeg/ffprobe binaries 5e806ec1
+* #1489 audio playback of mka files
+
+## 🩹 bugfixes
+
+* #1480 #1482 fix get-only shares not expiring if the creator is removed (thx @celinke97 and @Scotsguy!) 3b53a228
+* #1474 toggling between cropped/fullsize coverart for music didn't work 926c6e81
+* #1470 files from the year 30828 would break file listing 27031f73
+* #1494 fix js-crash when dragging a pic from the gallery out of the browser (thx @icxes!) 7d81b9e8
+* "fancy markdown editor" didn't work on phones 6183540c
+* improve signal handling f4f97b6c
+  * if I messed something up then `--sig-thr` or send 7x sigterm
+
+## 🔧 other changes
+
+* docker: the arm32 build of the iv image has graduated 6e75faa6
+  * `copyparty/iv` is now only available for `i386` / `x86_64` / `aarch64`
+* docker: rawpy is no longer bundled; now using libraw directly 348b4bb5
+  * creating thumbnails of .raw photos is now MUCH slower but quality is also much better
+* partyfuse: switch to mfusepy; adds fuse3 support and improves performance b2401ff1
+* additional advisory tiers for use with the vulnerability-checker 4e9ad781
+* clarify behavior of `xvol` regarding permissions e3271830
+* packaging/docs:
+  * #1479 freebsd: fix deps in rc.d (thx @Kansattica!) f432ef6d
+  * #1458 macos docs (thx @ilotoki0804!) d7eb556c
+
+## 🌠 fun facts
+
+* there will be a tiny handful of copyparty stickers at dokomi this weekend
+
+
+
+▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀  
 # 2026-0424-2222  `v1.20.14`  autolocalization
 
 ## 🧪 new features

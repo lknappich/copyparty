@@ -998,6 +998,14 @@ function up2k_init(subtle) {
             });
     }
 
+    function unqueue_up(t) {
+        t.postlist = [];
+        var arr = st.todo.upload;
+        for (var a = arr.length - 1; a >= 0; a--)
+            if (arr[a].nfile == t.n)
+                arr.splice(a, 1);
+    }
+
     var pvis = new U2pvis("bz", '#u2cards', uc, st),
         donut = new Donut(uc, st);
 
@@ -1069,25 +1077,28 @@ function up2k_init(subtle) {
         return onovercmn(this, e, true);
     }
     function onovercmn(self, e, btn) {
+        var ok = false;
         try {
-            var ok = false, dt = e.dataTransfer.types;
-            for (var a = 0; a < dt.length; a++)
+            var dt = e.dataTransfer.types;
+
+            for (var a = 0; a < dt.length && !ok; a++)
                 if (dt[a] == 'Files')
                     ok = true;
-                else if (dt[a] == 'text/uri-list') {
-                    if (btn) {
+
+            for (var a = 0; a < dt.length && !ok; a++)
+                if (dt[a] == 'text/uri-list') {
+                    if (btn)
                         ok = true;
-                        if (toast.txt == L.u_uri)
-                            toast.hide();
-                    }
                     else
                         return toast.inf(10, L.u_uri) || true;
                 }
 
-            if (!ok)
-                return true;
+            if (toast.txt == L.u_uri && ok)
+                toast.hide();
         }
         catch (ex) { }
+        if (!ok)
+            return true;
 
         ev(e);
         try {
@@ -2509,6 +2520,7 @@ function up2k_init(subtle) {
             keepalive = t.keepalive,
             me = Date.now();
 
+        while (apop(st.todo.handshake, t));
         if (t.done)
             return console.log('done; skip hs', t.name, t);
 
@@ -2627,7 +2639,7 @@ function up2k_init(subtle) {
                     cbd.push(a == cdr_idx ? cdr_sz : chunksize);
                 }
 
-                t.postlist = [];
+                unqueue_up(t);
                 t.wark = response.wark;
                 var missing = response.hash;
                 for (var a = 0; a < missing.length; a++) {
@@ -2916,8 +2928,7 @@ function up2k_init(subtle) {
             var txt = unpre((xhr.response && xhr.response.err) || xhr.responseText);
             if (txt.indexOf('upload blocked by x') + 1) {
                 apop(st.busy.upload, upt);
-                for (var a = pcar; a <= pcdr; a++)
-                    apop(t.postlist, a);
+                unqueue_up(t);
                 pvis.seth(t.n, 1, "ERROR");
                 pvis.seth(t.n, 2, txt.split(/\n/)[0]);
                 pvis.move(t.n, 'ng');
@@ -2940,8 +2951,10 @@ function up2k_init(subtle) {
                 st.etac.u++;
                 st.etac.t++;
             }
-            else if (txt.indexOf('already got that') + 1 ||
-                txt.indexOf('already being written') + 1) {
+            else if (txt.indexOf('already got that') + 1) {
+                unqueue_up(t);
+            }
+            else if (txt.indexOf('already being written') + 1) {
                 t.nojoin = t.nojoin || t.postlist.length;
                 console.log("ignoring dupe-segment with backoff", t.nojoin, t.name, t);
                 if (!toast.visible && st.todo.upload.length < 4)
@@ -2949,6 +2962,10 @@ function up2k_init(subtle) {
             }
             else {
                 xhrchk(xhr, L.u_cuerr2.format(snpart, Math.ceil(t.size / chunksize), esc(t.name)), "404, target folder not found (???)", "warn", t);
+                if (txt.indexOf('unknown wark') == 0) {
+                    t.cooldown = t.coolmul = 0;
+                    unqueue_up(t);
+                }
                 chill(t);
             }
             orz2(xhr);
@@ -2959,8 +2976,10 @@ function up2k_init(subtle) {
                 apop(t.postlist, a);
             if (!t.postlist.length) {
                 t.t_uploaded = Date.now();
-                pvis.seth(t.n, 1, 'verifying');
-                st.todo.handshake.unshift(t);
+                if (!has(st.busy.handshake, t)) {
+                    pvis.seth(t.n, 1, 'verifying');
+                    st.todo.handshake.unshift(t);
+                }
             }
             tasker();
         }
@@ -2995,6 +3014,7 @@ function up2k_init(subtle) {
                 if (!toast.visible)
                     toast.warn(9.98, L.u_cuerr.format(snpart, Math.ceil(t.size / chunksize), esc(t.name)), t);
 
+                unqueue_up(t);  // maybe unknown wark (ff drops undrained rsp)
                 t.nojoin = t.nojoin || t.postlist.length;  // maybe rproxy postsize limit
                 console.log('chunkpit onerror,', t.name, t);
                 orz2(xhr);

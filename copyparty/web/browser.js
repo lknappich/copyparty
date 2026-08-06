@@ -46,6 +46,7 @@ if (1)
 				["ctrl-V", "paste (move/copy) here"],
 				["Y", "download selected"],
 				["F2", "rename selected"],
+				["F4", "update/refresh"],
 
 				"file-list-sel",
 				["space", "toggle file selection"],
@@ -1247,6 +1248,9 @@ check_image_support('jxl', "data:image/jxl;base64,/woIAAAMABKIAgC4AF3lEgA=");
 var img_re = APPLE ?
 	/\.(a?png|avif|bmp|gif|hei[cf]s?|jpe?g|jfif|svg|webp|webm|mkv|mp4|m4v|mov)(\?|$)/i :
 	/\.(a?png|avif|bmp|gif|jpe?g|jfif|svg|webp|webm|mkv|mp4|m4v|mov)(\?|$)/i;
+
+var wopi_set = !window.have_wopi ? null :
+	new Set('odt fodt ott doc docx dotx rtf odm ods fods ots xls xlsx odp fodp otp ppt pptx ppsx odg fodg otg odf'.split(' '));
 
 
 function set_files_html(html) {
@@ -4058,6 +4062,11 @@ var fileman = (function () {
 		}
 		shui.style.display = 'block';
 
+		var wr = has(perms, 'write') && !fns.length;
+		var nope = ['admin', 'move', 'delete', 'upget'];
+		if (!wr)
+			nope.push('write');
+
 		var html = [
 			'<div>',
 			'<table>',
@@ -4078,10 +4087,10 @@ var fileman = (function () {
 			'<tr><td>perms</td><td class="sh_axs">',
 		];
 		for (var a = 0; a < perms.length; a++)
-			if (!has(['admin', 'move', 'delete'], perms[a]))
+			if (!has(nope, perms[a]))
 				html.push('<a href="#" class="tgl btn">' + perms[a] + '</a>');
 
-		if (has(perms, 'write'))
+		if (wr)
 			html.push('<a href="#" class="btn">write-only</a>');
 
 		html.push('</td></tr></div');
@@ -6430,6 +6439,9 @@ var ahotkeys = function (e) {
 	if (k == 'F2')
 		return fileman.rename();
 
+	if (k == 'F4')
+		return treectl.goto();
+
 	if (!treectl.hidden && (!sh || !thegrid.en)) {
 		if (kl == 'a')
 			return QS('#twig').click();
@@ -7681,6 +7693,11 @@ var treectl = (function () {
 					tn.href = addq(tn.href, 'v');
 			}
 
+
+			if (wopi_set && wopi_set.has(tn.ext))
+				tn.lead = '<a href="?wopi=' + bhref +
+					'" rel="nofollow" name="' + hname + '">📄</a>';
+
 			if (tn.lead == '-')
 				tn.lead = '<a href="?doc=' + bhref + '" id="t' + id +
 					'" rel="nofollow" class="doc' + (lang ? ' bri' : '') +
@@ -7773,6 +7790,7 @@ var treectl = (function () {
 
 	r.hydrate = function () {
 		qsr('#bbsw');
+		qsr('#js_bork');
 		srvinf = ebi('srv_info').innerHTML.slice(6, -7);
 		if (ls0 === null) {
 			r.ls_cb = showfile.addlinks;
@@ -8859,7 +8877,7 @@ var msel = (function () {
 	r.evsel = function (e, fun) {
 		ev(e);
 		r.so = r.pr = null;
-		var trs = QSA('#files tbody tr');
+		var trs = QSA('#files tbody tr' + (ebi('unsearch') ? ':not(.srch_hdr)' : ''));
 		for (var a = 0, aa = trs.length; a < aa; a++)
 			clmod(trs[a], 'sel', fun);
 		r.selui();

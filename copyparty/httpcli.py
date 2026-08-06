@@ -1,5 +1,5 @@
 # coding: utf-8
-from __future__ import print_function, unicode_literals
+from __future__ import division, print_function, unicode_literals
 
 import argparse  # typechk
 import copy
@@ -30,7 +30,7 @@ try:
 except:
     pass
 
-from .__init__ import ANYWIN, RES, RESM, TYPE_CHECKING, EnvParams, unicode
+from .__init__ import ANYWIN, PY2, RES, RESM, TYPE_CHECKING, EnvParams, unicode
 from .__version__ import S_VERSION
 from .authsrv import LEELOO_DALLAS, VFS  # typechk
 from .bos import bos
@@ -149,6 +149,11 @@ if True:  # pylint: disable=using-constant-test
 if TYPE_CHECKING:
     from .httpconn import HttpConn
 
+if PY2:
+    from urllib2 import urlopen
+else:
+    from urllib.request import urlopen
+
 if not hasattr(socket, "AF_UNIX"):
     setattr(socket, "AF_UNIX", -9001)
 
@@ -170,6 +175,27 @@ H_CONN_CLOSE = "Connection: Close"
 RSS_SORT = {"m": "mt", "u": "at", "n": "fn", "s": "sz"}
 ACODE2_FMT = set(["opus", "owa", "caf", "mp3", "flac", "wav"])
 IDX_HTML = set(["index.htm", "index.html"])
+
+# coolwsd-26.04.2.3 discovery editnew; browser.js wopi_set is superset of this
+WOPI_NEW = (
+    ".odt",
+    ".fodt",
+    ".ott",
+    ".docx",
+    ".dotx",
+    ".rtf",
+    ".odm",
+    ".ods",
+    ".fods",
+    ".ots",
+    ".xlsx",
+    ".odp",
+    ".fodp",
+    ".otp",
+    ".pptx",
+    ".fodg",
+    ".otg",
+)
 
 A_FILE = os.stat_result(
     (0o644, -1, -1, 1, 1000, 1000, 8, 0x39230101, 0x39230101, 0x39230101)
@@ -813,6 +839,22 @@ class HttpCli(object):
                 if not ipr[self.uname].map(self.ip):
                     self.log("username [%s] rejected by --ipr" % (self.uname,), 3)
                     self.uname = "*"
+            if self.args.wopi and "access_token" in self.uparam:
+                wopi_a = self.uparam["access_token"]
+                try:
+                    wopi_f = self.conn.hsrv.wopi_files[wopi_a]
+                    if wopi_f["expires"] < time.time():
+                        raise Exception("expired")
+                    uname = wopi_f["uname"]
+                    self.asrv.vfs.get(
+                        wopi_f["vp"], uname, True, True, False, self.args.wopi_wdel
+                    )
+                    self.uname = uname
+                except Exception as ex:
+                    self.conn.hsrv.wopi_files.pop(wopi_a, None)
+                    self.cbonk(self.conn.hsrv.gpwd, wopi_a, "wopi", "bad wopi tokens")
+                    self.loud_reply("bad wopi token %s (%s)" % (wopi_a, ex), status=400)
+                    return False
 
         self.rvol = self.asrv.vfs.aread[self.uname]
         self.wvol = self.asrv.vfs.awrite[self.uname]
@@ -1532,7 +1574,140 @@ class HttpCli(object):
         if "rss" in self.uparam:
             return self.tx_rss()
 
+        if self.args.wopi:
+            if "wopi" in self.uparam:
+                return self.tx_wopi()
+
+            if self.vpath.startswith("wopi"):
+                return self.tx_wopi_api()
+
         return self.tx_browser()
+
+    def tx_wopi_api(self) -> bool:
+        atoken = self.uparam["access_token"]
+        session = self.conn.hsrv.wopi_files[atoken]
+        if self.do_log:
+            self.log(" `-- wopi: %r" % (session["vp"],))
+
+        zs = "wopi/files/%s" % (session["file_id"],)
+        if not self.vpath.startswith(zs):
+            return self.tx_404()
+        query = self.vpath[len(zs) :]
+
+        vfs, rem = self.asrv.vfs.get(session["vp"], self.uname, True, True)
+        vpath = vjoin(vfs.vpath, rem)
+        ap = vfs.canonical(rem)
+        if query.startswith("/contents"):
+            return self.tx_file("oh_f", ap)
+        else:
+            st = bos.stat(ap)
+            file_info = {
+                "BaseFileName": vpath.split("/")[-1],
+                "Size": st.st_size,
+                "OwnerId": self.uname,
+                "UserId": self.uname,
+                "UserFriendlyName": self.uname,
+                "UserCanWrite": True,
+                "UserCanNotWriteRelative": True,
+                "LastModifiedTime": time.strftime(
+                    "%Y-%m-%dT%H:%M:%SZ", time.gmtime(st.st_mtime)
+                ),
+            }
+            ret = json.dumps(file_info).encode("utf-8", "replace")
+            self.reply(ret, 200, "application/json; charset=utf-8")
+            return True
+
+        return self.tx_404()
+
+    def tx_wopi(self) -> bool:
+        vpath = vjoin(self.vpath, self.uparam["wopi"])
+        vfs, rem = self.asrv.vfs.get(
+            vpath, self.uname, True, True, False, self.args.wopi_wdel
+        )
+        if not bos.path.isfile(vfs.canonical(rem)):
+            return self.tx_404()
+
+        wopi_files = self.conn.hsrv.wopi_files
+        found = None
+        rm = []
+        with self.conn.hsrv.mutex:
+            now = time.time()
+            for atoken, session in wopi_files.items():
+                if session["expires"] < now:
+                    rm.append(atoken)
+                    continue
+                if session["vp"] != vpath or session["uname"] != self.uname:
+                    continue
+                if session["expires"] - now < self.args.wopi_ttl * 0.9:
+                    rm.append(atoken)
+                    continue
+                found = session
+                break
+            for zs in rm:
+                del wopi_files[zs]
+            if len(wopi_files) > 9000:  # about 6 MiB
+                raise Pebkac(500, "too many wopi sessions")
+            if not found:
+                atoken = ub64enc(os.urandom(18)).decode("ascii")  #  18 = 144b = 24c
+                file_id = ub64enc(os.urandom(15)).decode("ascii")  # 15 = 120b = 20c
+                wopi_files[atoken] = session = {
+                    "vp": vpath,
+                    "uname": self.uname,
+                    "file_id": file_id,
+                    "expires": time.time() + self.args.wopi_ttl,
+                }
+
+        xml = "?"
+        try:
+            from .dxml import parse_xml
+
+            uo_kw = {}
+            if self.args.wopi_crt:
+                import ssl
+
+                if self.args.wopi_crt == "no":
+                    ctx = ssl._create_unverified_context()
+                else:
+                    ctx = ssl.create_default_context(cafile=self.args.wopi_crt)
+                    ctx.check_hostname = not self.args.wopi_crt_icn
+
+                uo_kw["context"] = ctx
+
+            wopi_urls = dict(x.lower().split("=", 1) for x in self.args.wopi_urls or [])
+            url = wopi_urls.get(self.host.lower(), self.args.wopi_url).rstrip("/")
+            url += "/hosting/discovery"
+            buf = urlopen(url, **uo_kw).read()
+            xml = buf.decode("ascii", "replace").lower()
+            enc = self.get_xml_enc(xml)
+            xml = buf.decode(enc, "replace")
+            xroot = parse_xml(xml)
+            ext = vpath.split(".")[-1]
+            url = xroot.find(
+                ".//action[@ext='%s'][@name='edit'][@urlsrc]" % (ext,)
+            ).get("urlsrc")
+            if not url.endswith(("?", "&")):
+                url += "&" if "?" in url else "?"
+            url += "WOPISrc="
+            if self.args.wopi_api:
+                zs = self.args.wopi_api.rstrip("/")
+            else:
+                zs = ("https://" if self.is_https else "http://") + self.host
+            url += quotep(zs + "/wopi/files/" + session["file_id"])
+        except:
+            del wopi_files[atoken]  # dont reuse an atoken wopi-client doesnt like
+            self.log("reading WOPI-client response failed; %s\n%s" % (min_ex(), xml), 3)
+            raise Pebkac(500, "wopi error (see fileserver log)")
+
+        html = self.j2s(
+            "wopi",
+            title=self.uparam["wopi"],
+            url=url,
+            atoken=atoken,
+            ttl=session["expires"],
+        ).encode("utf-8", "replace")
+
+        self.reply(html, 200, "text/html; charset=utf-8")
+        return True
 
     def tx_rss(self) -> bool:
         if self.do_log:
@@ -2387,6 +2562,9 @@ class HttpCli(object):
 
             raise Pebkac(405, "POST(%r) is disabled in server config" % (ctype,))
 
+        if self.args.wopi and self.vpath.startswith("wopi"):
+            return self.handle_post_binary()
+
         raise Pebkac(405, "don't know how to handle POST(%r)" % (ctype,))
 
     def handle_smsg(self) -> bool:
@@ -3156,6 +3334,9 @@ class HttpCli(object):
         except:
             raise Pebkac(400, "you must supply a content-length for binary POST")
 
+        if self.args.wopi and self.vpath.startswith("wopi"):
+            return self.rx_wopi(postsize)
+
         try:
             chashes = self.headers["x-up2k-hash"].split(",")
             wark = self.headers["x-up2k-wark"]
@@ -3367,6 +3548,47 @@ class HttpCli(object):
         self.reply(b"thank")
         return True
 
+    def rx_wopi(self, postsize: int) -> bool:
+        atoken = self.uparam["access_token"]
+        session = self.conn.hsrv.wopi_files[atoken]
+        if self.do_log:
+            self.log(" `-- wopi: %r" % (session["vp"],))
+
+        zs = "wopi/files/%s/contents" % (session["file_id"],)
+        if not self.vpath.startswith(zs):
+            return self.tx_404()
+
+        vpath = self.conn.hsrv.wopi_files[self.uparam["access_token"]]["vp"]
+        vfs, rem = self.asrv.vfs.get(vpath, self.uname, False, True)
+        vpath = vjoin(vfs.vpath, rem)
+        ap = vfs.canonical(rem)
+        st = bos.stat(ap)
+
+        if "x-cool-wopi-timestamp" in self.headers:
+            zs = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(st.st_mtime))
+            if self.headers["x-cool-wopi-timestamp"] != zs:
+                self.reply(json.dumps({"COOLStatusCode": 1010}).encode("utf-8"), 409)
+                return True
+
+        buf = b""
+        for rbuf in self.get_body_reader()[0]:
+            buf += rbuf
+            if not rbuf:
+                break
+
+        if len(buf) != postsize:
+            t = "wopi post with incorrect length; expected %d, got %d"
+            raise Pebkac(400, t % (postsize, len(buf)))
+
+        with open(ap, "wb") as file:
+            file.write(buf)
+
+        st = bos.stat(ap)
+        zs = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(st.st_mtime))
+        ret = json.dumps({"LastModifiedTime": zs}).encode("utf-8", "replace")
+        self.reply(ret, 200, "application/json; charset=utf-8")
+        return True
+
     def handle_chpw(self) -> bool:
         assert self.parser  # !rm
         if self.args.usernames:
@@ -3521,7 +3743,7 @@ class HttpCli(object):
     def _mkdir(self, vpath: str, dav: bool = False) -> bool:
         nullwrite = self.args.nw
         self.gctx = vpath
-        vpath = undot(vpath)
+        vpath = sanitize_vpath(undot(vpath))
         vfs, rem = self.asrv.vfs.get(vpath, self.uname, False, True)
         if "nosub" in vfs.flags:
             raise Pebkac(403, "mkdir is forbidden below this folder")
@@ -3626,6 +3848,9 @@ class HttpCli(object):
                 self.uname,
                 True,
             )
+
+        if self.args.wopi and sanitized.endswith(WOPI_NEW):
+            return self.redirect(vjoin(vfs.vpath, rem), "?wopi=" + quotep(sanitized))
 
         vpath = "{}/{}".format(self.vpath, sanitized).lstrip("/")
         self.redirect(vpath, "?edit")
@@ -4381,6 +4606,8 @@ class HttpCli(object):
                 logues[n] = read_utf8(self.log, fsenc(fn), False)
                 if "exp" in vn.flags:
                     logues[n] = self._expand(logues[n], vn.flags.get("exp_lg") or [])
+                if "plainlogues" in vn.flags:
+                    logues[n] = html_escape(logues[n]).replace("\n", "<br />")
                 break
 
         readmes = ["", ""]
@@ -4398,6 +4625,10 @@ class HttpCli(object):
                 readmes[n] = read_utf8(self.log, fsenc(fn), False)
                 if "exp" in vn.flags:
                     readmes[n] = self._expand(readmes[n], vn.flags.get("exp_md") or [])
+                if "plainreadme" in vn.flags:
+                    zs = html_escape(readmes[n]).replace("\n", "<br />")
+                    logues[n] = "<pre>%s</pre>" % (zs,)
+                    readmes[n] = ""
                 break
 
         return logues, readmes
@@ -6850,7 +7081,8 @@ class HttpCli(object):
                 nothumb = "dthumb" in dbv.flags
                 if is_dir:
                     vrem = vrem.rstrip("/")
-                    if nothumb:
+                    cvs = dbv.flags["th_coversl"]
+                    if nothumb or not cvs:
                         pass
                     elif icur and vrem:
                         q = "select fn from cv where rd=? and dn=?"
@@ -6867,7 +7099,7 @@ class HttpCli(object):
                         except:
                             pass
                     else:
-                        for fn in self.args.th_covers:
+                        for fn in cvs:
                             fp = os.path.join(abspath, fn)
                             try:
                                 st = bos.stat(fp)
@@ -7198,7 +7430,7 @@ class HttpCli(object):
             else:
                 ls_names = exclude_dotfiles(ls_names)
 
-        add_dk = vf.get("dk")
+        add_dk = not use_filekey and vf.get("dk")
         add_fk = vf.get("fk")
         fk_alg = 2 if "fka" in vf else 1
         if add_dk:
@@ -7396,6 +7628,26 @@ class HttpCli(object):
                         (fe["sz"], fe["tags"][".files"]) = hit
                     except:
                         pass  # 404 or mojibake
+                if vfs_virt:
+                    q = "select sz, nf from ds where rd='' limit 1"
+                    try:
+                        for fe in [x for x in dirs if x["name"] in vfs_virt]:
+                            if ".files" not in fe["tags"]:
+                                fe["tags"][".files"] = 0
+                            vols = [vn.nodes[fe["name"]]]
+                            while vols:
+                                vn2 = vols.pop()
+                                if self.uname not in vn2.axs.uread:
+                                    continue
+                                vols += list(vn2.nodes.values())
+                                if vn2.dbv not in (vn2, None):
+                                    continue
+                                hit = idx.get_cur(vn2).execute(q).fetchone()
+                                if hit:
+                                    fe["sz"] += hit[0]
+                                    fe["tags"][".files"] += hit[1]
+                    except:
+                        pass
 
             taglist = [k for k in lmte if k in tagset]
         else:
@@ -7630,7 +7882,7 @@ class HttpCli(object):
                         self.conn.hsrv.j2[tpl] = j2env.get_template(tname)
             thumb = ""
             is_pic = is_vid = is_au = False
-            for fn in self.args.th_coversd:
+            for fn in vn.flags["th_coversd"]:
                 if fn in lnames:
                     thumb = lnames[fn]
                     break
